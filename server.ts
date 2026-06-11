@@ -7,6 +7,7 @@ import cron from "node-cron";
 import { Resend } from "resend";
 import Stripe from "stripe";
 import dotenv from "dotenv";
+import fs from "fs";
 
 dotenv.config();
 
@@ -20,10 +21,25 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   }
 });
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Initialize Database
-const db = new Database('leads.db');
+let dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'leads.db');
+let db: Database.Database;
+
+try {
+  if (process.env.DATABASE_PATH) {
+    const dir = path.dirname(dbPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  }
+  db = new Database(dbPath);
+} catch (err: any) {
+  console.warn(`Failed to open DB at ${dbPath}, falling back to /tmp/leads.db. Error: ${err.message}`);
+  dbPath = '/tmp/leads.db';
+  db = new Database(dbPath);
+}
 
 // Create tables
 db.exec(`
