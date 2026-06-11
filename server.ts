@@ -21,7 +21,7 @@ app.use((req, res, next) => {
     express.json()(req, res, next);
   }
 });
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 // Initialize Database
 let dbPath = process.env.DATABASE_PATH || path.join(process.cwd(), 'leads.db');
@@ -330,7 +330,20 @@ cron.schedule('0 9 * * *', () => {
 // API Routes
 app.get("/api/bookings", (req, res) => {
   try {
-    const bookings = db.prepare("SELECT * FROM bookings ORDER BY created_at DESC").all();
+    const bookings = db.prepare(`
+      SELECT 
+        p.id,
+        (l.first_name || ' ' || COALESCE(l.last_name, '')) AS client_name,
+        p.customer_email AS client_email,
+        p.product_name AS service,
+        p.payment_status AS status,
+        p.created_at,
+        p.updated_at,
+        p.stripe_payment_intent_id
+      FROM payments p
+      LEFT JOIN leads l ON p.customer_email = l.email
+      ORDER BY p.created_at DESC
+    `).all();
     res.json(bookings);
   } catch (error) {
     console.error("Error fetching bookings:", error);
@@ -419,7 +432,7 @@ app.patch("/api/bookings/:id/status", (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
-    db.prepare("UPDATE bookings SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(status, id);
+    db.prepare("UPDATE payments SET payment_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(status, id);
     res.json({ success: true, message: `Booking status updated to ${status}` });
   } catch (error) {
     console.error("Error updating booking:", error);
