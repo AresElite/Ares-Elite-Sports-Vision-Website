@@ -6,36 +6,36 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const faqs = [
   {
-    q: "What is sports vision training?",
-    a: "Sports vision training is a structured process for improving the visual and cognitive skills athletes use during competition, including reaction time, eye-hand coordination, depth perception, peripheral awareness, visual processing speed, and decision-making under pressure."
+    q: "What is sports vision training and how does it differ from a regular eye exam?",
+    a: "A regular eye exam measures static visual acuity (how clearly you see letters on a stationary wall chart from 20 feet away). It is a passive test. Sports vision training evaluates and trains the dynamic visual-cognitive loop—how fast your eyes capture moving targets (Acquire), how quickly your brain filters noise and prioritizes options (Route), how rapidly your body responds (Execute), and how precisely your timing aligns with game-speed reality (Synchronize). We do not train your eyes to see letters; we train your brain to route visual data faster under athletic load."
   },
   {
-    q: "Is sports vision training the same as a regular eye exam?",
-    a: "No. A regular eye exam checks eye health and visual clarity. A sports vision evaluation measures how an athlete’s visual system performs under sport-specific demands, including tracking, reaction time, visual processing, decision speed, and coordination."
+    q: "Can reaction time actually be trained, or is it genetic?",
+    a: "Raw physical reflex is largely genetic, but sport-specific reaction time is highly trainable. In competition, athletes rarely react to simple lights; they react to complex choices. This is called Choice Reaction Time (CRT). Ares decomposes your reaction speed into three distinct processing phases: sensory latency (visual input delay), routing latency (cognitive decision-making speed), and motor latency (physical output execution). By isolating and training the specific bottleneck in this processing chain, athletes frequently achieve a 20% to 30% reduction in response lag."
   },
   {
-    q: "Why is 20/20 vision not enough for athletes?",
-    a: "20/20 vision only measures how clearly someone sees a stationary target at a distance. Athletes need much more than clarity. They need to track motion, process peripheral information, make fast decisions, coordinate the eyes and body, and perform under pressure."
+    q: "What is cognitive training for athletes, and does it transfer to the field?",
+    a: "Cognitive training is the optimization of the brain’s executive functions, including spatial awareness, peripheral attention, pattern recognition, and go/no-go inhibitory control. Generic brain-training apps fail to transfer to sports because they lack physical movement. Ares Elite training ensures performance transfer by coupling cognitive load (target tracking, distraction filtering) with sport-relevant motor outputs (footwork, hand-eye coordination, balance). We train the visual and cognitive demands of sport in real-time, high-pressure environments."
   },
   {
-    q: "Can reaction time be trained?",
-    a: "Reaction time can be evaluated and trained when the process is broken into measurable parts, including visual detection, cognitive processing, decision selection, and motor response."
+    q: "Why is 20/20 vision not enough for elite athletes?",
+    a: "20/20 vision only tells you that your optical hardware is clear. In sport, clear eyesight is useless if the routing to the brain is congested. Elite athletic performance requires dynamic visual processing: the ability to track multiple objects simultaneously in your periphery, judge depth at high speeds, and maintain focus through physical fatigue. Having 20/20 static vision does not guarantee you can process a 95 mph fastball or read a split-second gap in traffic at 200 mph."
   },
   {
-    q: "What is choice reaction time?",
-    a: "Choice reaction time measures how quickly an athlete can see information, choose the correct response, and execute that response. It is more sport-relevant than simple reaction time because athletes rarely react without making a decision."
+    q: "How does sensory training help with concussion baseline testing and safety?",
+    a: "Standard concussion testing relies on basic memory and balance checks. Ares provides an objective, millisecond-accurate visual-cognitive baseline. Because the visual system utilizes over 50% of the brain's pathways, post-concussion deficits show up immediately as routing delays, tracking errors, or reaction lag. Our baseline data allows coaches and medical professionals to compare pre-injury baseline metrics to post-injury metrics, removing subjective guesswork from return-to-play decisions."
   },
   {
     q: "What does A.R.E.S. stand for?",
-    a: "A.R.E.S. stands for Acquire, Route, Execute, and Synchronize. It is the framework Ares Elite Sports Vision uses to evaluate how athletes collect visual information, process it through the brain, respond through the body, and coordinate the full system under pressure."
+    a: "A.R.E.S. stands for Acquire, Route, Execute, and Synchronize. It is the performance framework Ares Elite Sports Vision uses to evaluate how athletes collect visual information, process it through the brain, respond through the body, and coordinate the full system under pressure."
   },
   {
     q: "Who should book a Sports Vision Performance Evaluation?",
-    a: "Athletes should book an evaluation if they want to understand how their eyes, brain, and body perform together during sport. It is especially useful for athletes who rely on reaction time, decision speed, tracking, depth perception, peripheral awareness, and eye-hand coordination."
+    a: "Athletes should book an evaluation if they want to understand how their eyes, brain, and body perform together during sport. It is especially useful for athletes who rely on reaction time, decision speed, tracking, depth perception, peripheral awareness, and hand-eye coordination."
   },
   {
     q: "What makes Ares Elite Sports Vision different?",
-    a: "Ares uses a structured performance framework, objective data, and Human Operating System training progressions instead of generic drills. The goal is to evaluate and train the full system athletes use under pressure: eyes, brain, body, timing, and execution."
+    a: "Ares uses a structured performance framework, objective data, and Human Operating System training progressions instead of generic drills or basic vision therapy. The goal is to evaluate and train the full system athletes use under pressure: eyes, brain, body, timing, and execution."
   },
   {
     q: "Do teams and organizations use Ares?",
