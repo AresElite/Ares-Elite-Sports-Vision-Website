@@ -115,7 +115,7 @@ export function Navbar() {
             </button>
             
             {/* Unified Mega Menu */}
-            <div className="absolute top-[80%] left-1/2 -translate-x-1/2 w-[850px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-4 group-hover:translate-y-0">
+            <div className="absolute top-[80%] left-1/2 -translate-x-1/2 w-[850px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-4 group-hover:translate-y-0 gpu-accelerated">
               {/* Invisible bridge to prevent hover gap issues */}
               <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent"></div>
               
@@ -223,7 +223,7 @@ export function Navbar() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[60] bg-[var(--color-ares-charcoal)]/95 backdrop-blur-xl overflow-y-auto lg:hidden"
+            className="fixed inset-0 z-[60] bg-[var(--color-ares-charcoal)]/95 backdrop-blur-xl overflow-y-auto lg:hidden gpu-accelerated"
           >
             <nav className="min-h-dvh px-6 py-20 sm:py-24 md:p-24 max-w-[1400px] mx-auto relative flex flex-col justify-center">
               

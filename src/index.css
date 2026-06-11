@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;900&display=swap');
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
@@ -86,6 +85,13 @@
     width: 100%;
     max-width: 100%;
     overflow: hidden;
+  }
+
+  .gpu-accelerated {
+    transform: translate3d(0, 0, 0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+    perspective: 1000px;
   }
 }
 
