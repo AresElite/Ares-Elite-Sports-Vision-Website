@@ -37,7 +37,7 @@ export function LoginPage() {
               </p>
             </div>
             <a
-              href="https://thankful-plant-05c009e0f.1.azurestaticapps.net/login"
+              href="https://screenfit.vision/login"
               target="_blank" rel="noopener noreferrer"
               className="w-full py-4 rounded-xl bg-[var(--color-ares-purple)] hover:bg-[var(--color-ares-purple)]/90 text-white font-bold transition-all flex items-center justify-center gap-2 text-lg shadow-glow shadow-[var(--color-ares-purple)]/20"
             >

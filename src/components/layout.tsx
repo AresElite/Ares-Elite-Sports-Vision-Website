@@ -295,22 +295,20 @@ export function Navbar() {
                   </h3>
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <li>
-                      <a 
-                        href="/book/evaluation"
-                        target="_blank" rel="noopener noreferrer"
+                      <Link 
+                        to="/book/evaluation"
                         className="flex items-center justify-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-[var(--color-ares-teal)] hover:border-[var(--color-ares-teal)] transition-all"
                       >
                         Book a Session
-                      </a>
+                      </Link>
                     </li>
                     <li>
-                      <a 
-                        href="/book/client"
-                        target="_blank" rel="noopener noreferrer"
+                      <Link 
+                        to="/login"
                         className="flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--color-ares-purple)]/10 border border-[var(--color-ares-purple)]/30 text-[var(--color-ares-purple)] font-bold hover:bg-[var(--color-ares-purple)] hover:text-white transition-all"
                       >
                         Log Into Client Portal
-                      </a>
+                      </Link>
                     </li>
                     <li className="sm:col-span-2">
                       <a 
