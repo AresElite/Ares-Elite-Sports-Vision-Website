@@ -34,6 +34,16 @@ const SportsHubPage = lazy(() => import('./pages/SportsHubPage').then(m => ({ de
 const SportSpecificPage = lazy(() => import('./pages/SportSpecificPage').then(m => ({ default: m.SportSpecificPage })));
 const IdentityPage = lazy(() => import('./pages/IdentityPage').then(m => ({ default: m.IdentityPage })));
 
+// Conversion Pathways
+const AthletesPage = lazy(() => import('./pages/AthletesPage').then(m => ({ default: m.AthletesPage })));
+const ParentsPage = lazy(() => import('./pages/ParentsPage').then(m => ({ default: m.ParentsPage })));
+const CoachesPage = lazy(() => import('./pages/CoachesPage').then(m => ({ default: m.CoachesPage })));
+const ProSportsPage = lazy(() => import('./pages/ProSportsPage').then(m => ({ default: m.ProSportsPage })));
+const OfficialsPage = lazy(() => import('./pages/OfficialsPage').then(m => ({ default: m.OfficialsPage })));
+const SpeakingPage = lazy(() => import('./pages/SpeakingPage').then(m => ({ default: m.SpeakingPage })));
+const TechnologyPage = lazy(() => import('./pages/TechnologyPage').then(m => ({ default: m.TechnologyPage })));
+const ResultsPage = lazy(() => import('./pages/ResultsPage').then(m => ({ default: m.ResultsPage })));
+
 function ScrollToHash() {
   const { pathname, hash } = useLocation();
 
@@ -95,6 +105,16 @@ export default function App() {
                 
                 <Route path="/faq" element={<FaqPage />} />
                 <Route path="/identity" element={<IdentityPage />} />
+                
+                {/* Conversion Pathways */}
+                <Route path="/athletes" element={<AthletesPage />} />
+                <Route path="/parents" element={<ParentsPage />} />
+                <Route path="/coaches" element={<CoachesPage />} />
+                <Route path="/pro-sports" element={<ProSportsPage />} />
+                <Route path="/officials" element={<OfficialsPage />} />
+                <Route path="/speaking" element={<SpeakingPage />} />
+                <Route path="/technology-and-data" element={<TechnologyPage />} />
+                <Route path="/results" element={<ResultsPage />} />
                 
                 {/* Legacy/Other Details */}
                 <Route path="/detail/:id" element={<DetailPage />} />

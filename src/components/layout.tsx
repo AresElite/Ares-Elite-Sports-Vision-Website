@@ -42,27 +42,30 @@ export function Navbar() {
     {
       title: "PERFORMANCE",
       links: [
-        { label: "Book Evaluation", path: "/sports-vision-performance-evaluation" },
-        { label: "Sports Vision Training", path: "/sports-vision-training" },
-        { label: "Concussion Baseline", path: "/concussion-baseline-testing" },
-        { label: "By Sport", path: "/sports" }
+        { label: "Elite Athletes", path: "/athletes" },
+        { label: "Parents & Youth", path: "/parents" },
+        { label: "Pro & Motorsports", path: "/pro-sports" },
+        { label: "Officials & Referees", path: "/officials" },
+        { label: "By Sport Hub", path: "/sports" }
       ]
     },
     {
-      title: "PLATFORMS",
+      title: "PLATFORMS & TECH",
       links: [
         { label: "The A.R.E.S. System", path: "/ares-performance-system" },
-        { label: "Teams & Organizations", path: "/teams-and-organizations" },
+        { label: "Coaches Protocol", path: "/coaches" },
+        { label: "Teams & Facilities", path: "/teams-and-organizations" },
+        { label: "Technology & Data", path: "/technology-and-data" },
         { label: "A.R.E.S. Certification", path: "/certification" }
       ]
     },
     {
-      title: "COMPANY & RESOURCES",
+      title: "OUTCOMES & COMPANY",
       links: [
-        { label: "Who We Are", path: "/identity" },
-        { label: "Client Portal", path: "/login" },
-        { label: "General Inquiry", path: "/contact" },
+        { label: "Results & Case Studies", path: "/results" },
         { label: "Research & Insights", path: "/resources" },
+        { label: "Speaking & Keynotes", path: "/speaking" },
+        { label: "Who We Are", path: "/identity" },
         { label: "Training FAQ", path: "/faq" }
       ]
     }
@@ -385,24 +388,29 @@ export function Footer() {
             <h3 className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase mb-4 sm:mb-6">Platform</h3>
             <ul className="space-y-3 sm:space-y-4">
               <li><Link to="/ares-performance-system" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">The A.R.E.S. System</Link></li>
-              <li><Link to="/sports-vision-performance-evaluation" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Book Evaluation</Link></li>
-              <li><Link to="/sports-vision-training" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Sports Vision Training</Link></li>
-              <li><Link to="/teams-and-organizations" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Team Programs</Link></li>
+              <li><Link to="/athletes" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Elite Athletes</Link></li>
+              <li><Link to="/parents" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Parents & Youth</Link></li>
+              <li><Link to="/pro-sports" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Pro & Motorsports</Link></li>
+              <li><Link to="/teams-and-organizations" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Teams & Facilities</Link></li>
             </ul>
           </div>
           <div className="col-span-1 md:col-span-2">
-            <h3 className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase mb-4 sm:mb-6">Resources</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase mb-4 sm:mb-6">Tech & Research</h3>
             <ul className="space-y-3 sm:space-y-4">
+              <li><Link to="/technology-and-data" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Technology & Data</Link></li>
+              <li><Link to="/results" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Results & Case Studies</Link></li>
               <li><Link to="/certification" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">A.R.E.S. Certification</Link></li>
               <li><Link to="/resources" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Research & Insights</Link></li>
-              <li><Link to="/faq" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">FAQ</Link></li>
-              <li><Link to="/login" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Client Portal</Link></li>
+              <li><Link to="/faq" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Training FAQ</Link></li>
             </ul>
           </div>
           <div className="col-span-2 md:col-span-3">
-            <h3 className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase mb-4 sm:mb-6 mt-4 md:mt-0">Contact</h3>
+            <h3 className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase mb-4 sm:mb-6 mt-4 md:mt-0">Contact & Info</h3>
             <ul className="space-y-3 sm:space-y-4">
+              <li><Link to="/speaking" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Speaking & Keynotes</Link></li>
+              <li><Link to="/identity" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Who We Are</Link></li>
               <li><Link to="/contact" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">General Inquiry</Link></li>
+              <li><Link to="/login" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Client Portal</Link></li>
               <li><a href="tel:+17739811447" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">(773) 981-1447</a></li>
               <li className="text-sm sm:text-base leading-relaxed mt-4">
                 <a href="https://maps.google.com/?q=510+West+Carmel+Drive,+Carmel,+IN+46032" target="_blank" rel="noopener noreferrer" className="text-[var(--color-ares-muted)] hover:text-white transition-colors">
