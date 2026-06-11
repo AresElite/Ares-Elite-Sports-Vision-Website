@@ -1,5 +1,5 @@
 [[redirects]]
   from = "/*"
-  to = "https://ares-elite-sports-vision.onrender.com/:splat"
+  to = "https://ares-elite-sports-vision-website.onrender.com/:splat"
   status = 200
   force = true
