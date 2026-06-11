@@ -3,14 +3,13 @@ import { Hero } from '../components/sections/Hero';
 import { ProblemSection } from '../components/sections/Problem';
 import { SystemSection } from '../components/sections/System';
 import { MeasurementSection } from '../components/sections/Measurement';
-import { RoadmapSection } from '../components/sections/Roadmap';
 import { ICPSection } from '../components/sections/ICP';
 import { PerformanceResults } from '../components/sections/PerformanceResults';
 import { TrainingShowcase } from '../components/sections/TrainingShowcase';
-import { TechSection } from '../components/sections/Tech';
 import { TestimonialsSection } from '../components/sections/Testimonials';
 import { FAQSection } from '../components/sections/FAQSection';
 import { CTASection } from '../components/sections/CTA';
+import { SEO } from '../components/SEO';
 
 import { CinematicIntro } from '../components/intro/CinematicIntro';
 
@@ -31,8 +30,47 @@ export function HomePage() {
     sessionStorage.setItem('introComplete', 'true');
   };
 
+  const homeSchema = {
+    "@context": "https://schema.org",
+    "@type": "SportsActivityLocation",
+    "name": "Ares Elite Sports Vision",
+    "url": "https://areselitesports.vision",
+    "description": "Premium neurocognitive sports training and sports vision evaluations in Carmel, IN (Indianapolis area).",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "510 W. Carmel Dr., Inside Elemental Fitness, 2nd Floor",
+      "addressLocality": "Carmel",
+      "addressRegion": "IN",
+      "postalCode": "46032",
+      "addressCountry": "US"
+    },
+    "telephone": "+1 (773) 981-1447",
+    "email": "drl@areselitesportsvision.com",
+    "areaServed": [
+      {
+        "@type": "AdministrativeArea",
+        "name": "Carmel, IN"
+      },
+      {
+        "@type": "AdministrativeArea",
+        "name": "Indianapolis, IN"
+      }
+    ],
+    "sameAs": [
+      "https://www.youtube.com/@AresEliteSportsVision",
+      "https://www.facebook.com/areselitesv/"
+    ]
+  };
+
   return (
     <>
+      <SEO 
+        title="Neurocognitive Sports Training & Vision Coaching | Ares Elite Sports Vision"
+        description="Elite neurocognitive sports training and sports vision evaluations in Carmel, IN. Optimize visual-cognitive skills, reaction time, and tracking speed."
+        path="/"
+        schema={homeSchema}
+      />
+
       <AnimatePresence>
         {!introComplete && (
           <CinematicIntro onComplete={handleIntroComplete} />
@@ -51,16 +89,12 @@ export function HomePage() {
         <SystemSection />
         {/* What We Measure */}
         <MeasurementSection />
-        {/* Evaluation -> Training -> Re-Eval */}
-        <RoadmapSection />
         {/* Athlete/Parent/Coach Pathways */}
         <ICPSection />
         {/* Proof / Results */}
         <PerformanceResults />
         {/* Training Progression */}
         <TrainingShowcase />
-        {/* Technology platform */}
-        <TechSection />
         {/* Trust */}
         <TestimonialsSection />
         <FAQSection />

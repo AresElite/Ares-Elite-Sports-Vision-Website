@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { BarChart3, Target, Brain, Layers } from 'lucide-react';
 import { SectionReveal } from '../ui/SectionReveal';
 import { ScrollReveal } from '../ui/ScrollReveal';
+import { VideoEmbed } from '../ui/VideoEmbed';
 
 export function MeasurementSection() {
   return (
@@ -205,6 +206,31 @@ export function MeasurementSection() {
             </ScrollReveal>
           </div>
         </div>
+
+        {/* Separator and Video Row */}
+        <div className="border-t border-white/10 pt-20 mt-20">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <ScrollReveal direction="left" distance={30} speed={0.8}>
+              <div className="text-center lg:text-left">
+                <h3 className="text-[var(--color-ares-teal)] font-mono text-[10px] sm:text-xs tracking-[0.3em] uppercase mb-4">Analytics & EMR Platform</h3>
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight text-balance">OBJECTIVE DATA. NOT GUESSWORK.</h2>
+                <p className="text-white/60 text-base sm:text-lg leading-relaxed mx-auto lg:mx-0 text-balance max-w-2xl font-light">
+                  If something affects performance, it should be measured, tracked, and communicated clearly. We built a custom EMR and tracking platform because athletes deserve more than opinions and vague notes. We measure what most programs miss. We track what others guess.
+                </p>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal direction="right" distance={30} speed={0.8}>
+              <div className="mx-auto w-full max-w-2xl lg:max-w-none">
+                <VideoEmbed 
+                  src="https://www.youtube.com/embed/qdEmN0iYLq4?si=r7kK-W1VnQe5L7P1" 
+                  title="Importance of Analytics and Tracking Information for Athletes" 
+                />
+              </div>
+            </ScrollReveal>
+          </div>
+        </div>
+
       </div>
     </SectionReveal>
   );

@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { SEO } from '../components/SEO';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import { ArrowLeft, Calendar, Share2, Clock } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -57,14 +57,13 @@ export function BlogPostPage() {
 
   return (
     <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white pt-24 sm:pt-32 pb-24 relative overflow-hidden">
-      <Helmet>
-        <title>{`${post.title} | Ares Elite Sports Vision`}</title>
-        <meta name="description" content={post.abstract} />
-        {post.keywords && <meta name="keywords" content={post.keywords.join(', ')} />}
-        <script type="application/ld+json">
-          {JSON.stringify(jsonLd)}
-        </script>
-      </Helmet>
+      <SEO 
+        title={`${post.title} | Ares Elite Sports Vision`}
+        description={post.abstract}
+        path={`/resources/${post.id}`}
+        schema={jsonLd}
+        type="article"
+      />
 
       {/* Reading Progress Bar */}
       <motion.div

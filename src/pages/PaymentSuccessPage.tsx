@@ -1,10 +1,17 @@
 import { motion } from 'framer-motion';
 import { CheckCircle, CalendarDays, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 
 export function PaymentSuccessPage() {
   return (
-    <div className="min-h-dvh bg-[var(--color-ares-bg)] pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden flex flex-col items-center justify-center text-center">
+    <>
+      <SEO 
+        title="Payment Successful | Ares Elite Sports Vision"
+        description="Your reservation is fully confirmed. We look forward to analyzing your neurocognitive baseline."
+        path="/payment-success"
+      />
+      <div className="min-h-dvh bg-[var(--color-ares-bg)] pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden flex flex-col items-center justify-center text-center">
       
       {/* Background Ornaments */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[600px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none" />
@@ -51,5 +58,6 @@ export function PaymentSuccessPage() {
         </div>
       </motion.div>
     </div>
+    </>
   );
 }

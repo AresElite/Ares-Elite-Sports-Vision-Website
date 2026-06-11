@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { SEO } from '../components/SEO';
 
 export function CertificationApplicationPage() {
   const { level } = useParams<{ level: string }>();
@@ -40,7 +41,13 @@ export function CertificationApplicationPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white pt-32 pb-24 relative overflow-hidden">
+    <>
+      <SEO 
+        title={`Apply for ${levelName} | Ares Elite Sports Vision`}
+        description="Become a certified Ares Elite Sports Vision provider. Submit your application for CPVT or Provider Certifications."
+        path={level ? `/certification/apply/${level}` : '/certification/apply'}
+      />
+      <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white pt-32 pb-24 relative overflow-hidden">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <Link to="/certification" className="inline-flex items-center text-white/60 hover:text-white transition-colors mb-12 group">
           <ArrowLeft className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" />
@@ -301,5 +308,6 @@ export function CertificationApplicationPage() {
         )}
       </div>
     </div>
+    </>
   );
 }

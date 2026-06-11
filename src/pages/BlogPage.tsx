@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { SEO } from '../components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Calendar, Clock, ChevronDown, ExternalLink } from 'lucide-react';
 import { SectionReveal } from '../components/ui/SectionReveal';
@@ -108,13 +108,26 @@ export function BlogPage() {
     activeFilter === 'all' ? true : article.categories.includes(activeFilter)
   );
 
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "The A.R.E.S. Library",
+    "description": "Explore the science of elite human performance, neuro-cognitive training, and sports vision research.",
+    "url": "https://areselitesports.vision/resources",
+    "provider": {
+      "@type": "LocalBusiness",
+      "name": "Ares Elite Sports Vision"
+    }
+  };
+
   return (
     <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white pt-24 sm:pt-32 pb-24 relative overflow-x-clip">
-      <Helmet>
-        <title>The A.R.E.S. Library | Research, Insights & Neurocognitive Performance</title>
-        <meta name="description" content="Explore the science of elite human performance, neuro-cognitive training, and sports vision research. Access our library of peer-reviewed articles and performance journal." />
-        <meta name="keywords" content="sports vision research, neurocognitive training articles, ARES quotient journal, human performance science, concussion baseline research" />
-      </Helmet>
+      <SEO 
+        title="The A.R.E.S. Library | Research, Insights & Neurocognitive Performance"
+        description="Explore the science of elite human performance, neuro-cognitive training, and sports vision research. Access our library of peer-reviewed articles and performance journal."
+        path="/resources"
+        schema={collectionSchema}
+      />
 
       {/* Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">

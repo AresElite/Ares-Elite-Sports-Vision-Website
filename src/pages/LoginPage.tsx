@@ -1,10 +1,17 @@
 import { motion } from 'framer-motion';
 import { UserPlus, ArrowRight, ExternalLink, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 
 export function LoginPage() {
   return (
-    <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white relative flex items-center justify-center pt-24 font-sans">
+    <>
+      <SEO 
+        title="Client Portal | Ares Elite Sports Vision"
+        description="Access your custom training protocols, session packs, and scheduling tools in the Ares Elite Sports Vision Client Portal."
+        path="/login"
+      />
+      <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white relative flex items-center justify-center pt-24 font-sans">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 w-full pb-24">
         
         <div className="text-center mb-12">
@@ -68,5 +75,6 @@ export function LoginPage() {
 
       </div>
     </div>
+    </>
   );
 }

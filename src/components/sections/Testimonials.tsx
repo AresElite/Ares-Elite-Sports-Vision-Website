@@ -189,8 +189,7 @@ export function TestimonialsSection() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className={`text-white font-bold text-base sm:text-lg tracking-tight transition-opacity duration-500 ${isCenter ? 'opacity-100' : 'opacity-60'}`}>{item.author}</div>
-                          <div className={`text-[var(--color-ares-teal)] text-[10px] sm:text-xs font-mono uppercase tracking-wider mt-1 transition-opacity duration-500 ${isCenter ? 'opacity-100' : 'opacity-60'}`}>{item.role}</div>
+                          <div className={`text-white font-bold text-base sm:text-lg tracking-tight transition-opacity duration-500 ${isCenter ? 'opacity-100' : 'opacity-60'}`}>{item.role}</div>
                         </div>
                         <div className="text-right">
                           <div className="text-[9px] sm:text-[10px] text-white/50 uppercase tracking-widest mb-1">A.R.E.S. AQ™</div>

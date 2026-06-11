@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useParams, useNavigate, Link } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BOOKING_CONFIG } from '../config/booking';
 import { BookingEmbedFrame } from '../components/booking/BookingEmbedFrame';
@@ -546,7 +547,13 @@ export function BookPage() {
   };
 
   return (
-    <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white relative pt-24 font-sans">
+    <>
+      <SEO 
+        title="Book Sports Vision Evaluation & Training | Ares Elite Sports Vision"
+        description="Schedule your Sports Vision Performance Evaluation, re-evaluations, or purchase training packages with Ares Elite Sports Vision in Carmel, IN."
+        path={type ? `/book/${type}` : '/book'}
+      />
+      <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white relative pt-24 font-sans">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
         
         {isVerifying ? (
@@ -585,5 +592,6 @@ export function BookPage() {
         </section>
       </main>
     </div>
+    </>
   );
 }

@@ -1,10 +1,17 @@
 import { motion } from 'framer-motion';
 import { Mail, Clock, ArrowRight, ShieldCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { SEO } from '../components/SEO';
 
 export function BookingHoldPage() {
   return (
-    <div className="min-h-dvh bg-[var(--color-ares-bg)] pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden flex flex-col items-center justify-center text-center">
+    <>
+      <SEO 
+        title="Processing Reservation | Ares Elite Sports Vision"
+        description="Your sports vision slot is tentatively held. Please complete payment to finalize your booking."
+        path="/booking-hold"
+      />
+      <div className="min-h-dvh bg-[var(--color-ares-bg)] pt-32 pb-24 px-4 sm:px-6 relative overflow-hidden flex flex-col items-center justify-center text-center">
       
       {/* Background Ornaments */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[600px] bg-[var(--color-ares-teal)]/10 blur-[120px] rounded-full pointer-events-none" />
@@ -53,5 +60,6 @@ export function BookingHoldPage() {
         </div>
       </motion.div>
     </div>
+    </>
   );
 }
