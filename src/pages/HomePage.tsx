@@ -10,6 +10,7 @@ import { TestimonialsSection } from '../components/sections/Testimonials';
 import { FAQSection } from '../components/sections/FAQSection';
 import { CTASection } from '../components/sections/CTA';
 import { SEO } from '../components/SEO';
+import { AssessmentModal } from '../components/ui/AssessmentModal';
 
 import { CinematicIntro } from '../components/intro/CinematicIntro';
 
@@ -100,6 +101,7 @@ export function HomePage() {
         <FAQSection />
         <CTASection />
       </main>
+      <AssessmentModal />
     </>
   );
 }

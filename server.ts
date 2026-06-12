@@ -84,6 +84,26 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
+
+  CREATE TABLE IF NOT EXISTS assessments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL,
+    questionnaire_score INTEGER,
+    questionnaire_data TEXT,
+    raw_rt_avg REAL,
+    raw_rt_fastest REAL,
+    raw_rt_slowest REAL,
+    raw_rt_false_positives INTEGER,
+    choice_rt_purple_avg REAL,
+    choice_rt_purple_acc REAL,
+    choice_rt_teal_avg REAL,
+    choice_rt_teal_acc REAL,
+    choice_rt_post_error_slowing REAL,
+    rec_speed_avg REAL,
+    rec_speed_acc REAL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(email) REFERENCES leads(email)
+  );
 `);
 
 // Drop old bookings table if exists to migrate to payments
@@ -740,6 +760,196 @@ app.post("/api/contact", async (req, res) => {
     }
   } catch (error) {
     console.error("Error processing contact request:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/api/submit-assessment", async (req, res) => {
+  try {
+    const {
+      firstName,
+      lastName,
+      email,
+      sport,
+      questionnaireScore,
+      questionnaireData,
+      rawRtAvg,
+      rawRtFastest,
+      rawRtSlowest,
+      rawRtFalsePositives,
+      choiceRtPurpleAvg,
+      choiceRtPurpleAcc,
+      choiceRtTealAvg,
+      choiceRtTealAcc,
+      choiceRtPostErrorSlowing,
+      recSpeedAvg,
+      recSpeedAcc
+    } = req.body;
+
+    if (!firstName || !email) {
+      return res.status(400).json({ error: "First name and email are required" });
+    }
+
+    // 1. Insert Lead if they don't exist
+    try {
+      const stmt = db.prepare("INSERT INTO leads (first_name, last_name, email, sport) VALUES (?, ?, ?, ?)");
+      stmt.run(firstName, lastName || null, email, sport || null);
+      
+      // Trigger sequence processor immediately for Day 0 email
+      setTimeout(() => processEmailSequences(), 1000);
+    } catch (dbError: any) {
+      // Ignore unique constraints as they might already be logged as a lead
+    }
+
+    // 2. Insert detailed assessment data
+    try {
+      const stmt = db.prepare(`
+        INSERT INTO assessments (
+          email, questionnaire_score, questionnaire_data, raw_rt_avg, raw_rt_fastest,
+          raw_rt_slowest, raw_rt_false_positives, choice_rt_purple_avg, choice_rt_purple_acc,
+          choice_rt_teal_avg, choice_rt_teal_acc, choice_rt_post_error_slowing,
+          rec_speed_avg, rec_speed_acc
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      stmt.run(
+        email, questionnaireScore, questionnaireData, rawRtAvg, rawRtFastest,
+        rawRtSlowest, rawRtFalsePositives, choiceRtPurpleAvg, choiceRtPurpleAcc,
+        choiceRtTealAvg, choiceRtTealAcc, choiceRtPostErrorSlowing,
+        recSpeedAvg, recSpeedAcc
+      );
+    } catch (dbError: any) {
+      console.error("Failed to insert assessment record:", dbError);
+    }
+
+    // 3. Send Report Email to User & Lead Alert to Team
+    if (resend) {
+      try {
+        const candidateRecommendation = questionnaireScore >= 120 
+          ? "High Priority Candidate (Severe visual-cognitive bottlenecks detected. High training potential)" 
+          : "Candidate Approved (Strong baseline, but with room to optimize and shave off critical reaction latency)";
+
+        const htmlContent = `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #0e111a; color: #ffffff; border-radius: 10px; border: 1px solid #1f2937;">
+            <div style="text-align: center; border-bottom: 2px solid #29b6f6; padding-bottom: 20px; margin-bottom: 20px;">
+              <h1 style="color: #ffffff; font-size: 24px; text-transform: uppercase; margin: 0; letter-spacing: 1px;">A.R.E.S. Sensory Telemetry Report</h1>
+              <p style="color: #29b6f6; font-size: 14px; text-transform: uppercase; margin: 5px 0 0 0; letter-spacing: 2px;">Elite Performance Analytics</p>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.5; color: #e5e7eb;">Hello <strong>${firstName}</strong>,</p>
+            <p style="font-size: 15px; line-height: 1.5; color: #9ca3af;">Thank you for completing the A.R.E.S. Sports Vision and Cognitive Evaluation. Below is your initial performance telemetry report measuring sensory acquisition, decision processing, and motor response times.</p>
+            
+            <div style="background-color: #1a1e2e; border: 1px solid #374151; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #8b5cf6; margin-top: 0; text-transform: uppercase; font-size: 16px; border-bottom: 1px solid #374151; padding-bottom: 8px;">1. Visual Symptoms Questionnaire</h3>
+              <p style="font-size: 28px; font-weight: bold; color: #ffffff; margin: 10px 0 5px 0;">${questionnaireScore} <span style="font-size: 16px; color: #9ca3af; font-weight: normal;">/ 200</span></p>
+              <p style="font-size: 14px; color: #29b6f6; margin: 0;"><strong>Recommendation:</strong> ${candidateRecommendation}</p>
+            </div>
+            
+            <div style="background-color: #1a1e2e; border: 1px solid #374151; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #29b6f6; margin-top: 0; text-transform: uppercase; font-size: 16px; border-bottom: 1px solid #374151; padding-bottom: 8px;">2. Raw Reaction Speed</h3>
+              <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">Average Reaction Time:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #ffffff; font-weight: bold; font-family: monospace; font-size: 15px;">${rawRtAvg}ms</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">Fastest Trial:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #29b6f6; font-weight: bold; font-family: monospace; font-size: 14px;">${rawRtFastest}ms</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">Slowest Trial:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #f87171; font-weight: bold; font-family: monospace; font-size: 14px;">${rawRtSlowest}ms</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">False Positives:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #ffffff; font-family: monospace; font-size: 14px;">${rawRtFalsePositives}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="background-color: #1a1e2e; border: 1px solid #374151; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+              <h3 style="color: #8b5cf6; margin-top: 0; text-transform: uppercase; font-size: 16px; border-bottom: 1px solid #374151; padding-bottom: 8px;">3. Choice Reaction & Accuracy</h3>
+              <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">Purple Target Average:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #ffffff; font-weight: bold; font-family: monospace; font-size: 15px;">${choiceRtPurpleAvg}ms (${choiceRtPurpleAcc}% Acc)</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">Teal Target Average:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #ffffff; font-weight: bold; font-family: monospace; font-size: 15px;">${choiceRtTealAvg}ms (${choiceRtTealAcc}% Acc)</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">Post-Error Slowing:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #fbbf24; font-weight: bold; font-family: monospace; font-size: 14px;">${choiceRtPostErrorSlowing >= 0 ? '+' : ''}${choiceRtPostErrorSlowing}ms</td>
+                </tr>
+              </table>
+              <p style="font-size: 11px; color: #9ca3af; margin-top: 10px; line-height: 1.3;">*Post-Error Slowing measures your cognitive recovery speed immediately following a mistake. Elite athletes typically recover with minimal post-error latency.</p>
+            </div>
+
+            <div style="background-color: #1a1e2e; border: 1px solid #374151; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
+              <h3 style="color: #29b6f6; margin-top: 0; text-transform: uppercase; font-size: 16px; border-bottom: 1px solid #374151; padding-bottom: 8px;">4. Recognition Speed & Memory</h3>
+              <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">Average Recognition Speed:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #ffffff; font-weight: bold; font-family: monospace; font-size: 15px;">${recSpeedAvg}ms</td>
+                </tr>
+                <tr>
+                  <td style="padding: 6px 0; color: #9ca3af; font-size: 14px;">Spatial Recall Accuracy:</td>
+                  <td style="padding: 6px 0; text-align: right; color: #ffffff; font-weight: bold; font-family: monospace; font-size: 15px;">${recSpeedAcc}%</td>
+                </tr>
+              </table>
+            </div>
+
+            <div style="text-align: center; margin-top: 30px; margin-bottom: 15px;">
+              <a href="${APP_URL}/book/evaluation" style="background-color: #29b6f6; color: #0a0b14; padding: 14px 28px; border-radius: 6px; font-weight: bold; text-decoration: none; display: inline-block; font-size: 15px; text-transform: uppercase; letter-spacing: 1px;">Book Full 75-Min In-Office Evaluation</a>
+            </div>
+            
+            <p style="font-size: 12px; text-align: center; color: #6b7280; line-height: 1.4; margin-top: 30px; border-top: 1px solid #1f2937; padding-top: 15px;">
+              Ares Elite Sports Vision // Milliseconds Matter™<br/>
+              510 W. Carmel Dr. Carmel, IN 46032
+            </p>
+          </div>
+        `;
+
+        // Send Report to User
+        await resend.emails.send({
+          from: SENDER_EMAIL,
+          to: email,
+          subject: "A.R.E.S. Cognitive Assessment Telemetry Report",
+          html: htmlContent
+        });
+
+        // Send Notification to Dr. Joe LaPlaca
+        await resend.emails.send({
+          from: 'A.R.E.S. Onboarding <onboarding@resend.dev>',
+          to: ['drl@areselitesportsvision.com'],
+          subject: `[Lead Alert] High-Intent Assessment Completed: ${firstName} ${lastName}`,
+          html: `
+            <h2>New Interactive Lead Assessment</h2>
+            <p><strong>Name:</strong> ${firstName} ${lastName}</p>
+            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Sport:</strong> ${sport || 'Not specified'}</p>
+            <hr />
+            <h3>Assessment Performance Data</h3>
+            <ul>
+              <li><strong>Questionnaire Score:</strong> ${questionnaireScore} / 200</li>
+              <li><strong>Recommendation:</strong> ${candidateRecommendation}</li>
+              <li><strong>Raw Reaction Avg:</strong> ${rawRtAvg}ms (Fastest: ${rawRtFastest}ms, Slowest: ${rawRtSlowest}ms, FP: ${rawRtFalsePositives})</li>
+              <li><strong>Choice Reaction Avg:</strong> Purple: ${choiceRtPurpleAvg}ms (${choiceRtPurpleAcc}%), Teal: ${choiceRtTealAvg}ms (${choiceRtTealAcc}%)</li>
+              <li><strong>Post-Error Slowing:</strong> ${choiceRtPostErrorSlowing}ms</li>
+              <li><strong>Recognition Speed Avg:</strong> ${recSpeedAvg}ms (${recSpeedAcc}%)</li>
+            </ul>
+            <p>Ready for sales outreach and booking follow-up.</p>
+          `
+        });
+
+      } catch (emailError) {
+        console.error("Failed to send assessment emails via Resend:", emailError);
+      }
+    }
+
+    res.json({ success: true, message: "Assessment received and processed successfully." });
+  } catch (error) {
+    console.error("Error submitting assessment:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });

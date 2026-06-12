@@ -1,10 +1,17 @@
-import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { BarChart3, Target, Brain, Layers } from 'lucide-react';
 import { SectionReveal } from '../ui/SectionReveal';
 import { ScrollReveal } from '../ui/ScrollReveal';
 import { VideoEmbed } from '../ui/VideoEmbed';
 
 export function MeasurementSection() {
+  const [activeTab, setActiveTab] = useState<0 | 1 | 2>(0);
+  const emrImages = [
+    '/EMR Screenshot 1.jpeg',
+    '/EMR Screenshot 2.jpeg',
+    '/EMR Screenshot 3.jpeg'
+  ];
   return (
     <SectionReveal id="measurement" className="pt-32 pb-40 border-t border-[var(--color-ares-border)] relative bg-[#0d1127]" style={{ clipPath: 'polygon(0 0, 100% 4vw, 100% 100%, 0 calc(100% - 4vw))' }}>
       {/* Geometric background accents */}
@@ -66,7 +73,7 @@ export function MeasurementSection() {
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#000] rounded-full mt-3"></div>
                 
                 {/* Inner Screen */}
-                <div className="w-full bg-[var(--color-ares-charcoal)] rounded-[1.2rem] border border-black/50 overflow-hidden relative">
+                <div className="w-full bg-[var(--color-ares-charcoal)] rounded-[1.2rem] border border-black/50 overflow-hidden relative flex flex-col">
                   {/* Fake App Header */}
                   <div className="bg-[#0B0F2A] px-6 py-4 flex justify-between items-center border-b border-[var(--color-ares-border)]">
                     <div className="flex items-center gap-2">
@@ -74,124 +81,41 @@ export function MeasurementSection() {
                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
                        <div className="w-2 h-2 rounded-full bg-green-500"></div>
                     </div>
-                    <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">A.R.E.S. Evaluation Portal</div>
+                    <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">A.R.E.S. EMR Portal</div>
                     <div className="w-8"></div>
                   </div>
 
-                  <div className="p-6 sm:p-8 relative">
-                    <div className="flex justify-between items-center mb-8 pb-4">
-                      <div>
-                        <div className="text-[10px] text-white/40 uppercase tracking-widest font-mono">Athlete Profile</div>
-                        <div className="text-white font-bold text-xl">Marcus J.</div>
-                        <div className="text-[var(--color-ares-teal)] text-xs font-mono mt-1">ID: AR-0749-X</div>
-                      </div>
-                      <div className="bg-[var(--color-ares-purple)] text-white px-5 py-2 rounded-lg text-sm font-bold shadow-lg shadow-[var(--color-ares-purple)]/30 flex flex-col items-center">
-                        <span className="text-[9px] uppercase tracking-wider opacity-80 font-normal">AQ™ SCORE</span>
-                        137 <span className="text-white/50 text-xs">/ 200</span>
-                      </div>
-                    </div>
+                  {/* Tabbed Selectors */}
+                  <div className="bg-[#0e111a] px-4 py-3 flex justify-center gap-2 border-b border-[var(--color-ares-border)]">
+                    {['Overview', 'Acquisition Stats', 'Cognitive Load'].map((label, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveTab(idx as any)}
+                        className={`px-3 py-1.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase transition-all ${
+                          activeTab === idx 
+                            ? 'bg-[var(--color-ares-teal)] text-black shadow-lg shadow-[var(--color-ares-teal)]/20' 
+                            : 'bg-white/5 text-white/50 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
 
-                    <div className="space-y-6">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-white/50">Acquire (AQ-A)</span>
-                      <span className="text-white font-mono">142/200</span>
-                    </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden relative">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        whileInView={{ width: "71%" }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                        className="h-full bg-[var(--color-ares-teal)] relative overflow-hidden" 
+                  {/* Dashboard Image Viewport */}
+                  <div className="relative aspect-[4/3] bg-black overflow-hidden flex items-center justify-center">
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={activeTab}
+                        src={emrImages[activeTab]}
+                        alt={`A.R.E.S. EMR Screenshot ${activeTab + 1}`}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 1.02 }}
+                        transition={{ duration: 0.3 }}
+                        className="w-full h-full object-cover object-top"
                       />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-white/50">Route (AQ-R)</span>
-                      <span className="text-white font-mono">131/200</span>
-                    </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden relative">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        whileInView={{ width: "65.5%" }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="h-full bg-[var(--color-ares-purple)]" 
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-white/50">Execute (AQ-E)</span>
-                      <span className="text-white font-mono">139/200</span>
-                    </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden relative">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        whileInView={{ width: "69.5%" }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.5, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                        className="h-full bg-white" 
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-white/50">Synchronize (AQ-S)</span>
-                      <span className="text-white font-mono">136/200</span>
-                    </div>
-                    <div className="h-2 bg-white/5 rounded-full overflow-hidden relative">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        whileInView={{ width: "68%" }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1.5, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                        className="h-full bg-[var(--color-ares-teal)]/50" 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-4">
-                  <div className="bg-[var(--color-ares-bg)] p-4 rounded-xl border border-[var(--color-ares-border)] shadow-inner overflow-hidden relative">
-                    <div className="text-[9px] text-white/40 uppercase tracking-widest font-mono mb-1">Raw RT</div>
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: 0.6 }}
-                      className="text-lg font-mono text-white tracking-tighter"
-                    >
-                      294ms
-                    </motion.div>
-                  </div>
-                  <div className="bg-[var(--color-ares-bg)] p-4 rounded-xl border border-[var(--color-ares-border)] shadow-inner overflow-hidden relative">
-                    <div className="text-[9px] text-white/40 uppercase tracking-widest font-mono mb-1">Accuracy</div>
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: 0.7 }}
-                      className="text-lg font-mono text-white tracking-tighter"
-                    >
-                      87%
-                    </motion.div>
-                  </div>
-                  <div className="bg-[var(--color-ares-bg)] p-4 rounded-xl border border-[var(--color-ares-border)] shadow-inner overflow-hidden relative">
-                    <div className="text-[9px] text-white/40 uppercase tracking-widest font-mono mb-1">Choice RT</div>
-                    <motion.div 
-                      initial={{ opacity: 0, y: 10 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.5, delay: 0.8 }}
-                      className="text-lg font-mono text-white tracking-tighter"
-                    >
-                      507ms
-                    </motion.div>
-                  </div>
-                </div>
+                    </AnimatePresence>
                   </div>
                 </div>
               </div>

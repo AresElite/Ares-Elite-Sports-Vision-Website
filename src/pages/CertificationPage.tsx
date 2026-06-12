@@ -30,20 +30,31 @@ export function CertificationPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <div className="mb-16">
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 text-[var(--color-ares-teal)] text-xs font-bold tracking-wider mb-6 border border-[var(--color-ares-teal)]/30">
-              A.R.E.S. ACCREDITATION
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-center mb-16">
+            <div className="lg:col-span-2">
+              <div className="inline-flex items-center px-3 py-1 rounded-full bg-white/5 text-[var(--color-ares-teal)] text-xs font-bold tracking-wider mb-6 border border-[var(--color-ares-teal)]/30">
+                A.R.E.S. ACCREDITATION
+              </div>
+              <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
+                CERTIFICATION LEVELS
+              </h1>
+              <div className="text-xl text-white/80 leading-relaxed space-y-6">
+                <p>
+                  Your patients and athletes are looking for an edge, and traditional optometry or coaching isn't enough to get them there. You want to be the go-to expert they trust to unlock their ultimate potential.
+                </p>
+                <p>
+                  The A.R.E.S. Certification equips you with the exact blueprint to transform your clients' performance and elevate your practice above the competition. We guide you step-by-step through our proven system, turning you into the undisputed authority in neuro-cognitive sports vision.
+                </p>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              CERTIFICATION LEVELS
-            </h1>
-            <div className="text-xl text-white/80 leading-relaxed space-y-6 max-w-4xl">
-              <p>
-                Your patients and athletes are looking for an edge, and traditional optometry or coaching isn't enough to get them there. You want to be the go-to expert they trust to unlock their ultimate potential.
-              </p>
-              <p>
-                The A.R.E.S. Certification equips you with the exact blueprint to transform your clients' performance and elevate your practice above the competition. We guide you step-by-step through our proven system, turning you into the undisputed authority in neuro-cognitive sports vision.
-              </p>
+            <div className="flex justify-center items-center">
+              <motion.img 
+                src="/A.R.E.S. Certification Badge.png" 
+                alt="A.R.E.S. Certification Badge" 
+                className="w-48 sm:w-64 h-auto object-contain drop-shadow-[0_0_35px_rgba(41,182,246,0.15)]"
+                animate={{ y: [0, -8, 0] }}
+                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              />
             </div>
           </div>
 
@@ -129,6 +140,53 @@ export function CertificationPage() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Certificate Template & Registry Section */}
+          <div className="border-t border-[var(--color-ares-border)] pt-16 mt-16 mb-16">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+              <div>
+                <h2 className="text-3xl font-bold mb-6 uppercase">The Official Accreditation</h2>
+                <p className="text-white/70 leading-relaxed mb-6">
+                  Upon completion of the A.R.E.S. intensive, clinicians receive the physical A.R.E.S. Certification of Competency, alongside digital accreditation badges and listing in our official provider directory.
+                </p>
+                <p className="text-white/70 leading-relaxed font-bold">
+                  This validates your training and unlocks full access to the proprietary A.R.E.S. EMR platform and patient tracking tools.
+                </p>
+              </div>
+              <div className="relative rounded-2xl overflow-hidden border border-white/10 shadow-2xl bg-black/40">
+                <img 
+                  src="/A.R.E.S. Certification Template.png" 
+                  alt="A.R.E.S. Certification Template" 
+                  className="w-full aspect-[4/3] object-contain p-4" 
+                />
+              </div>
+            </div>
+
+            <h3 className="text-center text-xs font-bold tracking-[0.3em] uppercase text-[var(--color-ares-teal)] mb-8">[Registered Certified Clinicians & Coaches]</h3>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+              {[
+                { name: "Blair Julian", title: "CPVT Level 1", src: "/A.R.E.S Certification - CVPT - Blair Julian.png" },
+                { name: "Cameron Gray", title: "CPVT Provider", src: "/A.R.E.S. Certification - Cameron Gray - CPVT.png" },
+                { name: "Christopher Wheeler", title: "CPVT Provider", src: "/A.R.E.S. Certification - Christopher Wheeler.png" },
+                { name: "Jordan Guler", title: "CPVT Provider", src: "/A.R.E.S. Certification - Jordan Guler.png" },
+                { name: "Joseph Sero", title: "CPVT Provider", src: "/A.R.E.S. Certification - Joseph Sero.png" },
+                { name: "William Plummer", title: "CPVT Provider", src: "/A.R.E.S. Certification - William Plummer.png" },
+                { name: "Chris Snyder", title: "CPVT Level 1", src: "/Chris Snyder - A.R.E.S. Certification CPVT Level 1.png" }
+              ].map((practitioner, i) => (
+                <div key={i} className="group bg-[var(--color-ares-charcoal)] border border-white/5 rounded-2xl p-4 flex flex-col items-center text-center hover:border-[var(--color-ares-teal)]/30 transition-all shadow-lg hover:shadow-glow/10">
+                  <div className="w-20 h-20 rounded-full overflow-hidden mb-4 bg-black/30 border border-white/10 flex items-center justify-center">
+                    <img 
+                      src={practitioner.src} 
+                      alt={`${practitioner.name} Badge`} 
+                      className="w-16 h-16 object-contain group-hover:scale-105 transition-transform" 
+                    />
+                  </div>
+                  <h4 className="text-white font-bold text-sm tracking-tight">{practitioner.name}</h4>
+                  <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-wider mt-1">{practitioner.title}</span>
+                </div>
+              ))}
             </div>
           </div>
 

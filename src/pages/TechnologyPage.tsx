@@ -88,15 +88,72 @@ export function TechnologyPage() {
 
             {/* EMR Showcase Row */}
             <section className="bg-gradient-to-br from-[var(--color-ares-charcoal)] to-transparent border border-white/5 rounded-2xl p-8 md:p-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-6 uppercase">
+                    Data-Driven Upgrades
+                  </h2>
+                  <p className="text-white/70 leading-relaxed mb-6 text-base sm:text-lg">
+                    Our custom EMR gives coaches, trainers, and athletes an instant visual report of sensory performance. No spreadsheets or vague summaries. You get clean charts illustrating exactly how your Choice Reaction Time is dropping and how your tracking accuracy is climbing.
+                  </p>
+                  <p className="text-white/70 leading-relaxed font-bold text-base sm:text-lg mb-8">
+                    This is the standard of performance analytics that elite collegiate programs and professional motorsports rosters demand.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { src: '/EMR Screenshot 1.jpeg', label: 'Sensory Score AQ™' },
+                    { src: '/EMR Screenshot 2.jpeg', label: 'Processing Latency' },
+                    { src: '/EMR Screenshot 3.jpeg', label: 'Imbalance Tracking' }
+                  ].map((img, i) => (
+                    <div key={i} className="group relative rounded-xl overflow-hidden border border-white/10 hover:border-[var(--color-ares-teal)] transition-all bg-black/40">
+                      <img 
+                        src={img.src} 
+                        alt={img.label} 
+                        className="w-full aspect-[4/3] object-cover object-top group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3">
+                        <span className="text-[10px] font-mono font-bold tracking-wider text-white/90 uppercase">{img.label}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* Performance Suite Hardware Gallery */}
+            <section className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-8 md:p-12">
               <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-6 uppercase">
-                Data-Driven Upgrades
+                The A.R.E.S. Performance Suite
               </h2>
-              <p className="text-white/70 leading-relaxed mb-6">
-                Our custom EMR gives coaches, trainers, and athletes an instant visual report of sensory performance. No spreadsheets or vague summaries. You get clean charts illustrating exactly how your Choice Reaction Time is dropping and how your tracking accuracy is climbing.
+              <p className="text-white/70 leading-relaxed mb-10 max-w-3xl text-base sm:text-lg">
+                Training sensory processing requires specialized equipment. Our facility features virtual reality spatial trackers, high-speed eye tracking cameras, strobe occlusion optics, and multi-target spatial coordination boards designed to stress-test your visual routing system.
               </p>
-              <p className="text-white/70 leading-relaxed font-bold">
-                This is the standard of performance analytics that elite collegiate programs and professional motorsports rosters demand.
-              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { src: '/A.R.E.S. Performance Suite 1.jpeg', title: 'VR Target Capture', desc: 'Isolating dynamic peripheral targets under fatigue.' },
+                  { src: '/A.R.E.S. Performance Suite 2.jpeg', title: 'Strobe Occlusion Optics', desc: 'Slowing visual frame rates to force cognitive prediction.' },
+                  { src: '/A.R.E.S. Performance Suite 3.jpeg', title: 'Spatial Target Boards', desc: 'Decomposing eye-to-hand reaction latency.' }
+                ].map((item, i) => (
+                  <div key={i} className="group bg-[var(--color-ares-bg)] rounded-xl border border-white/5 overflow-hidden hover:border-[var(--color-ares-purple)] transition-all flex flex-col">
+                    <div className="relative overflow-hidden aspect-[16/10]">
+                      <img 
+                        src={item.src} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded text-[9px] font-mono tracking-widest text-[var(--color-ares-purple)] uppercase border border-[var(--color-ares-purple)]/30">
+                        Suite 0{i + 1}
+                      </div>
+                    </div>
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <h4 className="text-white font-bold text-lg mb-2 group-hover:text-[var(--color-ares-purple)] transition-colors">{item.title}</h4>
+                      <p className="text-xs text-white/50 leading-relaxed font-light">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </section>
 
             {/* CTA */}
