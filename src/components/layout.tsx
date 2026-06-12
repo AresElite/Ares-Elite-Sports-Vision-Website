@@ -160,13 +160,6 @@ export function Navbar() {
                 Call Us
               </a>
               <div className="flex items-center gap-3 mt-1">
-                <Link 
-                  to="/login"
-                  className="text-[var(--color-ares-purple)] hover:text-[var(--color-ares-purple)]/80 text-[10px] uppercase tracking-widest font-bold transition-colors"
-                >
-                  Log Into Client Portal
-                </Link>
-                <span className="text-[var(--color-ares-border)]">|</span>
                 <a 
                   href="https://arescertification.com/"
                   target="_blank" rel="noopener noreferrer"
@@ -303,14 +296,6 @@ export function Navbar() {
                       </Link>
                     </li>
                     <li>
-                      <Link 
-                        to="/login"
-                        className="flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--color-ares-purple)]/10 border border-[var(--color-ares-purple)]/30 text-[var(--color-ares-purple)] font-bold hover:bg-[var(--color-ares-purple)] hover:text-white transition-all"
-                      >
-                        Log Into Client Portal
-                      </Link>
-                    </li>
-                    <li className="sm:col-span-2">
                       <a 
                         href="https://arescertification.com/"
                         target="_blank" rel="noopener noreferrer"
@@ -408,7 +393,6 @@ export function Footer() {
               <li><Link to="/speaking" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Speaking & Keynotes</Link></li>
               <li><Link to="/identity" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Who We Are</Link></li>
               <li><Link to="/contact" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">General Inquiry</Link></li>
-              <li><Link to="/login" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Client Portal</Link></li>
               <li><a href="tel:+17739811447" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">(773) 981-1447</a></li>
               <li className="text-sm sm:text-base leading-relaxed mt-4">
                 <a href="https://maps.google.com/?q=510+West+Carmel+Drive,+Carmel,+IN+46032" target="_blank" rel="noopener noreferrer" className="text-[var(--color-ares-muted)] hover:text-white transition-colors">

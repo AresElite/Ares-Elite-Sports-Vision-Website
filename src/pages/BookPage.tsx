@@ -172,11 +172,11 @@ export function BookPage() {
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Client Scheduling & Training</h2>
           <p className="text-white/70 max-w-2xl mx-auto text-lg">
-            Active clients can schedule their sessions through the Client Portal or purchase additional training packages below.
+            Active clients can schedule their sessions or purchase additional training packages below.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+        <div className="max-w-md mx-auto mb-16">
           <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-3xl p-8 flex flex-col items-center text-center shadow-xl">
              <div className="w-16 h-16 rounded-full bg-[var(--color-ares-teal)]/20 flex items-center justify-center mb-6">
                 <RefreshCw className="w-8 h-8 text-[var(--color-ares-teal)]" />
@@ -192,23 +192,6 @@ export function BookPage() {
              >
                Start Re-Evaluation Booking
              </button>
-          </div>
-
-          <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-3xl p-8 flex flex-col items-center text-center shadow-xl">
-             <div className="w-16 h-16 rounded-full bg-[var(--color-ares-purple)]/20 flex items-center justify-center mb-6">
-                <UserPlus className="w-8 h-8 text-[var(--color-ares-purple)]" />
-             </div>
-             <h3 className="text-2xl font-bold mb-4">Log Into Client Portal</h3>
-             <p className="text-white/60 mb-8 flex-1">
-               Already have an active membership or package? Log in to view your calendar, manage bookings, and schedule your next training session.
-             </p>
-             <div className="text-white/30 text-sm mb-6 uppercase tracking-widest font-bold font-mono">Members Area</div>
-             <Link
-               to="/login"
-               className="w-full py-4 rounded-xl bg-[var(--color-ares-purple)] hover:bg-[var(--color-ares-purple)]/90 font-bold transition-all flex items-center justify-center gap-2 text-lg shadow-glow shadow-[var(--color-ares-purple)]/20"
-             >
-               Go To Client Portal <ExternalLink className="w-5 h-5" />
-             </Link>
           </div>
         </div>
 

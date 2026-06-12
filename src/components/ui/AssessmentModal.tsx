@@ -67,7 +67,12 @@ export function AssessmentModal() {
   
   // Questionnaire States
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [surveyAnswers, setSurveyAnswers] = useState<number[]>(new Array(20).fill(5));
+  const [surveyAnswers, setSurveyAnswers] = useState<(number | null)[]>(new Array(20).fill(null));
+  
+  // Single click lock refs
+  const rawHasClickedRef = useRef(false);
+  const choiceHasClickedRef = useRef(false);
+  const recHasClickedRef = useRef(false);
   
   // Drill 1: Raw RT States
   const [rawTrial, setRawTrial] = useState(0);
@@ -126,6 +131,10 @@ export function AssessmentModal() {
     newAnswers[currentQuestionIndex] = value;
     setSurveyAnswers(newAnswers);
 
+    if (document.activeElement instanceof HTMLElement) {
+      document.activeElement.blur();
+    }
+
     if (currentQuestionIndex < QUESTIONS.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
@@ -149,6 +158,7 @@ export function AssessmentModal() {
 
   const triggerRawNextTrial = () => {
     setRawState('waiting');
+    rawHasClickedRef.current = false;
     const delay = 1500 + Math.random() * 2500; // 1.5s to 4s random delay
     if (rawTimerRef.current) clearTimeout(rawTimerRef.current);
     
@@ -160,6 +170,8 @@ export function AssessmentModal() {
 
   const handleRawClick = () => {
     if (rawState === 'waiting') {
+      if (rawHasClickedRef.current) return;
+      rawHasClickedRef.current = true;
       // False positive
       if (rawTimerRef.current) clearTimeout(rawTimerRef.current);
       setRawFalsePositives(prev => prev + 1);
@@ -169,6 +181,8 @@ export function AssessmentModal() {
         advanceRawTrial();
       }, 1000);
     } else if (rawState === 'flash') {
+      if (rawHasClickedRef.current) return;
+      rawHasClickedRef.current = true;
       const clickTime = performance.now();
       const rt = clickTime - rawFlashTimeRef.current;
       setRawTimes(prev => [...prev, rt]);
@@ -201,6 +215,7 @@ export function AssessmentModal() {
   const triggerChoiceNextTrial = () => {
     setChoiceState('waiting');
     setChoiceTargetColor(null);
+    choiceHasClickedRef.current = false;
     const delay = 1200 + Math.random() * 1800; // 1.2s to 3s delay
     if (choiceTimerRef.current) clearTimeout(choiceTimerRef.current);
     
@@ -213,7 +228,8 @@ export function AssessmentModal() {
   };
 
   const handleChoiceInput = (inputColor: 'purple' | 'teal') => {
-    if (choiceState !== 'target' || !choiceTargetColor) return;
+    if (choiceState !== 'target' || !choiceTargetColor || choiceHasClickedRef.current) return;
+    choiceHasClickedRef.current = true;
     
     const clickTime = performance.now();
     const rt = clickTime - choiceFlashTimeRef.current;
@@ -258,6 +274,7 @@ export function AssessmentModal() {
   const runRecCountdown = () => {
     setRecState('countdown');
     setRecCountdown(3);
+    recHasClickedRef.current = false;
     
     let currentCount = 3;
     if (recTimerRef.current) clearInterval(recTimerRef.current);
@@ -275,16 +292,18 @@ export function AssessmentModal() {
 
   const flashRecPattern = () => {
     setRecState('flash');
+    recHasClickedRef.current = false;
     
-    // Flash target for 200ms
+    // Flash target for 800ms
     setTimeout(() => {
       setRecState('select');
       recStartTimeRef.current = performance.now();
-    }, 200);
+    }, 800);
   };
 
   const handleRecSelect = (option: string[]) => {
-    if (recState !== 'select') return;
+    if (recState !== 'select' || recHasClickedRef.current) return;
+    recHasClickedRef.current = true;
     
     const clickTime = performance.now();
     const rt = clickTime - recStartTimeRef.current;
@@ -402,7 +421,16 @@ export function AssessmentModal() {
         body: JSON.stringify(payload)
       });
 
-      const data = await response.json();
+      let data: any;
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        console.error("Non-JSON API error response received:", text);
+        throw new Error("The server is currently waking up. Please wait 15 seconds and try again, or contact us at drl@areselitesportsvision.com.");
+      }
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to submit assessment");
       }
@@ -507,11 +535,16 @@ export function AssessmentModal() {
                   <div className="grid grid-cols-10 gap-2 sm:gap-3">
                     {Array.from({ length: 10 }).map((_, i) => {
                       const val = i + 1;
+                      const isSelected = surveyAnswers[currentQuestionIndex] === val;
                       return (
                         <button
-                          key={val}
+                          key={`${currentQuestionIndex}-${val}`}
                           onClick={() => handleAnswerSurvey(val)}
-                          className="py-4 rounded-xl font-mono text-lg font-bold transition-all border border-white/10 hover:border-[var(--color-ares-teal)] hover:bg-[var(--color-ares-teal)]/10 text-white/70 hover:text-white focus:outline-none focus:ring-1 focus:ring-[var(--color-ares-teal)]"
+                          className={`py-4 rounded-xl font-mono text-lg font-bold transition-all border ${
+                            isSelected 
+                              ? 'bg-[var(--color-ares-teal)] border-[var(--color-ares-teal)] text-[#0e111a] shadow-[0_0_15px_rgba(41,182,246,0.4)] font-black' 
+                              : 'bg-transparent border-white/10 hover:border-[var(--color-ares-teal)] hover:bg-[var(--color-ares-teal)]/10 text-white/70 hover:text-white'
+                          } focus:outline-none`}
                         >
                           {val}
                         </button>
@@ -582,54 +615,36 @@ export function AssessmentModal() {
 
                 {/* Drill Trigger Box */}
                 <div 
-                  onClick={handleRawClick}
+                  onPointerDown={handleRawClick}
                   className="w-full min-h-[250px] rounded-2xl border border-white/5 bg-black/40 hover:bg-black/50 transition-colors flex flex-col items-center justify-center cursor-pointer select-none relative overflow-hidden"
                 >
-                  <AnimatePresence mode="wait">
-                    {rawState === 'waiting' && (
-                      <motion.div 
-                        key="wait"
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.8, opacity: 0 }}
-                        className="w-24 h-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center"
-                      >
-                        <span className="text-white/20 font-bold uppercase tracking-widest text-xs">Ready</span>
-                      </motion.div>
-                    )}
-                    {rawState === 'flash' && (
-                      <motion.div 
-                        key="flash"
-                        initial={{ scale: 0.3, opacity: 0 }}
-                        animate={{ scale: [1, 1.2, 1], opacity: 1 }}
-                        className="w-32 h-32 rounded-full bg-[var(--color-ares-teal)] shadow-[0_0_50px_rgba(41,182,246,0.6)] flex items-center justify-center"
-                      >
-                        <span className="text-black font-black uppercase tracking-widest text-base">CLICK NOW!</span>
-                      </motion.div>
-                    )}
-                    {rawState === 'feedback' && (
-                      <motion.div 
-                        key="feedback"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-white"
-                      >
-                        {rawTimes.length > rawTrial ? (
-                          <div className="flex flex-col items-center gap-2">
-                            <span className="text-white/50 text-xs font-mono uppercase tracking-widest">Reaction Speed</span>
-                            <span className="text-4xl font-mono font-bold text-[var(--color-ares-teal)]">
-                              {Math.round(rawTimes[rawTimes.length - 1])}ms
-                            </span>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center gap-2 text-red-500">
-                            <span className="text-red-500 font-black uppercase tracking-widest text-sm">False Positive!</span>
-                            <span className="text-white/40 text-xs">Wait for color shift.</span>
-                          </div>
-                        )}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {rawState === 'waiting' && (
+                    <div className="w-24 h-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                      <span className="text-white/20 font-bold uppercase tracking-widest text-xs">Ready</span>
+                    </div>
+                  )}
+                  {rawState === 'flash' && (
+                    <div className="w-32 h-32 rounded-full bg-[var(--color-ares-teal)] shadow-[0_0_50px_rgba(41,182,246,0.6)] flex items-center justify-center">
+                      <span className="text-black font-black uppercase tracking-widest text-base">CLICK NOW!</span>
+                    </div>
+                  )}
+                  {rawState === 'feedback' && (
+                    <div className="text-white">
+                      {rawTimes.length > rawTrial ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <span className="text-white/50 text-xs font-mono uppercase tracking-widest">Reaction Speed</span>
+                          <span className="text-4xl font-mono font-bold text-[var(--color-ares-teal)]">
+                            {Math.round(rawTimes[rawTimes.length - 1])}ms
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col items-center gap-2 text-red-500">
+                          <span className="text-red-500 font-black uppercase tracking-widest text-sm">False Positive!</span>
+                          <span className="text-white/40 text-xs">Wait for color shift.</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -655,62 +670,49 @@ export function AssessmentModal() {
                 <div 
                   className="w-full min-h-[200px] rounded-2xl border border-white/5 bg-black/40 flex flex-col items-center justify-center select-none mb-6 relative overflow-hidden"
                 >
-                  <AnimatePresence mode="wait">
-                    {choiceState === 'waiting' && (
-                      <motion.div 
-                        key="wait"
-                        className="text-white/20 font-bold uppercase tracking-widest text-xs"
-                      >
-                        Focus Center...
-                      </motion.div>
-                    )}
-                    {choiceState === 'target' && choiceTargetColor && (
-                      <motion.div 
-                        key="target"
-                        initial={{ scale: 0.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        className={`w-24 h-24 rounded-full ${
-                          choiceTargetColor === 'teal' 
-                            ? 'bg-[var(--color-ares-teal)] shadow-[0_0_40px_rgba(41,182,246,0.5)]' 
-                            : 'bg-[var(--color-ares-purple)] shadow-[0_0_40px_rgba(139,92,246,0.5)]'
-                        }`}
-                      />
-                    )}
-                    {choiceState === 'feedback' && (
-                      <motion.div 
-                        key="feedback"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="text-white"
-                      >
-                        {choiceTimes.length > choiceTrial ? (
-                          <div className="flex flex-col items-center gap-2">
-                            {choiceTimes[choiceTimes.length - 1].correct ? (
-                              <span className="text-emerald-400 font-bold text-sm tracking-widest uppercase">Correct</span>
-                            ) : (
-                              <span className="text-red-500 font-bold text-sm tracking-widest uppercase">Incorrect Target</span>
-                            )}
-                            <span className="text-3xl font-mono font-bold text-white">
-                              {Math.round(choiceTimes[choiceTimes.length - 1].time)}ms
-                            </span>
-                          </div>
-                        ) : null}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {choiceState === 'waiting' && (
+                    <div className="text-white/20 font-bold uppercase tracking-widest text-xs">
+                      Focus Center...
+                    </div>
+                  )}
+                  {choiceState === 'target' && choiceTargetColor && (
+                    <div 
+                      className={`w-24 h-24 rounded-full ${
+                        choiceTargetColor === 'teal' 
+                          ? 'bg-[var(--color-ares-teal)] shadow-[0_0_40px_rgba(41,182,246,0.5)]' 
+                          : 'bg-[var(--color-ares-purple)] shadow-[0_0_40px_rgba(139,92,246,0.5)]'
+                      }`}
+                    />
+                  )}
+                  {choiceState === 'feedback' && (
+                    <div className="text-white">
+                      {choiceTimes.length > choiceTrial ? (
+                        <div className="flex flex-col items-center gap-2">
+                          {choiceTimes[choiceTimes.length - 1].correct ? (
+                            <span className="text-emerald-400 font-bold text-sm tracking-widest uppercase">Correct</span>
+                          ) : (
+                            <span className="text-red-500 font-bold text-sm tracking-widest uppercase">Incorrect Target</span>
+                          )}
+                          <span className="text-3xl font-mono font-bold text-white">
+                            {Math.round(choiceTimes[choiceTimes.length - 1].time)}ms
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
 
                 {/* Input Buttons */}
                 <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
                   <button
-                    onClick={() => handleChoiceInput('teal')}
+                    onPointerDown={() => handleChoiceInput('teal')}
                     disabled={choiceState !== 'target'}
                     className="py-5 rounded-2xl bg-[var(--color-ares-teal)]/10 hover:bg-[var(--color-ares-teal)]/20 border border-[var(--color-ares-teal)]/30 text-[var(--color-ares-teal)] font-bold text-lg transition-all focus:outline-none disabled:opacity-20"
                   >
                     TEAL (Left)
                   </button>
                   <button
-                    onClick={() => handleChoiceInput('purple')}
+                    onPointerDown={() => handleChoiceInput('purple')}
                     disabled={choiceState !== 'target'}
                     className="py-5 rounded-2xl bg-[var(--color-ares-purple)]/10 hover:bg-[var(--color-ares-purple)]/20 border border-[var(--color-ares-purple)]/30 text-[var(--color-ares-purple)] font-bold text-lg transition-all focus:outline-none disabled:opacity-20"
                   >
@@ -733,66 +735,46 @@ export function AssessmentModal() {
                 </div>
 
                 <p className="text-white/50 text-sm mb-8 max-w-md mx-auto">
-                  A pattern of 3 arrows will flash for <strong>200ms</strong>. Memorize it and select the correct option.
+                  A pattern of 3 arrows will flash for <strong>800ms</strong>. Memorize it and select the correct option.
                 </p>
 
                 {/* Target Flash Box */}
                 <div 
                   className="w-full min-h-[160px] rounded-2xl border border-white/5 bg-black/40 flex flex-col items-center justify-center select-none mb-8 relative overflow-hidden"
                 >
-                  <AnimatePresence mode="wait">
-                    {recState === 'countdown' && (
-                      <motion.div 
-                        key="countdown"
-                        initial={{ scale: 1.5, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.5, opacity: 0 }}
-                        className="text-4xl font-bold font-mono text-[var(--color-ares-teal)]"
-                      >
-                        {recCountdown}
-                      </motion.div>
-                    )}
-                    {recState === 'flash' && (
-                      <motion.div 
-                        key="flash"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="flex items-center justify-center gap-6"
-                      >
-                        {RECOGNITION_SYMBOLS[recTrial].map((sym, idx) => (
-                          <span key={idx} className="text-5xl font-bold text-white">{sym}</span>
-                        ))}
-                      </motion.div>
-                    )}
-                    {recState === 'select' && (
-                      <motion.div 
-                        key="select"
-                        className="text-white/20 font-bold uppercase tracking-widest text-xs"
-                      >
-                        Select the correct pattern below...
-                      </motion.div>
-                    )}
-                    {recState === 'feedback' && (
-                      <motion.div 
-                        key="feedback"
-                        className="text-white"
-                      >
-                        {recTimes.length > recTrial ? (
-                          <div className="flex flex-col items-center gap-2">
-                            {recTimes[recTimes.length - 1].correct ? (
-                              <span className="text-emerald-400 font-bold text-sm tracking-widest uppercase">Pattern Matched</span>
-                            ) : (
-                              <span className="text-red-500 font-bold text-sm tracking-widest uppercase">Incorrect Pattern</span>
-                            )}
-                            <span className="text-3xl font-mono font-bold text-white">
-                              {Math.round(recTimes[recTimes.length - 1].time)}ms
-                            </span>
-                          </div>
-                        ) : null}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                  {recState === 'countdown' && (
+                    <div className="text-4xl font-bold font-mono text-[var(--color-ares-teal)]">
+                      {recCountdown}
+                    </div>
+                  )}
+                  {recState === 'flash' && (
+                    <div className="flex items-center justify-center gap-6">
+                      {RECOGNITION_SYMBOLS[recTrial].map((sym, idx) => (
+                        <span key={idx} className="text-5xl font-bold text-white">{sym}</span>
+                      ))}
+                    </div>
+                  )}
+                  {recState === 'select' && (
+                    <div className="text-white/20 font-bold uppercase tracking-widest text-xs">
+                      Select the correct pattern below...
+                    </div>
+                  )}
+                  {recState === 'feedback' && (
+                    <div className="text-white">
+                      {recTimes.length > recTrial ? (
+                        <div className="flex flex-col items-center gap-2">
+                          {recTimes[recTimes.length - 1].correct ? (
+                            <span className="text-emerald-400 font-bold text-sm tracking-widest uppercase">Pattern Matched</span>
+                          ) : (
+                            <span className="text-red-500 font-bold text-sm tracking-widest uppercase">Incorrect Pattern</span>
+                          )}
+                          <span className="text-3xl font-mono font-bold text-white">
+                            {Math.round(recTimes[recTimes.length - 1].time)}ms
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
+                  )}
                 </div>
 
                 {/* Multiple Choice Options */}
@@ -801,7 +783,7 @@ export function AssessmentModal() {
                     {RECOGNITION_OPTIONS[recTrial].map((option, idx) => (
                       <button
                         key={idx}
-                        onClick={() => handleRecSelect(option)}
+                        onPointerDown={() => handleRecSelect(option)}
                         className="py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xl font-bold flex items-center justify-center gap-4 transition-all text-white"
                       >
                         {option.map((s, i) => <span key={i}>{s}</span>)}

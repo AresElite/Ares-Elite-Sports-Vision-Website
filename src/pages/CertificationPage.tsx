@@ -170,6 +170,7 @@ export function CertificationPage() {
                 { name: "Blair Julian", title: "CPVT Level 1", src: "/A.R.E.S Certification - CVPT - Blair Julian.png" },
                 { name: "Cameron Gray", title: "CPVT Provider", src: "/A.R.E.S. Certification - Cameron Gray - CPVT.png" },
                 { name: "Christopher Wheeler", title: "CPVT Provider", src: "/A.R.E.S. Certification - Christopher Wheeler.png" },
+                { name: "Dr. Lauren Roderick", title: "CPVT Level 2", src: "/A.R.E.S. Certification Badge.png" },
                 { name: "Jordan Guler", title: "CPVT Provider", src: "/A.R.E.S. Certification - Jordan Guler.png" },
                 { name: "Joseph Sero", title: "CPVT Provider", src: "/A.R.E.S. Certification - Joseph Sero.png" },
                 { name: "William Plummer", title: "CPVT Provider", src: "/A.R.E.S. Certification - William Plummer.png" },
