@@ -109,6 +109,45 @@ db.exec(`
 // Drop old bookings table if exists to migrate to payments
 db.exec(`DROP TABLE IF EXISTS bookings`);
 
+// Schema migrations to support lead capture details, UTM parameters, and lead status
+function runMigrations() {
+  const columnsToAdd = [
+    { table: "leads", column: "phone", type: "TEXT" },
+    { table: "leads", column: "athlete_name", type: "TEXT" },
+    { table: "leads", column: "parent_guardian_name", type: "TEXT" },
+    { table: "leads", column: "age", type: "INTEGER" },
+    { table: "leads", column: "lead_source", type: "TEXT DEFAULT 'Website'" },
+    { table: "leads", column: "utm_source", type: "TEXT" },
+    { table: "leads", column: "utm_medium", type: "TEXT" },
+    { table: "leads", column: "utm_campaign", type: "TEXT" },
+    { table: "leads", column: "landing_page", type: "TEXT DEFAULT '/'" },
+    { table: "leads", column: "updated_at", type: "DATETIME DEFAULT CURRENT_TIMESTAMP" }
+  ];
+
+  for (const item of columnsToAdd) {
+    try {
+      db.prepare(`ALTER TABLE ${item.table} ADD COLUMN ${item.column} ${item.type}`).run();
+      console.log(`Migrated: Added ${item.column} to ${item.table}`);
+    } catch (err: any) {
+      if (!err.message.includes("duplicate column name") && !err.message.includes("already exists")) {
+        console.warn(`Migration warning for ${item.table}.${item.column}: ${err.message}`);
+      }
+    }
+  }
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS lead_status_history (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      lead_id INTEGER NOT NULL,
+      old_status TEXT,
+      new_status TEXT,
+      changed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY(lead_id) REFERENCES leads(id)
+    );
+  `);
+}
+runMigrations();
+
 // Mock Stripe Webhook Endpoint
 
 let resend: Resend | null = null;
@@ -137,152 +176,156 @@ function getStripe(): Stripe {
 }
 
 // Email Sequence Definition
+// Email Sequence Definition (Drip Campaign)
 const emails = [
   {
     day: 0,
-    subject: "Got your message — here's what's next",
+    subject: (firstName: string, sport: string) => `Next steps for your sensory performance, ${firstName}`,
     body: (firstName: string, sport: string) => `Hi ${firstName},
 
-Thanks for reaching out to Ares Elite Sports Vision — I got your message and wanted to follow up personally.
+Great job completing the A.R.E.S. sensory assessment.
 
-What you're looking into is more important than most athletes realize. Visual processing, reaction speed, and spatial tracking are trainable — and for ${sport || 'elite'} athletes specifically, that edge is often the difference between good and elite.
+While your initial metrics give us a snapshot, the next step is mapping your complete visual engine. High-speed coordination, peripheral accuracy, and focus under physical fatigue cannot be fully diagnosed online.
 
-Here's what happens next: I'll be in touch within 24 hours to answer your questions and, if it makes sense, get you scheduled for an evaluation. The eval runs about 90 minutes and covers the full picture — from baseline visual acuity to high-speed target acquisition and cognitive processing under fatigue.
+That is why we begin with the Sports Vision Performance Evaluation. This is a 75-minute, in-depth diagnostic session at our facility in Carmel where we run you through our specialized tactile boards, eye-tracking systems, and strobe-occlusion diagnostics.
 
-In the meantime, if you have any questions, just reply to this email.
-
-Looking forward to connecting.
-
-— Dr. Joe LaPlaca
-Ares Elite Sports Vision
-${APP_URL}/book/evaluation`
-  },
-  {
-    day: 1,
-    subject: "The gap most athletes never close",
-    body: (firstName: string, sport: string) => `Hi ${firstName},
-
-Most ${sport || 'elite'} athletes spend thousands of hours on physical conditioning. Very few spend any time on the system that controls every physical output — the visual-cognitive engine.
-
-Your eyes don't just see the field. They calculate depth, predict movement, time reactions, and feed real-time data to your motor system — all in under 200 milliseconds. When that system is undertrained, you're slower than you need to be. Not because your legs are slow. Because your brain is late.
-
-At AESV, we've tested and trained athletes across ${sport || 'multiple sports'} and other high-speed disciplines. The pattern is consistent: athletes who close this gap see measurable improvement in reaction time, decision accuracy, and on-field anticipation — often within the first few weeks of training.
-
-Your evaluation is the starting point. It takes 90 minutes and maps your exact visual-cognitive profile so we know precisely where to build.
-
-Want to get on the schedule?
+Delaying this evaluation means training with blind spots. Let's lock in your baseline.
 
 Book Your Evaluation: ${APP_URL}/book/evaluation
 
-— Dr. Joe LaPlaca
-Ares Elite Sports Vision`
+Best regards,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision
+Milliseconds Matter™`
   },
   {
-    day: 3,
-    subject: "What your eval actually looks like",
+    day: 2,
+    subject: (firstName: string, sport: string) => `The 200-millisecond bottleneck in ${sport || 'sports'}`,
     body: (firstName: string, sport: string) => `Hi ${firstName},
 
-I get this question a lot, so I want to walk you through what an AESV evaluation actually involves — because it's nothing like a standard eye exam.
+In ${sport || 'elite sports'}, the physical game moves fast, but the cognitive game moves faster.
 
-When you come in, we assess five performance-specific areas:
+A 90mph fastball, an opponent's sudden change of direction, or a high-speed corner on a racetrack all require visual acquisition in under 200 milliseconds. If your eyes take 250 milliseconds to process the target and route that info to your brain, you are late before your muscles even contract.
 
-1. Dynamic visual acuity — how well you process moving targets at speed
-2. Saccadic precision — how fast and accurately your eyes acquire and shift between targets
-3. Contrast sensitivity — how you read visual information in variable light and motion conditions
-4. Depth and spatial processing — how quickly you calculate distance and object trajectory
-5. Cognitive processing under load — how your visual system performs when your body is fatigued
+Most athletes spend thousands of dollars on strength and skills coaching, yet ignore the very engine that controls those movements.
 
-By the end, you have a complete visual-cognitive performance profile — your strengths, your gaps, and a training roadmap built specifically for ${sport || 'your sport'}.
+Our evaluation exposes the exact bottleneck where you are giving away precious milliseconds.
 
-Athletes typically leave the eval with three things: clarity on what's been holding them back, a baseline to measure against, and a plan to move forward.
+Review our schedule and book your diagnostic slot this week:
+Book Your Evaluation: ${APP_URL}/book/evaluation
 
-The eval is $449. If you've been on the fence, this is the clearest next step.
+Best,
 
-Reserve Your Evaluation Spot: ${APP_URL}/book/evaluation
-
-— Dr. Joe LaPlaca
+Dr. Joe LaPlaca
 Ares Elite Sports Vision`
   },
   {
     day: 5,
-    subject: "What athletes say after their eval",
+    subject: (firstName: string, sport: string) => `How the A.R.E.S. framework builds elite athletes`,
     body: (firstName: string, sport: string) => `Hi ${firstName},
 
-One thing I hear consistently after evaluations:
+We build elite vision using a proprietary cognitive training loop: A.R.E.S.
 
-"I didn't realize how much I was leaving on the table."
+- Acquire: How fast and accurately do your eyes capture high-speed targets?
+- Route: How efficiently does your optic nerve send spatial coordinates to your brain?
+- Execute: How quickly does your motor cortex command physical muscle reactions?
+- Synchronize: How consistently do these systems align under fatigue and pressure?
 
-Athletes come in thinking their vision is fine — and technically, it often is. 20/20 vision has nothing to do with processing speed. What we find, almost universally, is that the gap isn't physical. It's the speed at which the visual system feeds information to the brain, and the brain converts that into action.
+Standard eye exams only check static 20/20 vision. They miss 80% of dynamic sports vision. The A.R.E.S. Evaluation is the only way to measure all four pillars under athletic load.
 
-That's a trainable gap. And for ${sport || 'elite'} athletes competing at a high level, closing it matters.
+Don't let visual latency limit your training gains.
 
-If you're ready to find out exactly where you stand — and what it would take to sharpen your edge — the evaluation is the place to start.
+Find Your Gaps: Schedule Evaluation: ${APP_URL}/book/evaluation
 
-Book Your AESV Evaluation: ${APP_URL}/book/evaluation
+Sincerely,
 
-One slot. 90 minutes. Your complete visual-cognitive profile.
-
-— Dr. Joe LaPlaca
+Dr. Joe LaPlaca
 Ares Elite Sports Vision`
   },
   {
-    day: 8,
-    subject: "Quick question for you",
+    day: 9,
+    subject: (firstName: string, sport: string) => `Why 20/20 vision isn't enough on game day`,
     body: (firstName: string, sport: string) => `Hi ${firstName},
 
-Just checking in — I want to ask you one direct question:
+A common misconception we hear from ${sport || 'elite'} athletes: "I don't need sports vision training, I have 20/20 vision."
 
-When is your next competitive season, tryout, or key event?
+Having 20/20 vision simply means you can read a stationary letter chart from 20 feet away. It tells us nothing about:
+- How fast your eyes track a spinning ball.
+- Your depth perception under stadium glare.
+- Your peripheral awareness when moving at speed.
 
-The reason I ask: most athletes who train with us see the sharpest gains when they start 6–10 weeks before a high-stakes period. That window gives us enough time to run the evaluation, identify your specific gaps, and get a meaningful training cycle in before it matters most.
+Sports vision training takes healthy eyes and tunes them for athletic dominance. But we cannot write your protocol until we run the baseline evaluation.
 
-If that window is coming up sooner than you think, I'd rather you know now than after.
+Book your Carmel diagnostic spot here:
+Reserve Evaluation Spot ($449): ${APP_URL}/book/evaluation
 
-Just reply with your timeline and I'll tell you honestly whether we can make it count.
+Best,
 
-— Dr. Joe LaPlaca
-Ares Elite Sports Vision`
-  },
-  {
-    day: 11,
-    subject: "Limited eval slots this month",
-    body: (firstName: string, sport: string) => `Hi ${firstName},
-
-A quick heads-up: evaluation slots for this month are filling up, and I want to make sure you have a chance to get in before the schedule closes out.
-
-We keep our evaluation volume intentionally limited — not as a sales tactic, but because I want to have enough time with each athlete to do the assessment properly and be present for the debrief conversation afterward.
-
-If you've been thinking about it, now is the time to move.
-
-Grab Your Evaluation Slot: ${APP_URL}/book/evaluation
-
-Also — whether or not you're ready to book, here's something you can use today: a 3-drill visual warm-up protocol I built for ${sport || 'elite'} athletes that takes less than 10 minutes and can be done before any practice or competition. No equipment needed.
-
-Download the Free Visual Warm-Up Protocol: ${APP_URL}/#system
-
-— Dr. Joe LaPlaca
+Dr. Joe LaPlaca
 Ares Elite Sports Vision`
   },
   {
     day: 14,
-    subject: "Leaving the door open",
+    subject: (firstName: string, sport: string) => `What coaches, parents, and scouts look for`,
     body: (firstName: string, sport: string) => `Hi ${firstName},
 
-I've reached out a few times and haven't heard back — which is completely fine. Timing matters, and if this isn't the right moment, I get it.
+When scouts and coaches evaluate an athlete, they look for "decision-making speed" and "high-pressure composure."
 
-I'm not going to keep filling your inbox. But I do want to leave you with this:
+These aren't abstract traits — they are directly tied to your visual-cognitive stamina.
 
-The athletes who see the most from what we do at AESV are the ones who come in before they feel like they need it — not in response to a slump or a down season, but proactively, when they're building toward something.
+- Coaches love athletes who read plays half a second before they happen.
+- Parents value the safety margin: faster tracking means fewer blind-spot hits and lower concussion risk.
+- Scouts look for neurological efficiency: the athlete who stays cool and accurate in the final minutes of a game.
 
-When the timing is right, the door is open. You can book directly at the link below, or just reply to this email and I'll get back to you personally.
+An A.R.E.S. Evaluation gives you the empirical telemetry data to show them you have that elite cognitive edge.
 
-Schedule Your Evaluation When You're Ready: ${APP_URL}/book/evaluation
+Book Your Performance Evaluation: ${APP_URL}/book/evaluation
 
-Wishing you a strong season regardless.
+Best regards,
 
-— Dr. Joe LaPlaca
-Ares Elite Sports Vision
-aresportsvision.com`
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 21,
+    subject: (firstName: string, sport: string) => `Are you ignoring the command center?`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+Imagine buying a race car and upgrading the tires, suspension, and body, but leaving a stock, low-grade computer chip to run the engine.
+
+That is what athletes do when they train their muscles, buy premium gear, and practice skills, but ignore their visual-cognitive command center.
+
+Every physical reaction is preceded by a visual decision.
+
+By skipping the evaluation, you are continuing to train blind spots that can easily be ironed out. Let's fix it.
+
+Tune Your Brain: Book Your Evaluation: ${APP_URL}/book/evaluation
+
+Sincerely,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 30,
+    subject: (firstName: string, sport: string) => `Leaving the door open (A.R.E.S. Evaluation)`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+I have checked in a few times and haven't heard back, which is completely fine. Timing is everything in sports and training, and if this isn't the right window for you, I understand.
+
+This is my last automated follow-up. I want to leave you with one final thought: visual bottlenecks do not go away on their own. They manifest as split-second hesitations, late reactions, and performance drop-offs during physical fatigue.
+
+Whenever you are ready to proactively build your processing speed and claim those crucial milliseconds, the door is open.
+
+You can book your diagnostic evaluation below or reply directly to this email to coordinate.
+
+Book Evaluation When Ready: ${APP_URL}/book/evaluation
+
+Wishing you a healthy and successful season.
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
   }
 ];
 
@@ -290,8 +333,12 @@ aresportsvision.com`
 async function processEmailSequences() {
   console.log("Running email sequence processor...");
   
-  // Get all active leads
-  const leads = db.prepare("SELECT * FROM leads WHERE status = 'active'").all() as any[];
+  // Get all active leads in nurture, excluding internal domains
+  const leads = db.prepare(`
+    SELECT * FROM leads 
+    WHERE (status = 'Nurture Campaign Active' OR status = 'Evaluation Not Scheduled' OR status LIKE 'Email % Sent')
+      AND email NOT LIKE '%@areselitesportsvision.com'
+  `).all() as any[];
   
   for (const lead of leads) {
     // Calculate days since creation
@@ -311,30 +358,36 @@ async function processEmailSequences() {
         if (!log) {
           // Send email
           try {
-            console.log(`Sending email ${i} (Day ${emailDef.day}) to ${lead.email}`);
+            console.log(`Sending email ${i + 1} (Day ${emailDef.day}) to ${lead.email}`);
             
+            const subjectText = emailDef.subject(lead.first_name, lead.sport || 'elite');
+            const bodyText = emailDef.body(lead.first_name, lead.sport || 'elite') +
+              `\n\n---\n` +
+              `If you no longer wish to receive these training updates, you can unsubscribe here:\n` +
+              `${APP_URL}/api/unsubscribe?email=${encodeURIComponent(lead.email)}\n\n` +
+              `Ares Elite Sports Vision // 510 W. Carmel Dr., Carmel, IN 46032`;
+
             if (resend) {
               await resend.emails.send({
                 from: SENDER_EMAIL,
                 to: lead.email,
-                subject: emailDef.subject,
-                text: emailDef.body(lead.first_name, lead.sport || 'elite')
+                subject: subjectText,
+                text: bodyText
               });
             } else {
               console.log("RESEND_API_KEY not set. Simulating email send:");
-              console.log(`Subject: ${emailDef.subject}`);
+              console.log(`Subject: ${subjectText}`);
               console.log(`To: ${lead.email}`);
             }
             
             // Log it
             db.prepare("INSERT INTO email_logs (lead_id, email_index) VALUES (?, ?)").run(lead.id, i);
             
-            // If this was the last email, mark lead as completed
-            if (i === emails.length - 1) {
-              db.prepare("UPDATE leads SET status = 'completed' WHERE id = ?").run(lead.id);
-            }
+            // Update lead status
+            const statusLabel = i === emails.length - 1 ? 'Final Follow-Up Sent' : `Email ${i + 1} Sent`;
+            db.prepare("UPDATE leads SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(statusLabel, lead.id);
           } catch (error) {
-            console.error(`Failed to send email ${i} to ${lead.email}:`, error);
+            console.error(`Failed to send email ${i + 1} to ${lead.email}:`, error);
           }
         }
       }
@@ -342,9 +395,320 @@ async function processEmailSequences() {
   }
 }
 
+// Compile and send Weekly Performance Report
+async function sendWeeklyReport() {
+  console.log("Compiling weekly report...");
+  try {
+    const oneWeekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    
+    // Total new assessment leads
+    const newLeads = db.prepare("SELECT COUNT(*) as count FROM leads WHERE created_at >= ?").get(oneWeekAgo) as { count: number };
+    
+    // Total scheduled evaluations
+    const scheduled = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Evaluation Scheduled' AND updated_at >= ?").get(oneWeekAgo) as { count: number };
+    
+    // Total active in nurture
+    const activeNurture = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status LIKE '%Sent' OR status = 'Nurture Campaign Active'").get() as { count: number };
+    
+    // Leads by source
+    const sourceStats = db.prepare("SELECT lead_source, COUNT(*) as count FROM leads WHERE created_at >= ? GROUP BY lead_source").all(oneWeekAgo) as { lead_source: string, count: number }[];
+    
+    // Convert source stats to description
+    const sourceSummary = sourceStats.map(s => `${s.lead_source || 'Website'}: ${s.count}`).join(', ') || "None";
+    
+    // Conversion rate
+    const conversionRate = newLeads.count > 0 ? Math.round((scheduled.count / newLeads.count) * 100) : 0;
+
+    // Leads who have not scheduled yet
+    const pendingLeadsList = db.prepare(`
+      SELECT l.first_name, l.last_name, l.sport, l.created_at, a.questionnaire_score 
+      FROM leads l
+      LEFT JOIN assessments a ON l.email = a.email
+      WHERE l.status != 'Evaluation Scheduled' AND l.status != 'Unsubscribed' AND l.status != 'Not Interested'
+      ORDER BY l.created_at DESC LIMIT 10
+    `).all() as any[];
+
+    // Manual follow-ups (clicked booking but no payment, or opened multiple emails)
+    const manualFollowUpsList = db.prepare(`
+      SELECT first_name, last_name, email, sport, status
+      FROM leads
+      WHERE (sport LIKE '%pro%' OR sport LIKE '%elite%' OR status = 'Final Follow-Up Sent')
+        AND status != 'Evaluation Scheduled'
+      LIMIT 5
+    `).all() as any[];
+
+    // Format HTML email rows
+    let pendingRows = "";
+    for (const lead of pendingLeadsList) {
+      pendingRows += `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.first_name} ${lead.last_name || ''}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.sport || 'N/A'}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.questionnaire_score || 'N/A'}/200</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${new Date(lead.created_at).toLocaleDateString()}</td>
+        </tr>
+      `;
+    }
+
+    let manualRows = "";
+    for (const lead of manualFollowUpsList) {
+      const reason = lead.status === 'Final Follow-Up Sent' ? 'Finished Drip Nurture' : 'Elite/Pro Athlete';
+      manualRows += `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${lead.first_name} ${lead.last_name || ''}</strong> (${lead.email})</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.sport || 'N/A'}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">${reason}</span></td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><a href="mailto:${lead.email}" style="color: #29b6f6; text-decoration: none;">Email Lead</a></td>
+        </tr>
+      `;
+    }
+
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; background-color: #0e111a; color: #ffffff; padding: 24px; max-width: 650px; border-radius: 12px; border: 1px solid #8b5cf6;">
+        <h2 style="color: #8b5cf6; margin-top: 0; text-transform: uppercase; font-size: 20px; border-bottom: 2px solid #8b5cf6; padding-bottom: 12px;">A.R.E.S. Weekly Funnel Performance Report</h2>
+        <p style="color: #9ca3af; font-size: 13px;">Reporting Period: Past 7 Days</p>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px 0;">
+          <div style="background: #1f2937; padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">New Assessment Leads</div>
+            <div style="font-size: 24px; font-weight: bold; color: #29b6f6; margin-top: 5px;">${newLeads.count}</div>
+          </div>
+          <div style="background: #1f2937; padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Evals Scheduled</div>
+            <div style="font-size: 24px; font-weight: bold; color: #66bb6a; margin-top: 5px;">${scheduled.count}</div>
+          </div>
+          <div style="background: #1f2937; padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 11px; color: #9ca3af; text-transform: uppercase;">Conversion Rate</div>
+            <div style="font-size: 24px; font-weight: bold; color: #fbbf24; margin-top: 5px;">${conversionRate}%</div>
+          </div>
+        </div>
+
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Leads Active in Nurture: ${activeNurture.count}</div>
+        <div style="font-size: 13px; margin-top: 10px; color: #e5e7eb;"><strong>Sources Performance:</strong> ${sourceSummary}</div>
+
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Manual Follow-Up Alerts (Hot Actions Needed)</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="text-align: left; color: #9ca3af; font-size: 12px; border-bottom: 1px solid #374151;">
+              <th style="padding-bottom: 8px;">Name</th>
+              <th style="padding-bottom: 8px;">Sport</th>
+              <th style="padding-bottom: 8px;">Trigger Reason</th>
+              <th style="padding-bottom: 8px;">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${manualRows || '<tr><td colspan="4" style="color:#9ca3af;text-align:center;padding:10px;">No high-priority manual follow-ups this week</td></tr>'}
+          </tbody>
+        </table>
+
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Recent Leads Who Haven't Booked Yet</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="text-align: left; color: #9ca3af; font-size: 12px; border-bottom: 1px solid #374151;">
+              <th style="padding-bottom: 8px;">Name</th>
+              <th style="padding-bottom: 8px;">Sport</th>
+              <th style="padding-bottom: 8px;">Score</th>
+              <th style="padding-bottom: 8px;">Enrolled Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${pendingRows || '<tr><td colspan="4" style="color:#9ca3af;text-align:center;padding:10px;">No pending leads in sequence</td></tr>'}
+          </tbody>
+        </table>
+
+        <p style="font-size: 11px; color: #6b7280; margin-top: 30px; text-align: center; border-top: 1px solid #374151; padding-top: 15px;">
+          Ares Elite Sports Vision Automation System // Carmel Headquarters
+        </p>
+      </div>
+    `;
+
+    if (resend) {
+      await resend.emails.send({
+        from: "A.R.E.S. Funnel Automation <laplacajn@gmail.com>",
+        to: ["dminor@areselitesportsvision.com", "jguler@areselitesportsvision.com", "drl@areselitesportsvision.com"],
+        subject: "A.R.E.S. Weekly Funnel Performance Report",
+        html: htmlContent
+      });
+      console.log("Weekly report sent successfully via Resend.");
+    } else {
+      console.log("Weekly report generated (Simulated):");
+      console.log(htmlContent);
+    }
+  } catch (err) {
+    console.error("Failed to compile weekly report:", err);
+  }
+}
+
+// Compile and send Monthly Performance Report
+async function sendMonthlyReport() {
+  console.log("Compiling monthly report...");
+  try {
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    
+    // Total new assessment leads
+    const leads = db.prepare("SELECT COUNT(*) as count FROM leads WHERE created_at >= ?").get(thirtyDaysAgo) as { count: number };
+    
+    // Total scheduled evaluations
+    const scheduled = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Evaluation Scheduled' AND updated_at >= ?").get(thirtyDaysAgo) as { count: number };
+    
+    // Total unscheduled leads backlog
+    const unscheduledLeads = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status != 'Evaluation Scheduled' AND status != 'Unsubscribed' AND status != 'Not Interested'").get() as { count: number };
+    
+    // Average days to book
+    const avgDays = db.prepare(`
+      SELECT AVG(julianday(updated_at) - julianday(created_at)) as avg_days 
+      FROM leads 
+      WHERE status = 'Evaluation Scheduled' AND updated_at >= ?
+    `).get(thirtyDaysAgo) as { avg_days: number | null };
+    
+    const avgDaysToBook = avgDays.avg_days ? Math.round(avgDays.avg_days) : 0;
+    
+    // Conversion rate
+    const conversionRate = leads.count > 0 ? Math.round((scheduled.count / leads.count) * 100) : 0;
+    
+    // Revenue opportunity
+    const revOpportunity = unscheduledLeads.count * 449;
+
+    // Leads by source
+    const sourceStats = db.prepare("SELECT lead_source, COUNT(*) as count FROM leads WHERE created_at >= ? GROUP BY lead_source").all(thirtyDaysAgo) as { lead_source: string, count: number }[];
+    
+    // Format source rows
+    let sourceRows = "";
+    for (const stat of sourceStats) {
+      const sourceConv = db.prepare("SELECT COUNT(*) as count FROM leads WHERE lead_source = ? AND status = 'Evaluation Scheduled' AND created_at >= ?").get(stat.lead_source, thirtyDaysAgo) as { count: number };
+      const sourceRate = stat.count > 0 ? Math.round((sourceConv.count / stat.count) * 100) : 0;
+      sourceRows += `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${stat.lead_source || 'Website'}</strong></td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${stat.count}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${sourceConv.count}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${sourceRate}%</td>
+        </tr>
+      `;
+    }
+
+    // Recommended outreach list (highest visual symptom scores that haven't booked)
+    const recommendedList = db.prepare(`
+      SELECT l.first_name, l.last_name, l.email, l.sport, a.questionnaire_score
+      FROM leads l
+      JOIN assessments a ON l.email = a.email
+      WHERE l.status != 'Evaluation Scheduled' AND l.status != 'Unsubscribed' AND l.status != 'Not Interested'
+      ORDER BY a.questionnaire_score DESC LIMIT 5
+    `).all() as any[];
+
+    let recommendedRows = "";
+    for (const lead of recommendedList) {
+      const reason = lead.questionnaire_score >= 120 ? 'High Symptom Latency' : 'Needs Follow-Up';
+      recommendedRows += `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${lead.first_name} ${lead.last_name || ''}</strong> (${lead.email})</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.sport || 'N/A'}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.questionnaire_score || 'N/A'}/200</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><span style="color:#fbbf24;">${reason}</span></td>
+        </tr>
+      `;
+    }
+
+    const monthName = new Date().toLocaleString('default', { month: 'long' });
+    
+    const htmlContent = `
+      <div style="font-family: Arial, sans-serif; background-color: #0e111a; color: #ffffff; padding: 28px; max-width: 650px; border-radius: 12px; border: 1px solid #29b6f6;">
+        <h2 style="color: #29b6f6; margin-top: 0; text-transform: uppercase; font-size: 22px; border-bottom: 2px solid #29b6f6; padding-bottom: 12px;">A.R.E.S. Monthly Funnel Performance Report</h2>
+        <p style="color: #9ca3af; font-size: 13px;">Reporting Period: Past Month (${monthName})</p>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 20px 0;">
+          <div style="background: #1f2937; padding: 12px 8px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 10px; color: #9ca3af; text-transform: uppercase;">Total Leads</div>
+            <div style="font-size: 20px; font-weight: bold; color: #29b6f6; margin-top: 5px;">${leads.count}</div>
+          </div>
+          <div style="background: #1f2937; padding: 12px 8px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 10px; color: #9ca3af; text-transform: uppercase;">Scheduled</div>
+            <div style="font-size: 20px; font-weight: bold; color: #66bb6a; margin-top: 5px;">${scheduled.count}</div>
+          </div>
+          <div style="background: #1f2937; padding: 12px 8px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 10px; color: #9ca3af; text-transform: uppercase;">Conversion</div>
+            <div style="font-size: 20px; font-weight: bold; color: #fbbf24; margin-top: 5px;">${conversionRate}%</div>
+          </div>
+          <div style="background: #1f2937; padding: 12px 8px; border-radius: 8px; text-align: center;">
+            <div style="font-size: 10px; color: #9ca3af; text-transform: uppercase;">Avg Days to Book</div>
+            <div style="font-size: 20px; font-weight: bold; color: #8b5cf6; margin-top: 5px;">${avgDaysToBook}</div>
+          </div>
+        </div>
+
+        <div style="background: rgba(102, 187, 106, 0.1); border: 1px solid #66bb6a; border-radius: 8px; padding: 15px; margin-top: 20px;">
+          <h3 style="color: #66bb6a; margin: 0 0 5px 0; font-size: 15px; text-transform: uppercase;">Estimated Pipeline Opportunity</h3>
+          <p style="margin: 0; font-size: 13px; color: #e5e7eb;">
+            You currently have <strong>${unscheduledLeads.count}</strong> leads who completed an assessment but have not scheduled an evaluation. 
+            Based on a $449 evaluation rate, this represents a <strong>$${revOpportunity}</strong> near-term booking opportunity.
+          </p>
+        </div>
+
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Lead Acquisition Sources Performance</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="text-align: left; color: #9ca3af; font-size: 12px; border-bottom: 1px solid #374151;">
+              <th style="padding-bottom: 8px;">Source</th>
+              <th style="padding-bottom: 8px;">Acquired Leads</th>
+              <th style="padding-bottom: 8px;">Scheduled Evals</th>
+              <th style="padding-bottom: 8px;">Conversion %</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sourceRows || '<tr><td colspan="4" style="color:#9ca3af;text-align:center;padding:10px;">No source acquisition metrics logged</td></tr>'}
+          </tbody>
+        </table>
+
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Recommended Outreach List (High Opportunity)</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="text-align: left; color: #9ca3af; font-size: 12px; border-bottom: 1px solid #374151;">
+              <th style="padding-bottom: 8px;">Name</th>
+              <th style="padding-bottom: 8px;">Sport</th>
+              <th style="padding-bottom: 8px;">Symptom Score</th>
+              <th style="padding-bottom: 8px;">Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${recommendedRows || '<tr><td colspan="4" style="color:#9ca3af;text-align:center;padding:10px;">No high-priority targets logged</td></tr>'}
+          </tbody>
+        </table>
+
+        <p style="font-size: 11px; color: #6b7280; margin-top: 30px; text-align: center; border-top: 1px solid #374151; padding-top: 15px;">
+          Ares Elite Sports Vision Analytics System
+        </p>
+      </div>
+    `;
+
+    if (resend) {
+      await resend.emails.send({
+        from: "A.R.E.S. Funnel Automation <laplacajn@gmail.com>",
+        to: ["dminor@areselitesportsvision.com", "jguler@areselitesportsvision.com", "drl@areselitesportsvision.com"],
+        subject: `A.R.E.S. Monthly Funnel Performance Report - ${monthName}`,
+        html: htmlContent
+      });
+      console.log("Monthly report sent successfully via Resend.");
+    } else {
+      console.log("Monthly report generated (Simulated):");
+      console.log(htmlContent);
+    }
+  } catch (err) {
+    console.error("Failed to compile monthly report:", err);
+  }
+}
+
 // Run cron job every day at 9:00 AM
 cron.schedule('0 9 * * *', () => {
   processEmailSequences();
+});
+
+// Run weekly report on Mondays at 8:00 AM
+cron.schedule('0 8 * * 1', () => {
+  sendWeeklyReport();
+});
+
+// Run monthly report on the 1st of every month at 8:00 AM
+cron.schedule('0 8 1 * *', () => {
+  sendMonthlyReport();
 });
 
 // API Routes
@@ -575,6 +939,16 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
           );
         }
 
+        // Suppress nurture campaign for the lead
+        if (clientEmail) {
+          const lead = db.prepare("SELECT id, status FROM leads WHERE email = ?").get(clientEmail) as { id: number, status: string } | undefined;
+          if (lead) {
+            db.prepare("UPDATE leads SET status = 'Evaluation Scheduled', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(lead.id);
+            db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, 'Evaluation Scheduled')").run(lead.id, lead.status);
+            console.log(`[Stripe Webhook] Updated lead ${clientEmail} status to 'Evaluation Scheduled'`);
+          }
+        }
+
         if (resend && clientEmail) {
           try {
             await resend.emails.send({
@@ -770,7 +1144,16 @@ app.post("/api/submit-assessment", async (req, res) => {
       firstName,
       lastName,
       email,
+      phone,
+      athleteName,
+      parentGuardianName,
+      age,
       sport,
+      leadSource,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      landingPage,
       questionnaireScore,
       questionnaireData,
       rawRtAvg,
@@ -790,15 +1173,62 @@ app.post("/api/submit-assessment", async (req, res) => {
       return res.status(400).json({ error: "First name and email are required" });
     }
 
-    // 1. Insert Lead if they don't exist
+    // Check if evaluation is already scheduled
+    const booked = db.prepare("SELECT id FROM payments WHERE customer_email = ? AND payment_status = 'Paid and Confirmed'").get(email);
+    const initialStatus = booked ? 'Evaluation Scheduled' : 'Nurture Campaign Active';
+
+    // 1. Insert or Update Lead (Merge duplicates)
     try {
-      const stmt = db.prepare("INSERT INTO leads (first_name, last_name, email, sport) VALUES (?, ?, ?, ?)");
-      stmt.run(firstName, lastName || null, email, sport || null);
+      const existingLead = db.prepare("SELECT id, status FROM leads WHERE email = ?").get(email) as any;
+      if (existingLead) {
+        const currentStatus = existingLead.status;
+        const finalStatus = (currentStatus === 'Evaluation Scheduled' || currentStatus === 'Unsubscribed' || currentStatus === 'Not Interested' || currentStatus === 'Became Client')
+          ? currentStatus
+          : initialStatus;
+
+        db.prepare(`
+          UPDATE leads SET 
+            first_name = ?, last_name = ?, phone = ?, athlete_name = ?, 
+            parent_guardian_name = ?, sport = ?, age = ?, 
+            utm_source = COALESCE(utm_source, ?),
+            utm_medium = COALESCE(utm_medium, ?),
+            utm_campaign = COALESCE(utm_campaign, ?),
+            status = ?,
+            updated_at = CURRENT_TIMESTAMP
+          WHERE email = ?
+        `).run(
+          firstName, lastName || null, phone || null, athleteName || null,
+          parentGuardianName || null, sport || null, age || null,
+          utmSource || null, utmMedium || null, utmCampaign || null,
+          finalStatus, email
+        );
+
+        if (currentStatus !== finalStatus) {
+          db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, ?)")
+            .run(existingLead.id, currentStatus, finalStatus);
+        }
+      } else {
+        const result = db.prepare(`
+          INSERT INTO leads (
+            first_name, last_name, email, phone, athlete_name, 
+            parent_guardian_name, sport, age, lead_source, 
+            utm_source, utm_medium, utm_campaign, landing_page, status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          firstName, lastName || null, email, phone || null, athleteName || null,
+          parentGuardianName || null, sport || null, age || null, leadSource || 'Website',
+          utmSource || null, utmMedium || null, utmCampaign || null, landingPage || '/',
+          initialStatus
+        );
+
+        db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, ?)")
+          .run(result.lastInsertRowid, null, initialStatus);
+      }
       
       // Trigger sequence processor immediately for Day 0 email
       setTimeout(() => processEmailSequences(), 1000);
     } catch (dbError: any) {
-      // Ignore unique constraints as they might already be logged as a lead
+      console.error("Failed to insert/update lead record:", dbError);
     }
 
     // 2. Insert detailed assessment data
@@ -918,27 +1348,78 @@ app.post("/api/submit-assessment", async (req, res) => {
           html: htmlContent
         });
 
-        // Send Notification to Dr. Joe LaPlaca
+        // Send Alert to Team
+        const evalBookedLabel = booked ? "YES - evaluation scheduled and paid" : "NO - nurture campaign active";
+        const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
+
         await resend.emails.send({
           from: 'A.R.E.S. Onboarding <onboarding@resend.dev>',
-          to: ['drl@areselitesportsvision.com'],
-          subject: `[Lead Alert] High-Intent Assessment Completed: ${firstName} ${lastName}`,
+          to: emailTo,
+          subject: `[Lead Alert] High-Intent Assessment Completed: ${firstName} ${lastName || ''}`,
           html: `
-            <h2>New Interactive Lead Assessment</h2>
-            <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Sport:</strong> ${sport || 'Not specified'}</p>
-            <hr />
-            <h3>Assessment Performance Data</h3>
-            <ul>
-              <li><strong>Questionnaire Score:</strong> ${questionnaireScore} / 200</li>
-              <li><strong>Recommendation:</strong> ${candidateRecommendation}</li>
-              <li><strong>Raw Reaction Avg:</strong> ${rawRtAvg}ms (Fastest: ${rawRtFastest}ms, Slowest: ${rawRtSlowest}ms, FP: ${rawRtFalsePositives})</li>
-              <li><strong>Choice Reaction Avg:</strong> Purple: ${choiceRtPurpleAvg}ms (${choiceRtPurpleAcc}%), Teal: ${choiceRtTealAvg}ms (${choiceRtTealAcc}%)</li>
-              <li><strong>Post-Error Slowing:</strong> ${choiceRtPostErrorSlowing}ms</li>
-              <li><strong>Recognition Speed Avg:</strong> ${recSpeedAvg}ms (${recSpeedAcc}%)</li>
-            </ul>
-            <p>Ready for sales outreach and booking follow-up.</p>
+            <div style="font-family: Arial, sans-serif; background-color: #0e111a; color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #29b6f6; max-width: 600px;">
+              <h2 style="color: #29b6f6; border-bottom: 1px solid #1f2937; padding-bottom: 12px; margin-top: 0;">[Lead Alert] High-Intent Assessment Completed</h2>
+              <p>A new visitor has completed the interactive assessment.</p>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">Lead Name:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${firstName} ${lastName || ''}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Athlete Name:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${athleteName || 'N/A (Self)'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Parent/Guardian:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${parentGuardianName || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Contact Info:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${email} / ${phone || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Sport & Age:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${sport || 'N/A'} (Age: ${age || 'N/A'})</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Lead Source:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${leadSource || 'Website'} (UTM: ${utmSource || 'N/A'} / ${utmMedium || 'N/A'} / ${utmCampaign || 'N/A'})</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Evaluation Booked:</td>
+                  <td style="padding: 8px 0;"><span style="background-color: ${booked ? '#66bb6a' : '#ef5350'}; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${evalBookedLabel}</span></td>
+                </tr>
+              </table>
+
+              <h3 style="color: #8b5cf6; margin-top: 25px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; font-size: 15px;">Assessment Results Summary</h3>
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">Visual Symptom Score:</td>
+                  <td style="padding: 8px 0; color: #8b5cf6; font-weight: bold; font-family: monospace;">${questionnaireScore} / 200</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Raw Reaction Avg:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${rawRtAvg}ms (Fastest: ${rawRtFastest}ms, FP: ${rawRtFalsePositives})</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Choice Accuracy:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">Teal: ${choiceRtTealAcc}% / Purple: ${choiceRtPurpleAcc}%</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Post-Error Slowing:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${choiceRtPostErrorSlowing}ms</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Recognition speed:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${recSpeedAvg}ms (${recSpeedAcc}% Accuracy)</td>
+                </tr>
+              </table>
+              
+              <div style="margin-top: 25px; text-align: center;">
+                <a href="${APP_URL}/admin" style="background-color: #29b6f6; color: #0a0b14; padding: 12px 24px; border-radius: 6px; font-weight: bold; text-decoration: none; display: inline-block; font-size: 14px; text-transform: uppercase;">View Lead Dashboard</a>
+              </div>
+            </div>
           `
         });
 
@@ -951,6 +1432,151 @@ app.post("/api/submit-assessment", async (req, res) => {
   } catch (error) {
     console.error("Error submitting assessment:", error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET all leads for Admin panel
+app.get("/api/leads", (req, res) => {
+  try {
+    const leads = db.prepare(`
+      SELECT 
+        l.id, l.first_name, l.last_name, l.email, l.phone, l.athlete_name, 
+        l.parent_guardian_name, l.sport, l.age, l.lead_source, 
+        l.utm_source, l.utm_medium, l.utm_campaign, l.landing_page, 
+        l.status, l.created_at, l.updated_at,
+        (SELECT questionnaire_score FROM assessments WHERE email = l.email ORDER BY created_at DESC LIMIT 1) as questionnaire_score,
+        (SELECT created_at FROM assessments WHERE email = l.email ORDER BY created_at DESC LIMIT 1) as assessment_date
+      FROM leads l
+      ORDER BY l.created_at DESC
+    `).all();
+    res.json(leads);
+  } catch (error) {
+    console.error("Error fetching leads:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Update lead status manually from Admin panel
+app.patch("/api/leads/:id/status", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ error: "Status is required" });
+    }
+
+    const lead = db.prepare("SELECT status FROM leads WHERE id = ?").get(id) as { status: string } | undefined;
+    if (!lead) {
+      return res.status(404).json({ error: "Lead not found" });
+    }
+
+    db.prepare("UPDATE leads SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(status, id);
+    db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, ?)")
+      .run(id, lead.status, status);
+
+    res.json({ success: true, message: `Lead status updated to ${status}` });
+  } catch (error) {
+    console.error("Error updating lead status:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET funnel analytics data for dashboard tab
+app.get("/api/funnel-analytics", (req, res) => {
+  try {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const newLeads7d = db.prepare("SELECT COUNT(*) as count FROM leads WHERE created_at >= ?").get(sevenDaysAgo) as { count: number };
+    const evalsBooked7d = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Evaluation Scheduled' AND updated_at >= ?").get(sevenDaysAgo) as { count: number };
+    
+    const conversionRate7d = newLeads7d.count > 0 ? Math.round((evalsBooked7d.count / newLeads7d.count) * 100) : 0;
+    
+    const activeNurture = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Nurture Campaign Active' OR status LIKE 'Email % Sent'").get() as { count: number };
+    
+    const unscheduledLeads = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status != 'Evaluation Scheduled' AND status != 'Unsubscribed' AND status != 'Not Interested' AND status != 'Became Client'").get() as { count: number };
+    const pipelineOpportunity = unscheduledLeads.count * 449;
+
+    const stages = {
+      active: (db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Nurture Campaign Active'").get() as { count: number }).count,
+      email1: (db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Email 1 Sent'").get() as { count: number }).count,
+      email2: (db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Email 2 Sent'").get() as { count: number }).count,
+      email3: (db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Email 3 Sent'").get() as { count: number }).count,
+      email4: (db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Email 4 Sent'").get() as { count: number }).count,
+      email5: (db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Email 5 Sent'").get() as { count: number }).count,
+      email6: (db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Email 6 Sent'").get() as { count: number }).count,
+      final: (db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Final Follow-Up Sent'").get() as { count: number }).count
+    };
+
+    const sourceStats = db.prepare("SELECT lead_source, COUNT(*) as count FROM leads GROUP BY lead_source").all() as { lead_source: string, count: number }[];
+    const sources = sourceStats.map(s => {
+      const sourceConv = db.prepare("SELECT COUNT(*) as count FROM leads WHERE lead_source = ? AND status = 'Evaluation Scheduled'").get(s.lead_source) as { count: number };
+      const rate = s.count > 0 ? Math.round((sourceConv.count / s.count) * 100) : 0;
+      return {
+        source: s.lead_source || 'Website',
+        count: s.count,
+        converted: sourceConv.count,
+        rate
+      };
+    });
+
+    const hotLeads = db.prepare(`
+      SELECT id, first_name, last_name, email, sport, status, created_at
+      FROM leads
+      WHERE (sport LIKE '%pro%' OR sport LIKE '%elite%' OR sport LIKE '%coach%' OR sport LIKE '%facility%' OR sport LIKE '%team%' OR status = 'Final Follow-Up Sent')
+        AND status != 'Evaluation Scheduled' AND status != 'Unsubscribed' AND status != 'Not Interested' AND status != 'Became Client'
+      ORDER BY created_at DESC
+      LIMIT 10
+    `).all() as any[];
+
+    res.json({
+      summary: {
+        newLeads7d: newLeads7d.count,
+        evalsBooked7d: evalsBooked7d.count,
+        conversionRate7d,
+        activeNurture: activeNurture.count,
+        pipelineOpportunity
+      },
+      stages,
+      sources,
+      hotLeads: hotLeads.map(l => ({
+        id: l.id,
+        name: `${l.first_name} ${l.last_name || ''}`.trim(),
+        email: l.email,
+        sport: l.sport || 'N/A',
+        status: l.status,
+        reason: l.status === 'Final Follow-Up Sent' ? 'Nurture Runout' : 'Strategic / Elite Lead'
+      }))
+    });
+  } catch (error) {
+    console.error("Error fetching funnel analytics:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET unsubscribe route
+app.get("/api/unsubscribe", (req, res) => {
+  const { email } = req.query;
+  if (!email) {
+    return res.status(400).send("Email parameter is required.");
+  }
+  try {
+    const lead = db.prepare("SELECT id, status FROM leads WHERE email = ?").get(email) as any;
+    if (lead) {
+      db.prepare("UPDATE leads SET status = 'Unsubscribed', updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(lead.id);
+      db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, 'Unsubscribed')").run(lead.id, lead.status);
+    }
+    res.send(`
+      <div style="font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #0e111a; color: #ffffff; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+        <h1 style="color: #29b6f6; margin-bottom: 20px; text-transform: uppercase;">Unsubscribed</h1>
+        <p style="color: #9ca3af; font-size: 16px;">You have been successfully removed from our training updates.</p>
+        <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">Ares Elite Sports Vision // Carmel Headquarters</p>
+      </div>
+    `);
+  } catch (error) {
+    console.error("Error unsubscribing:", error);
+    res.status(500).send("An error occurred. Please try again.");
   }
 });
 

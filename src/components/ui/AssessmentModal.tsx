@@ -100,7 +100,17 @@ export function AssessmentModal() {
   const recStartTimeRef = useRef<number>(0);
 
   // Lead Capture States
-  const [leadForm, setLeadForm] = useState({ firstName: '', lastName: '', email: '', sport: '' });
+  const [leadForm, setLeadForm] = useState({ 
+    firstName: '', 
+    lastName: '', 
+    email: '', 
+    phone: '', 
+    age: '', 
+    athleteName: '', 
+    parentGuardianName: '', 
+    sport: '',
+    isParentOrCoach: false
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -393,12 +403,26 @@ export function AssessmentModal() {
     setIsSubmitting(true);
     setSubmitError(null);
 
+    const utmSource = sessionStorage.getItem('utm_source') || null;
+    const utmMedium = sessionStorage.getItem('utm_medium') || null;
+    const utmCampaign = sessionStorage.getItem('utm_campaign') || null;
+    const landingPage = sessionStorage.getItem('landing_page') || '/';
+
     const metrics = getCalculatedMetrics();
     const payload = {
       firstName: leadForm.firstName,
       lastName: leadForm.lastName,
       email: leadForm.email,
+      phone: leadForm.phone || null,
+      athleteName: leadForm.isParentOrCoach ? leadForm.athleteName : null,
+      parentGuardianName: (Number(leadForm.age) > 0 && Number(leadForm.age) < 18) ? leadForm.parentGuardianName : null,
+      age: leadForm.age ? parseInt(leadForm.age, 10) : null,
       sport: leadForm.sport,
+      leadSource: 'Website',
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      landingPage,
       questionnaireScore: metrics.surveyScore,
       questionnaireData: JSON.stringify(surveyAnswers),
       rawRtAvg: metrics.rawAvg,
@@ -847,6 +871,33 @@ export function AssessmentModal() {
                     />
                   </div>
 
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label htmlFor="phone_num" className="text-xs font-mono text-white/50 uppercase">Phone Number</label>
+                      <input
+                        type="tel"
+                        id="phone_num"
+                        value={leadForm.phone}
+                        onChange={e => setLeadForm(prev => ({ ...prev, phone: e.target.value }))}
+                        className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)] transition-colors"
+                        placeholder="(317) 555-0199"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label htmlFor="athlete_age" className="text-xs font-mono text-white/50 uppercase">Age</label>
+                      <input
+                        type="number"
+                        id="athlete_age"
+                        value={leadForm.age}
+                        onChange={e => setLeadForm(prev => ({ ...prev, age: e.target.value }))}
+                        className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)] transition-colors"
+                        placeholder="16"
+                        min="1"
+                        max="120"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-1">
                     <label htmlFor="sport_discipline" className="text-xs font-mono text-white/50 uppercase">Primary Sport</label>
                     <input
@@ -858,6 +909,57 @@ export function AssessmentModal() {
                       placeholder="e.g. IndyCar, Baseball, Hockey"
                     />
                   </div>
+
+                  <div className="flex items-center gap-2 py-1 select-none">
+                    <input
+                      type="checkbox"
+                      id="parent_coach_toggle"
+                      checked={leadForm.isParentOrCoach}
+                      onChange={e => setLeadForm(prev => ({ ...prev, isParentOrCoach: e.target.checked }))}
+                      className="rounded border-[var(--color-ares-border)] bg-black/40 text-[var(--color-ares-teal)] focus:ring-0 focus:ring-offset-0 w-4 h-4 cursor-pointer"
+                    />
+                    <label htmlFor="parent_coach_toggle" className="text-xs font-mono text-white/70 cursor-pointer uppercase">
+                      I am a parent or coach filling this out on behalf of the athlete
+                    </label>
+                  </div>
+
+                  {leadForm.isParentOrCoach && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-1"
+                    >
+                      <label htmlFor="athlete_name" className="text-xs font-mono text-white/50 uppercase">Athlete Name *</label>
+                      <input
+                        type="text"
+                        required={leadForm.isParentOrCoach}
+                        id="athlete_name"
+                        value={leadForm.athleteName}
+                        onChange={e => setLeadForm(prev => ({ ...prev, athleteName: e.target.value }))}
+                        className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)] transition-colors"
+                        placeholder="Athlete's Full Name"
+                      />
+                    </motion.div>
+                  )}
+
+                  {Number(leadForm.age) > 0 && Number(leadForm.age) < 18 && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-1"
+                    >
+                      <label htmlFor="parent_name" className="text-xs font-mono text-white/50 uppercase">Parent/Guardian Name *</label>
+                      <input
+                        type="text"
+                        required={Number(leadForm.age) > 0 && Number(leadForm.age) < 18}
+                        id="parent_name"
+                        value={leadForm.parentGuardianName}
+                        onChange={e => setLeadForm(prev => ({ ...prev, parentGuardianName: e.target.value }))}
+                        className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)] transition-colors"
+                        placeholder="Parent/Guardian Full Name"
+                      />
+                    </motion.div>
+                  )}
 
                   {submitError && (
                     <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 flex items-start gap-3 text-red-200">

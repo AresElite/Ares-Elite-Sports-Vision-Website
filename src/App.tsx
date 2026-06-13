@@ -74,6 +74,21 @@ function ScrollToHash() {
 }
 
 export default function App() {
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const utmSource = params.get('utm_source');
+    const utmMedium = params.get('utm_medium');
+    const utmCampaign = params.get('utm_campaign');
+
+    if (utmSource) sessionStorage.setItem('utm_source', utmSource);
+    if (utmMedium) sessionStorage.setItem('utm_medium', utmMedium);
+    if (utmCampaign) sessionStorage.setItem('utm_campaign', utmCampaign);
+
+    if (!sessionStorage.getItem('landing_page')) {
+      sessionStorage.setItem('landing_page', window.location.pathname || '/');
+    }
+  }, []);
+
   return (
     <HelmetProvider>
       <Router>
