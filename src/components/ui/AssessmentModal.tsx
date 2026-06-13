@@ -109,7 +109,10 @@ export function AssessmentModal() {
     athleteName: '', 
     parentGuardianName: '', 
     sport: '',
-    isParentOrCoach: false
+    isParentOrCoach: false,
+    howHeard: '',
+    howHeardOther: '',
+    referralCode: sessionStorage.getItem('referral_code') || ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -406,6 +409,8 @@ export function AssessmentModal() {
     const utmSource = sessionStorage.getItem('utm_source') || null;
     const utmMedium = sessionStorage.getItem('utm_medium') || null;
     const utmCampaign = sessionStorage.getItem('utm_campaign') || null;
+    const utmContent = sessionStorage.getItem('utm_content') || null;
+    const utmTerm = sessionStorage.getItem('utm_term') || null;
     const landingPage = sessionStorage.getItem('landing_page') || '/';
 
     const metrics = getCalculatedMetrics();
@@ -422,6 +427,8 @@ export function AssessmentModal() {
       utmSource,
       utmMedium,
       utmCampaign,
+      utmContent,
+      utmTerm,
       landingPage,
       questionnaireScore: metrics.surveyScore,
       questionnaireData: JSON.stringify(surveyAnswers),
@@ -435,7 +442,10 @@ export function AssessmentModal() {
       choiceRtTealAcc: metrics.tealAcc,
       choiceRtPostErrorSlowing: metrics.pesDiff,
       recSpeedAvg: metrics.recAvg,
-      recSpeedAcc: metrics.recAcc
+      recSpeedAcc: metrics.recAcc,
+      howHeard: leadForm.howHeard || null,
+      howHeardOther: leadForm.howHeard === 'Other (Please specify)' ? leadForm.howHeardOther : null,
+      referralCode: leadForm.referralCode || null
     };
 
     try {
@@ -907,6 +917,58 @@ export function AssessmentModal() {
                       onChange={e => setLeadForm(prev => ({ ...prev, sport: e.target.value }))}
                       className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)] transition-colors"
                       placeholder="e.g. IndyCar, Baseball, Hockey"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label htmlFor="how_heard" className="text-xs font-mono text-white/50 uppercase">How did you hear about us? *</label>
+                    <select
+                      id="how_heard"
+                      required
+                      value={leadForm.howHeard}
+                      onChange={e => setLeadForm(prev => ({ ...prev, howHeard: e.target.value }))}
+                      className="w-full bg-[#0a0b14]/90 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[var(--color-ares-teal)] transition-colors"
+                    >
+                      <option value="" disabled>Select an option</option>
+                      <option value="Search Engine (Google, Bing, etc.)">Search Engine (Google, Bing, etc.)</option>
+                      <option value="Social Media (Instagram, Facebook, TikTok, etc.)">Social Media (Instagram, Facebook, TikTok, etc.)</option>
+                      <option value="Referral (Coach, Athlete, Parent, School, Club)">Referral (Coach, Athlete, Parent, School, Club)</option>
+                      <option value="Referral Partner (Doctor, Clinic, Physical Therapist)">Referral Partner (Doctor, Clinic, Physical Therapist)</option>
+                      <option value="Affiliate Partner">Affiliate Partner</option>
+                      <option value="Ares Event or Presentation">Ares Event or Presentation</option>
+                      <option value="QR Code (Scan)">QR Code (Scan)</option>
+                      <option value="Other (Please specify)">Other (Please specify)</option>
+                    </select>
+                  </div>
+
+                  {leadForm.howHeard === 'Other (Please specify)' && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-1"
+                    >
+                      <label htmlFor="how_heard_other" className="text-xs font-mono text-white/50 uppercase">Please specify *</label>
+                      <input
+                        type="text"
+                        required
+                        id="how_heard_other"
+                        value={leadForm.howHeardOther}
+                        onChange={e => setLeadForm(prev => ({ ...prev, howHeardOther: e.target.value }))}
+                        className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)] transition-colors"
+                        placeholder="Please describe how you heard about us"
+                      />
+                    </motion.div>
+                  )}
+
+                  <div className="space-y-1">
+                    <label htmlFor="referral_code" className="text-xs font-mono text-white/50 uppercase">Referral / Affiliate Code</label>
+                    <input
+                      type="text"
+                      id="referral_code"
+                      value={leadForm.referralCode}
+                      onChange={e => setLeadForm(prev => ({ ...prev, referralCode: e.target.value }))}
+                      className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)] transition-colors"
+                      placeholder="e.g. COACH-SMITH"
                     />
                   </div>
 

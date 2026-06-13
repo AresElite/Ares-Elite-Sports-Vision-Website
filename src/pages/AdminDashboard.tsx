@@ -30,12 +30,31 @@ interface Lead {
   utm_source: string | null;
   utm_medium: string | null;
   utm_campaign: string | null;
+  utm_content: string | null;
+  utm_term: string | null;
   landing_page: string;
   status: string;
   created_at: string;
   updated_at: string;
   questionnaire_score: number | null;
   assessment_date: string | null;
+  how_heard: string | null;
+  how_heard_other: string | null;
+  referral_code: string | null;
+  affiliate_code: string | null;
+  referral_partner_name: string | null;
+  referral_partner_type: string | null;
+  first_touch_source: string | null;
+  last_touch_source: string | null;
+  conversion_source: string | null;
+  assessment_completed_date: string | null;
+  evaluation_scheduled_date: string | null;
+  evaluation_completed_date: string | null;
+  became_client_date: string | null;
+  source_confidence: string;
+  manually_verified_source: string | null;
+  lead_owner: string;
+  notes: string | null;
 }
 
 export function AdminDashboard() {
@@ -52,6 +71,37 @@ export function AdminDashboard() {
   const [leadsSearch, setLeadsSearch] = useState('');
   const [leadsLoading, setLeadsLoading] = useState(true);
   const [updatingLeadId, setUpdatingLeadId] = useState<number | null>(null);
+  const [verifyingLeadId, setVerifyingLeadId] = useState<number | null>(null);
+  const [manualVerifiedValues, setManualVerifiedValues] = useState<{ [leadId: number]: string }>({});
+
+  const handleVerifyAttribution = async (id: number) => {
+    const value = manualVerifiedValues[id];
+    if (!value || !value.trim()) {
+      alert("Please enter a verified source channel name.");
+      return;
+    }
+    
+    try {
+      setVerifyingLeadId(id);
+      const res = await fetch(`/api/leads/${id}/attribution`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ manuallyVerifiedSource: value.trim() })
+      });
+      if (res.ok) {
+        alert("Attribution source verified successfully!");
+        fetchLeadsAndAnalytics();
+      } else {
+        const err = await res.json();
+        alert(`Failed: ${err.error}`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("An error occurred during verification.");
+    } finally {
+      setVerifyingLeadId(null);
+    }
+  };
 
   const fetchBookings = async () => {
     try {
@@ -441,6 +491,90 @@ export function AdminDashboard() {
 
               </div>
 
+              {/* Attribution Cleanup List (Needs Review) */}
+              {leads.some(l => l.source_confidence === 'Needs Review') && (
+                <div className="bg-rose-950/20 border border-rose-500/30 p-6 rounded-2xl">
+                  <h2 className="text-sm font-mono tracking-widest text-rose-400 uppercase mb-4 flex items-center gap-2">
+                    <AlertTriangle className="w-5 h-5 text-rose-400" />
+                    Attribution Cleanup List (Needs Review)
+                  </h2>
+                  <p className="text-xs text-rose-200/70 mb-4">
+                    The following leads have conflicting acquisition sources (e.g. user selected one option while URL UTM tags or referral codes indicate another). Review the details and input a manually verified source.
+                  </p>
+                  
+                  <div className="space-y-4">
+                    {leads.filter(l => l.source_confidence === 'Needs Review').map((lead) => {
+                      const calculatedDefault = lead.referral_code 
+                        ? `Referral: ${lead.referral_partner_name || lead.referral_code}` 
+                        : lead.utm_source 
+                          ? `UTM: ${lead.utm_source}` 
+                          : lead.how_heard || 'Website';
+
+                      const currentVal = manualVerifiedValues[lead.id] !== undefined ? manualVerifiedValues[lead.id] : calculatedDefault;
+
+                      return (
+                        <div key={lead.id} className="bg-black/50 border border-rose-900/30 p-4 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-6 text-sm">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-white">{lead.first_name} {lead.last_name || ''}</span>
+                              <span className="text-xs text-white/50">({lead.email})</span>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-1 text-xs text-white/60">
+                              <div><strong className="text-rose-400/80">User Selected:</strong> {lead.how_heard || 'None'} {lead.how_heard_other ? `(${lead.how_heard_other})` : ''}</div>
+                              <div><strong className="text-rose-400/80">Referral Code:</strong> {lead.referral_code || 'None'} {lead.referral_partner_name ? `(${lead.referral_partner_name})` : ''}</div>
+                              <div><strong className="text-rose-400/80">UTM Source:</strong> {lead.utm_source || 'None'}</div>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3 shrink-0">
+                            <input 
+                              type="text"
+                              placeholder="Verified Source Name"
+                              value={currentVal}
+                              onChange={(e) => setManualVerifiedValues(prev => ({ ...prev, [lead.id]: e.target.value }))}
+                              className="bg-black/60 border border-white/10 rounded-lg px-3 py-2 text-xs focus:outline-none focus:border-[var(--color-ares-teal)] text-white w-48 sm:w-60"
+                            />
+                            <button
+                              onClick={async () => {
+                                let val = manualVerifiedValues[lead.id];
+                                if (val === undefined) val = calculatedDefault;
+                                if (!val.trim()) {
+                                  alert("Please enter a verified source channel name.");
+                                  return;
+                                }
+                                setVerifyingLeadId(lead.id);
+                                try {
+                                  const res = await fetch(`/api/leads/${lead.id}/attribution`, {
+                                    method: 'PATCH',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ manuallyVerifiedSource: val.trim() })
+                                  });
+                                  if (res.ok) {
+                                    alert("Attribution source verified successfully!");
+                                    fetchLeadsAndAnalytics();
+                                  } else {
+                                    const err = await res.json();
+                                    alert(`Failed: ${err.error}`);
+                                  }
+                                } catch (e) {
+                                  console.error(e);
+                                  alert("An error occurred during verification.");
+                                } finally {
+                                  setVerifyingLeadId(null);
+                                }
+                              }}
+                              disabled={verifyingLeadId === lead.id}
+                              className="bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white font-bold px-4 py-2 rounded-lg text-xs tracking-wider uppercase transition-colors shrink-0"
+                            >
+                              Verify
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Funnel Leads Table */}
               <div className="bg-black/30 border border-white/10 p-6 rounded-2xl">
                 <div className="flex items-center justify-between mb-4">
@@ -471,11 +605,16 @@ export function AdminDashboard() {
                           
                           return (
                             <tr key={lead.id} className="text-sm hover:bg-white/[0.02] transition-colors">
-                              
-                              {/* Lead Name */}
+              {/* Lead Name */}
                               <td className="py-4 font-semibold text-white">
                                 {lead.first_name} {lead.last_name || ''}
                                 <span className="text-[10px] text-white/30 block font-mono">Date: {new Date(lead.created_at).toLocaleDateString()}</span>
+                                {lead.lead_owner && (
+                                  <span className="text-[10px] text-amber-400 block font-mono">Owner: {lead.lead_owner}</span>
+                                )}
+                                {lead.notes && (
+                                  <span className="text-[10px] text-white/40 block max-w-[150px] truncate" title={lead.notes}>Notes: {lead.notes}</span>
+                                )}
                               </td>
                               
                               {/* Athlete Details */}
@@ -523,12 +662,24 @@ export function AdminDashboard() {
 
                               {/* Campaign Source */}
                               <td className="py-4">
-                                <span className="text-white/80 block font-medium">{lead.lead_source || 'Website'}</span>
-                                {lead.utm_source && (
-                                  <span className="text-[10px] text-white/40 block font-mono truncate max-w-[120px]" title={`utm_source=${lead.utm_source}&utm_medium=${lead.utm_medium}&utm_campaign=${lead.utm_campaign}`}>
-                                    {lead.utm_source} / {lead.utm_medium} / {lead.utm_campaign}
+                                <span className="text-white/80 block font-medium">
+                                  {lead.manually_verified_source || lead.last_touch_source || lead.lead_source || 'Website'}
+                                </span>
+                                <span className="text-[10px] text-white/40 block">
+                                  Touch: {lead.first_touch_source || 'N/A'} (1st) / {lead.last_touch_source || 'N/A'} (Last)
+                                </span>
+                                {lead.referral_code && (
+                                  <span className="text-[10px] text-[var(--color-ares-teal)] block font-medium">
+                                    Ref: {lead.referral_code} {lead.referral_partner_name ? `(${lead.referral_partner_name})` : ''}
                                   </span>
                                 )}
+                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-mono font-bold inline-block mt-1 ${
+                                  lead.source_confidence === 'High' 
+                                    ? 'bg-emerald-500/10 text-emerald-400' 
+                                    : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                                }`}>
+                                  {lead.source_confidence} Confidence
+                                </span>
                               </td>
 
                               {/* Current Status */}

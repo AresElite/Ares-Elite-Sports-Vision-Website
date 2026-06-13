@@ -11,7 +11,10 @@ export function ContactPage() {
     lastName: '',
     email: '',
     sport: '',
-    message: ''
+    message: '',
+    howHeard: '',
+    howHeardOther: '',
+    referralCode: sessionStorage.getItem('referral_code') || ''
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
@@ -27,14 +30,20 @@ export function ContactPage() {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
+    if (!formData.howHeard.trim()) {
+      newErrors.howHeard = 'Please select how you heard about us';
+    }
+    if (formData.howHeard === 'Other (Please specify)' && !formData.howHeardOther.trim()) {
+      newErrors.howHeardOther = 'Please specify how you heard about us';
+    }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error when user types
+    // Clear error when user types/selects
     if (errors[name]) {
       setErrors(prev => {
         const next = { ...prev };
@@ -50,13 +59,37 @@ export function ContactPage() {
     
     setStatus('loading');
     
+    const utmSource = sessionStorage.getItem('utm_source') || null;
+    const utmMedium = sessionStorage.getItem('utm_medium') || null;
+    const utmCampaign = sessionStorage.getItem('utm_campaign') || null;
+    const utmContent = sessionStorage.getItem('utm_content') || null;
+    const utmTerm = sessionStorage.getItem('utm_term') || null;
+    const landingPage = sessionStorage.getItem('landing_page') || '/';
+
+    const payload = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      sport: formData.sport,
+      message: formData.message,
+      howHeard: formData.howHeard || null,
+      howHeardOther: formData.howHeard === 'Other (Please specify)' ? formData.howHeardOther : null,
+      referralCode: formData.referralCode || null,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmContent,
+      utmTerm,
+      landingPage
+    };
+
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       
       let data;
@@ -189,6 +222,57 @@ export function ContactPage() {
                   onChange={handleChange}
                   className="w-full bg-black/30 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--color-ares-teal)]/50 focus:ring-1 focus:ring-[var(--color-ares-teal)]/50 transition-all"
                   placeholder="e.g. Baseball, Hockey, Motorsport"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="howHeard" className="block text-sm font-medium text-white/80">How did you hear about us? *</label>
+                <select 
+                  id="howHeard" 
+                  name="howHeard" 
+                  value={formData.howHeard}
+                  onChange={handleChange}
+                  className={`w-full bg-[#0e111a]/95 border ${errors.howHeard ? 'border-red-500' : 'border-[var(--color-ares-border)]'} rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[var(--color-ares-teal)]/50 focus:ring-1 focus:ring-[var(--color-ares-teal)]/50 transition-all`}
+                >
+                  <option value="" disabled>Select an option</option>
+                  <option value="Search Engine (Google, Bing, etc.)">Search Engine (Google, Bing, etc.)</option>
+                  <option value="Social Media (Instagram, Facebook, TikTok, etc.)">Social Media (Instagram, Facebook, TikTok, etc.)</option>
+                  <option value="Referral (Coach, Athlete, Parent, School, Club)">Referral (Coach, Athlete, Parent, School, Club)</option>
+                  <option value="Referral Partner (Doctor, Clinic, Physical Therapist)">Referral Partner (Doctor, Clinic, Physical Therapist)</option>
+                  <option value="Affiliate Partner">Affiliate Partner</option>
+                  <option value="Ares Event or Presentation">Ares Event or Presentation</option>
+                  <option value="QR Code (Scan)">QR Code (Scan)</option>
+                  <option value="Other (Please specify)">Other (Please specify)</option>
+                </select>
+                {errors.howHeard && <p className="text-red-400 text-xs mt-1">{errors.howHeard}</p>}
+              </div>
+
+              {formData.howHeard === 'Other (Please specify)' && (
+                <div className="space-y-2">
+                  <label htmlFor="howHeardOther" className="block text-sm font-medium text-white/80">Please specify *</label>
+                  <input 
+                    type="text" 
+                    id="howHeardOther" 
+                    name="howHeardOther" 
+                    value={formData.howHeardOther}
+                    onChange={handleChange}
+                    className={`w-full bg-black/30 border ${errors.howHeardOther ? 'border-red-500' : 'border-[var(--color-ares-border)]'} rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--color-ares-teal)]/50 focus:ring-1 focus:ring-[var(--color-ares-teal)]/50 transition-all`}
+                    placeholder="Please describe how you heard about us"
+                  />
+                  {errors.howHeardOther && <p className="text-red-400 text-xs mt-1">{errors.howHeardOther}</p>}
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <label htmlFor="referralCode" className="block text-sm font-medium text-white/80">Referral / Affiliate Code</label>
+                <input 
+                  type="text" 
+                  id="referralCode" 
+                  name="referralCode" 
+                  value={formData.referralCode}
+                  onChange={handleChange}
+                  className="w-full bg-black/30 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-[var(--color-ares-teal)]/50 focus:ring-1 focus:ring-[var(--color-ares-teal)]/50 transition-all"
+                  placeholder="e.g. COACH-SMITH"
                 />
               </div>
 

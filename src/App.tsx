@@ -79,10 +79,16 @@ export default function App() {
     const utmSource = params.get('utm_source');
     const utmMedium = params.get('utm_medium');
     const utmCampaign = params.get('utm_campaign');
+    const utmContent = params.get('utm_content');
+    const utmTerm = params.get('utm_term');
+    const ref = params.get('ref') || params.get('code');
 
     if (utmSource) sessionStorage.setItem('utm_source', utmSource);
     if (utmMedium) sessionStorage.setItem('utm_medium', utmMedium);
     if (utmCampaign) sessionStorage.setItem('utm_campaign', utmCampaign);
+    if (utmContent) sessionStorage.setItem('utm_content', utmContent);
+    if (utmTerm) sessionStorage.setItem('utm_term', utmTerm);
+    if (ref) sessionStorage.setItem('referral_code', ref);
 
     if (!sessionStorage.getItem('landing_page')) {
       sessionStorage.setItem('landing_page', window.location.pathname || '/');

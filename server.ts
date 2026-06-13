@@ -109,6 +109,111 @@ db.exec(`
 // Drop old bookings table if exists to migrate to payments
 db.exec(`DROP TABLE IF EXISTS bookings`);
 
+// Referral helpers
+function parseReferralCode(code: string | null) {
+  if (!code) return { name: null, type: null };
+  const upperCode = code.toUpperCase().trim();
+  const parts = upperCode.split('-');
+  
+  if (parts.length < 2) {
+    return { name: code.trim(), type: 'Other' };
+  }
+
+  const prefix = parts[0];
+  const value = parts.slice(1).join(' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+
+  switch (prefix) {
+    case 'COACH':
+      return { name: `Coach ${value}`, type: 'Coach' };
+    case 'TEAM':
+      return { name: value, type: 'Team' };
+    case 'SCHOOL':
+      return { name: value, type: 'School' };
+    case 'DR':
+      return { name: `Dr. ${value}`, type: 'Doctor' };
+    case 'CLINIC':
+      return { name: `${value} Clinic`, type: 'Vision Clinic' };
+    case 'EVENT':
+      return { name: value, type: 'Event' };
+    case 'AFFILIATE':
+      return { name: value, type: 'Affiliate Partner' };
+    case 'CAMPAIGN':
+      return { name: value, type: 'Campaign' };
+    default:
+      return { name: code.trim(), type: 'Referral Partner' };
+  }
+}
+
+function checkSourceConfidence(howHeard: string | null, referralCode: string | null, utmSource: string | null): string {
+  if (!howHeard) return 'High';
+  
+  let matches = true;
+
+  const getChannel = (val: string, type: 'how' | 'ref' | 'utm') => {
+    const clean = val.toLowerCase().trim();
+    if (type === 'how') {
+      if (clean.includes('google') || clean.includes('search')) return 'Search';
+      if (clean.includes('social') || clean.includes('facebook') || clean.includes('instagram') || clean.includes('tiktok') || clean.includes('youtube')) return 'Social';
+      if (clean.includes('ad')) return 'Paid Ads';
+      if (clean.includes('referral') || clean.includes('coach') || clean.includes('athlete') || clean.includes('parent') || clean.includes('team') || clean.includes('school') || clean.includes('club') || clean.includes('doctor') || clean.includes('vision') || clean.includes('clinic') || clean.includes('physical') || clean.includes('therapist') || clean.includes('specialist') || clean.includes('strength') || clean.includes('facility')) return 'Referral';
+      if (clean.includes('affiliate')) return 'Affiliate';
+      if (clean.includes('event') || clean.includes('conference')) return 'Event';
+      if (clean.includes('qr')) return 'QR Code';
+      return 'Other';
+    } else if (type === 'ref') {
+      if (clean.startsWith('coach') || clean.startsWith('team') || clean.startsWith('school') || clean.startsWith('dr') || clean.startsWith('clinic')) return 'Referral';
+      if (clean.startsWith('affiliate')) return 'Affiliate';
+      if (clean.startsWith('event')) return 'Event';
+      if (clean.startsWith('campaign')) return 'Campaign';
+      return 'Other';
+    } else {
+      if (clean.includes('google') || clean.includes('bing') || clean.includes('search')) return 'Search';
+      if (clean.includes('facebook') || clean.includes('instagram') || clean.includes('tiktok') || clean.includes('youtube') || clean.includes('social')) return 'Social';
+      if (clean.includes('cpc') || clean.includes('ad') || clean.includes('paid')) return 'Paid Ads';
+      if (clean.includes('partner') || clean.includes('referral')) return 'Referral';
+      if (clean.includes('affiliate')) return 'Affiliate';
+      return 'Other';
+    }
+  };
+
+  const howChannel = getChannel(howHeard, 'how');
+  let refChannel: string | null = null;
+  let utmChannel: string | null = null;
+
+  if (referralCode) {
+    refChannel = getChannel(referralCode, 'ref');
+    if (refChannel !== 'Other' && howChannel !== 'Other' && refChannel !== howChannel) {
+      matches = false;
+    }
+  }
+
+  if (utmSource) {
+    utmChannel = getChannel(utmSource, 'utm');
+    if (utmChannel !== 'Other' && howChannel !== 'Other' && utmChannel !== howChannel) {
+      matches = false;
+    }
+    if (refChannel && refChannel !== 'Other' && utmChannel !== 'Other' && refChannel !== utmChannel) {
+      matches = false;
+    }
+  }
+
+  return matches ? 'High' : 'Needs Review';
+}
+
+function determineSourceString(howHeard: string | null, referralCode: string | null, utmSource: string | null): string {
+  if (referralCode) {
+    const { name, type } = parseReferralCode(referralCode);
+    return name ? `${type}: ${name}` : (type || 'Referral');
+  }
+  if (utmSource) {
+    return `UTM: ${utmSource}`;
+  }
+  if (howHeard) {
+    return howHeard;
+  }
+  return 'Website';
+}
+
 // Schema migrations to support lead capture details, UTM parameters, and lead status
 function runMigrations() {
   const columnsToAdd = [
@@ -121,7 +226,28 @@ function runMigrations() {
     { table: "leads", column: "utm_medium", type: "TEXT" },
     { table: "leads", column: "utm_campaign", type: "TEXT" },
     { table: "leads", column: "landing_page", type: "TEXT DEFAULT '/'" },
-    { table: "leads", column: "updated_at", type: "DATETIME DEFAULT CURRENT_TIMESTAMP" }
+    { table: "leads", column: "updated_at", type: "DATETIME DEFAULT CURRENT_TIMESTAMP" },
+    
+    // New growth attribution fields
+    { table: "leads", column: "how_heard", type: "TEXT" },
+    { table: "leads", column: "how_heard_other", type: "TEXT" },
+    { table: "leads", column: "referral_code", type: "TEXT" },
+    { table: "leads", column: "affiliate_code", type: "TEXT" },
+    { table: "leads", column: "referral_partner_name", type: "TEXT" },
+    { table: "leads", column: "referral_partner_type", type: "TEXT" },
+    { table: "leads", column: "utm_content", type: "TEXT" },
+    { table: "leads", column: "utm_term", type: "TEXT" },
+    { table: "leads", column: "first_touch_source", type: "TEXT" },
+    { table: "leads", column: "last_touch_source", type: "TEXT" },
+    { table: "leads", column: "conversion_source", type: "TEXT" },
+    { table: "leads", column: "assessment_completed_date", type: "DATETIME" },
+    { table: "leads", column: "evaluation_scheduled_date", type: "DATETIME" },
+    { table: "leads", column: "evaluation_completed_date", type: "DATETIME" },
+    { table: "leads", column: "became_client_date", type: "DATETIME" },
+    { table: "leads", column: "source_confidence", type: "TEXT DEFAULT 'High'" },
+    { table: "leads", column: "manually_verified_source", type: "TEXT" },
+    { table: "leads", column: "lead_owner", type: "TEXT DEFAULT 'Admin'" },
+    { table: "leads", column: "notes", type: "TEXT" }
   ];
 
   for (const item of columnsToAdd) {
@@ -411,10 +537,10 @@ async function sendWeeklyReport() {
     const activeNurture = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status LIKE '%Sent' OR status = 'Nurture Campaign Active'").get() as { count: number };
     
     // Leads by source
-    const sourceStats = db.prepare("SELECT lead_source, COUNT(*) as count FROM leads WHERE created_at >= ? GROUP BY lead_source").all(oneWeekAgo) as { lead_source: string, count: number }[];
+    const sourceStats = db.prepare("SELECT last_touch_source, COUNT(*) as count FROM leads WHERE created_at >= ? GROUP BY last_touch_source").all(oneWeekAgo) as { last_touch_source: string, count: number }[];
     
     // Convert source stats to description
-    const sourceSummary = sourceStats.map(s => `${s.lead_source || 'Website'}: ${s.count}`).join(', ') || "None";
+    const sourceSummary = sourceStats.map(s => `${s.last_touch_source || 'Website'}: ${s.count}`).join(', ') || "None";
     
     // Conversion rate
     const conversionRate = newLeads.count > 0 ? Math.round((scheduled.count / newLeads.count) * 100) : 0;
@@ -424,18 +550,34 @@ async function sendWeeklyReport() {
       SELECT l.first_name, l.last_name, l.sport, l.created_at, a.questionnaire_score 
       FROM leads l
       LEFT JOIN assessments a ON l.email = a.email
-      WHERE l.status != 'Evaluation Scheduled' AND l.status != 'Unsubscribed' AND l.status != 'Not Interested'
+      WHERE l.status != 'Evaluation Scheduled' AND l.status != 'Unsubscribed' AND l.status != 'Not Interested' AND l.status != 'Became Client'
       ORDER BY l.created_at DESC LIMIT 10
     `).all() as any[];
 
-    // Manual follow-ups (clicked booking but no payment, or opened multiple emails)
+    // Manual follow-ups
     const manualFollowUpsList = db.prepare(`
       SELECT first_name, last_name, email, sport, status
       FROM leads
       WHERE (sport LIKE '%pro%' OR sport LIKE '%elite%' OR status = 'Final Follow-Up Sent')
-        AND status != 'Evaluation Scheduled'
+        AND status != 'Evaluation Scheduled' AND status != 'Became Client'
       LIMIT 5
     `).all() as any[];
+
+    // Top referral partner channels this week
+    const topReferralCodes = db.prepare(`
+      SELECT referral_code, referral_partner_name, referral_partner_type, COUNT(*) as count,
+             SUM(CASE WHEN status = 'Evaluation Scheduled' OR status = 'Became Client' THEN 1 ELSE 0 END) as converted
+      FROM leads
+      WHERE referral_code IS NOT NULL AND created_at >= ?
+      GROUP BY referral_code
+      ORDER BY count DESC
+      LIMIT 5
+    `).all(oneWeekAgo) as any[];
+
+    // Attribution review candidate count
+    const reviewCount = (db.prepare(`
+      SELECT COUNT(*) as count FROM leads WHERE source_confidence = 'Needs Review'
+    `).get() as { count: number }).count;
 
     // Format HTML email rows
     let pendingRows = "";
@@ -457,8 +599,20 @@ async function sendWeeklyReport() {
         <tr>
           <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${lead.first_name} ${lead.last_name || ''}</strong> (${lead.email})</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.sport || 'N/A'}</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><span style="background: #d32f2f; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">${reason}</span></td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><span style="background: #ef5350; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">${reason}</span></td>
           <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><a href="mailto:${lead.email}" style="color: #29b6f6; text-decoration: none;">Email Lead</a></td>
+        </tr>
+      `;
+    }
+
+    let partnerRows = "";
+    for (const partner of topReferralCodes) {
+      partnerRows += `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${partner.referral_code}</strong> (${partner.referral_partner_name || 'N/A'})</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${partner.referral_partner_type || 'Other'}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937; text-align: center;">${partner.count}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937; text-align: center; color: #66bb6a;">${partner.converted}</td>
         </tr>
       `;
     }
@@ -483,8 +637,29 @@ async function sendWeeklyReport() {
           </div>
         </div>
 
+        ${reviewCount > 0 ? `
+        <div style="background: rgba(239, 83, 80, 0.1); border: 1px solid #ef5350; border-radius: 8px; padding: 12px; margin-bottom: 20px; text-align: center;">
+          <span style="color: #ef5350; font-weight: bold;">⚠️ ATTRIBUTION CLEANUP NEEDED:</span> You have <strong>${reviewCount}</strong> leads with conflicting source channels. Verify them on the Admin Dashboard.
+        </div>
+        ` : ''}
+
         <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Leads Active in Nurture: ${activeNurture.count}</div>
-        <div style="font-size: 13px; margin-top: 10px; color: #e5e7eb;"><strong>Sources Performance:</strong> ${sourceSummary}</div>
+        <div style="font-size: 13px; margin-top: 10px; color: #e5e7eb;"><strong>Acquisition Channels:</strong> ${sourceSummary}</div>
+
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Top Referral Codes & Partners (7 Days)</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="text-align: left; color: #9ca3af; font-size: 12px; border-bottom: 1px solid #374151;">
+              <th style="padding-bottom: 8px;">Partner Code / Name</th>
+              <th style="padding-bottom: 8px;">Partner Type</th>
+              <th style="padding-bottom: 8px; text-align: center;">Leads</th>
+              <th style="padding-bottom: 8px; text-align: center;">Scheduled</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${partnerRows || '<tr><td colspan="4" style="color:#9ca3af;text-align:center;padding:10px;">No partner referrals this week</td></tr>'}
+          </tbody>
+        </table>
 
         <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Manual Follow-Up Alerts (Hot Actions Needed)</div>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
@@ -552,7 +727,7 @@ async function sendMonthlyReport() {
     const scheduled = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status = 'Evaluation Scheduled' AND updated_at >= ?").get(thirtyDaysAgo) as { count: number };
     
     // Total unscheduled leads backlog
-    const unscheduledLeads = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status != 'Evaluation Scheduled' AND status != 'Unsubscribed' AND status != 'Not Interested'").get() as { count: number };
+    const unscheduledLeads = db.prepare("SELECT COUNT(*) as count FROM leads WHERE status != 'Evaluation Scheduled' AND status != 'Unsubscribed' AND status != 'Not Interested' AND status != 'Became Client'").get() as { count: number };
     
     // Average days to book
     const avgDays = db.prepare(`
@@ -569,20 +744,64 @@ async function sendMonthlyReport() {
     // Revenue opportunity
     const revOpportunity = unscheduledLeads.count * 449;
 
-    // Leads by source
-    const sourceStats = db.prepare("SELECT lead_source, COUNT(*) as count FROM leads WHERE created_at >= ? GROUP BY lead_source").all(thirtyDaysAgo) as { lead_source: string, count: number }[];
+    // Leads by last touch source channel
+    const sourceStats = db.prepare("SELECT last_touch_source, COUNT(*) as count FROM leads WHERE created_at >= ? GROUP BY last_touch_source").all(thirtyDaysAgo) as { last_touch_source: string, count: number }[];
     
     // Format source rows
     let sourceRows = "";
     for (const stat of sourceStats) {
-      const sourceConv = db.prepare("SELECT COUNT(*) as count FROM leads WHERE lead_source = ? AND status = 'Evaluation Scheduled' AND created_at >= ?").get(stat.lead_source, thirtyDaysAgo) as { count: number };
+      const sourceConv = db.prepare("SELECT COUNT(*) as count FROM leads WHERE last_touch_source = ? AND (status = 'Evaluation Scheduled' OR status = 'Became Client') AND created_at >= ?").get(stat.last_touch_source, thirtyDaysAgo) as { count: number };
       const sourceRate = stat.count > 0 ? Math.round((sourceConv.count / stat.count) * 100) : 0;
       sourceRows += `
         <tr>
-          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${stat.lead_source || 'Website'}</strong></td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${stat.count}</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${sourceConv.count}</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${sourceRate}%</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${stat.last_touch_source || 'Website'}</strong></td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937; text-align: center;">${stat.count}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937; text-align: center;">${sourceConv.count}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937; text-align: center;">${sourceRate}%</td>
+        </tr>
+      `;
+    }
+
+    // Top performing referral partners (30 Days)
+    const topReferrals = db.prepare(`
+      SELECT referral_code, referral_partner_name, referral_partner_type, COUNT(*) as count,
+             SUM(CASE WHEN status = 'Evaluation Scheduled' OR status = 'Became Client' THEN 1 ELSE 0 END) as converted
+      FROM leads
+      WHERE referral_code IS NOT NULL AND created_at >= ?
+      GROUP BY referral_code
+      ORDER BY count DESC
+      LIMIT 5
+    `).all(thirtyDaysAgo) as any[];
+
+    let partnerRows = "";
+    for (const p of topReferrals) {
+      const convRate = p.count > 0 ? Math.round((p.converted / p.count) * 100) : 0;
+      partnerRows += `
+        <tr>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${p.referral_code}</strong> (${p.referral_partner_name || 'N/A'})</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${p.referral_partner_type || 'Other'}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937; text-align: center;">${p.count}</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937; text-align: center;">${convRate}%</td>
+        </tr>
+      `;
+    }
+
+    // Attribution review candidate count and sample list
+    const reviewCandidates = db.prepare(`
+      SELECT first_name, last_name, email, how_heard, referral_code, utm_source, created_at
+      FROM leads
+      WHERE source_confidence = 'Needs Review'
+      ORDER BY created_at DESC
+      LIMIT 5
+    `).all() as any[];
+
+    let reviewRows = "";
+    for (const c of reviewCandidates) {
+      reviewRows += `
+        <tr>
+          <td style="padding: 6px 0; border-bottom: 1px solid #1f2937; font-size: 13px;"><strong>${c.first_name} ${c.last_name || ''}</strong><br/><span style="color: #6b7280; font-size: 11px;">${c.email}</span></td>
+          <td style="padding: 6px 0; border-bottom: 1px solid #1f2937; font-size: 11px;">Heard: ${c.how_heard || 'N/A'}<br/>Code: ${c.referral_code || 'N/A'}<br/>UTM: ${c.utm_source || 'N/A'}</td>
+          <td style="padding: 6px 0; border-bottom: 1px solid #1f2937; font-size: 11px; text-align: right; color: #ef5350;">Conflict</td>
         </tr>
       `;
     }
@@ -592,7 +811,7 @@ async function sendMonthlyReport() {
       SELECT l.first_name, l.last_name, l.email, l.sport, a.questionnaire_score
       FROM leads l
       JOIN assessments a ON l.email = a.email
-      WHERE l.status != 'Evaluation Scheduled' AND l.status != 'Unsubscribed' AND l.status != 'Not Interested'
+      WHERE l.status != 'Evaluation Scheduled' AND l.status != 'Unsubscribed' AND l.status != 'Not Interested' AND l.status != 'Became Client'
       ORDER BY a.questionnaire_score DESC LIMIT 5
     `).all() as any[];
 
@@ -603,7 +822,7 @@ async function sendMonthlyReport() {
         <tr>
           <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><strong>${lead.first_name} ${lead.last_name || ''}</strong> (${lead.email})</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.sport || 'N/A'}</td>
-          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;">${lead.questionnaire_score || 'N/A'}/200</td>
+          <td style="padding: 8px 0; border-bottom: 1px solid #1f2937; text-align: center;">${lead.questionnaire_score || 'N/A'}/200</td>
           <td style="padding: 8px 0; border-bottom: 1px solid #1f2937;"><span style="color:#fbbf24;">${reason}</span></td>
         </tr>
       `;
@@ -643,14 +862,14 @@ async function sendMonthlyReport() {
           </p>
         </div>
 
-        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Lead Acquisition Sources Performance</div>
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Lead Acquisition Channels Performance</div>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
           <thead>
             <tr style="text-align: left; color: #9ca3af; font-size: 12px; border-bottom: 1px solid #374151;">
               <th style="padding-bottom: 8px;">Source</th>
-              <th style="padding-bottom: 8px;">Acquired Leads</th>
-              <th style="padding-bottom: 8px;">Scheduled Evals</th>
-              <th style="padding-bottom: 8px;">Conversion %</th>
+              <th style="padding-bottom: 8px; text-align: center;">Acquired Leads</th>
+              <th style="padding-bottom: 8px; text-align: center;">Scheduled Evals</th>
+              <th style="padding-bottom: 8px; text-align: center;">Conversion %</th>
             </tr>
           </thead>
           <tbody>
@@ -658,13 +877,37 @@ async function sendMonthlyReport() {
           </tbody>
         </table>
 
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Top Performing Partners (30 Days)</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <thead>
+            <tr style="text-align: left; color: #9ca3af; font-size: 12px; border-bottom: 1px solid #374151;">
+              <th style="padding-bottom: 8px;">Partner Code</th>
+              <th style="padding-bottom: 8px;">Partner Type</th>
+              <th style="padding-bottom: 8px; text-align: center;">Leads</th>
+              <th style="padding-bottom: 8px; text-align: center;">Conv. Rate</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${partnerRows || '<tr><td colspan="4" style="color:#9ca3af;text-align:center;padding:10px;">No partner referrals this month</td></tr>'}
+          </tbody>
+        </table>
+
+        ${reviewCandidates.length > 0 ? `
+        <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Attribution Cleanup Queue (Recent Conflicts)</div>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+          <tbody>
+            ${reviewRows}
+          </tbody>
+        </table>
+        ` : ''}
+
         <div style="font-size: 14px; text-transform: uppercase; color: #9ca3af; margin-top: 25px; border-bottom: 1px solid #374151; padding-bottom: 5px;">Recommended Outreach List (High Opportunity)</div>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
           <thead>
             <tr style="text-align: left; color: #9ca3af; font-size: 12px; border-bottom: 1px solid #374151;">
               <th style="padding-bottom: 8px;">Name</th>
               <th style="padding-bottom: 8px;">Sport</th>
-              <th style="padding-bottom: 8px;">Symptom Score</th>
+              <th style="padding-bottom: 8px; text-align: center;">Symptom Score</th>
               <th style="padding-bottom: 8px;">Reason</th>
             </tr>
           </thead>
@@ -1045,25 +1288,74 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
 
 app.post("/api/resource-download", async (req, res) => {
   try {
-    const { firstName, lastName, email, sport, resourceName } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      sport,
+      resourceName,
+      howHeard,
+      howHeardOther,
+      referralCode,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmContent,
+      utmTerm,
+      landingPage
+    } = req.body;
     
     if (!firstName || !email) {
       return res.status(400).json({ error: "First name and email are required" });
     }
 
+    const parsedRef = parseReferralCode(referralCode);
+    const confidence = checkSourceConfidence(howHeard, referralCode, utmSource);
+    const calculatedSource = determineSourceString(howHeard, referralCode, utmSource);
+
     // Send notification to A.R.E.S. team
     if (resend) {
       try {
+        const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
         await resend.emails.send({
           from: 'A.R.E.S. Website <onboarding@resend.dev>',
-          to: ['drl@areselitesportsvision.com'],
-          subject: `New Resource Download: ${firstName} ${lastName}`,
+          to: emailTo,
+          subject: `New Resource Download: ${firstName} ${lastName || ''}`,
           html: `
-            <h2>New Lead via Resource Download</h2>
-            <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Sport:</strong> ${sport || 'Not specified'}</p>
-            <p><strong>Resource Downloaded:</strong> ${resourceName || 'Unknown Resource'}</p>
+            <div style="font-family: Arial, sans-serif; background-color: #0e111a; color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #29b6f6; max-width: 600px;">
+              <h2 style="color: #29b6f6; border-bottom: 1px solid #1f2937; padding-bottom: 12px; margin-top: 0;">New Lead via Resource Download</h2>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">Lead Name:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${firstName} ${lastName || ''}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Email:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${email}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Sport:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${sport || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Resource:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${resourceName || 'Unknown'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Lead Source (Manual):</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${howHeard || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Referral Code:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${referralCode || 'None'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Source Confidence:</td>
+                  <td style="padding: 8px 0;"><span style="background-color: ${confidence === 'High' ? '#66bb6a' : '#ef5350'}; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${confidence}</span></td>
+                </tr>
+              </table>
+            </div>
           `
         });
       } catch (emailError) {
@@ -1071,15 +1363,69 @@ app.post("/api/resource-download", async (req, res) => {
       }
     }
     
-    // Insert lead
+    // Insert/Update Lead
     try {
-      const stmt = db.prepare("INSERT INTO leads (first_name, last_name, email, sport) VALUES (?, ?, ?, ?)");
-      stmt.run(firstName, lastName || null, email, sport || null);
+      const existingLead = db.prepare("SELECT id, status FROM leads WHERE email = ?").get(email) as any;
+      if (existingLead) {
+        const currentStatus = existingLead.status;
+        const finalStatus = (currentStatus === 'Evaluation Scheduled' || currentStatus === 'Unsubscribed' || currentStatus === 'Not Interested' || currentStatus === 'Became Client')
+          ? currentStatus
+          : 'Nurture Campaign Active';
+
+        db.prepare(`
+          UPDATE leads SET 
+            first_name = ?, last_name = ?, sport = ?, 
+            utm_source = COALESCE(utm_source, ?),
+            utm_medium = COALESCE(utm_medium, ?),
+            utm_campaign = COALESCE(utm_campaign, ?),
+            utm_content = COALESCE(utm_content, ?),
+            utm_term = COALESCE(utm_term, ?),
+            how_heard = COALESCE(how_heard, ?),
+            how_heard_other = COALESCE(how_heard_other, ?),
+            referral_code = COALESCE(referral_code, ?),
+            affiliate_code = COALESCE(affiliate_code, ?),
+            referral_partner_name = COALESCE(referral_partner_name, ?),
+            referral_partner_type = COALESCE(referral_partner_type, ?),
+            last_touch_source = ?,
+            source_confidence = ?,
+            status = ?,
+            notes = COALESCE(notes || '', '') || ? || '\n',
+            updated_at = CURRENT_TIMESTAMP
+          WHERE email = ?
+        `).run(
+          firstName, lastName || null, sport || null,
+          utmSource || null, utmMedium || null, utmCampaign || null, utmContent || null, utmTerm || null,
+          howHeard || null, howHeardOther || null, referralCode || null,
+          (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
+          parsedRef.name, parsedRef.type,
+          calculatedSource, confidence, finalStatus,
+          resourceName ? `Downloaded Resource: ${resourceName}` : '',
+          email
+        );
+      } else {
+        const firstTouch = calculatedSource;
+        db.prepare(`
+          INSERT INTO leads (
+            first_name, last_name, email, sport, lead_source, 
+            utm_source, utm_medium, utm_campaign, utm_content, utm_term, landing_page,
+            how_heard, how_heard_other, referral_code, affiliate_code,
+            referral_partner_name, referral_partner_type, first_touch_source, last_touch_source,
+            source_confidence, status, notes
+          ) VALUES (?, ?, ?, ?, 'Website', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Nurture Campaign Active', ?)
+        `).run(
+          firstName, lastName || null, email, sport || null,
+          utmSource || null, utmMedium || null, utmCampaign || null, utmContent || null, utmTerm || null, landingPage || '/',
+          howHeard || null, howHeardOther || null, referralCode || null,
+          (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
+          parsedRef.name, parsedRef.type, firstTouch, firstTouch,
+          confidence, resourceName ? `Downloaded Resource: ${resourceName}` : null
+        );
+      }
       
       // Trigger sequence processor immediately for Day 0 email
       setTimeout(() => processEmailSequences(), 1000);
     } catch (dbError: any) {
-      // If email exists, we just ignore it as it's already a lead
+      console.error("Failed to insert/update lead record in resource download route:", dbError);
     }
     
     res.json({ success: true, message: "Resource downloaded and notification sent." });
@@ -1091,25 +1437,89 @@ app.post("/api/resource-download", async (req, res) => {
 
 app.post("/api/contact", async (req, res) => {
   try {
-    const { firstName, lastName, email, sport, message } = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      sport,
+      message,
+      howHeard,
+      howHeardOther,
+      referralCode,
+      utmSource,
+      utmMedium,
+      utmCampaign,
+      utmContent,
+      utmTerm,
+      landingPage
+    } = req.body;
     
     if (!firstName || !email) {
       return res.status(400).json({ error: "First name and email are required" });
     }
 
+    const parsedRef = parseReferralCode(referralCode);
+    const confidence = checkSourceConfidence(howHeard, referralCode, utmSource);
+    const calculatedSource = determineSourceString(howHeard, referralCode, utmSource);
+
     // Send notification to A.R.E.S. team
     if (resend) {
       try {
+        const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
         await resend.emails.send({
-          from: 'A.R.E.S. Website <onboarding@resend.dev>', // Use a verified domain in production
-          to: ['drl@areselitesportsvision.com'], // Send to Dr. LaPlaca
-          subject: `New Contact Request: ${firstName} ${lastName}`,
+          from: 'A.R.E.S. Website <onboarding@resend.dev>',
+          to: emailTo,
+          subject: `New Contact Request: ${firstName} ${lastName || ''}`,
           html: `
-            <h2>New Contact Request</h2>
-            <p><strong>Name:</strong> ${firstName} ${lastName}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Sport:</strong> ${sport || 'Not specified'}</p>
-            <p><strong>Message:</strong> ${message || 'No message provided'}</p>
+            <div style="font-family: Arial, sans-serif; background-color: #0e111a; color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #29b6f6; max-width: 600px;">
+              <h2 style="color: #29b6f6; border-bottom: 1px solid #1f2937; padding-bottom: 12px; margin-top: 0;">New Contact Request</h2>
+              
+              <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">Lead Name:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${firstName} ${lastName || ''}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Email:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${email}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Sport:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${sport || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Lead Source (Manual):</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${howHeard || 'N/A'} ${howHeardOther ? `(${howHeardOther})` : ''}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Referral / Affiliate Code:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${referralCode || 'None'} ${parsedRef.name ? `-> Resolved to: ${parsedRef.name} (${parsedRef.type})` : ''}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">UTM Tags:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace; font-size: 11px;">
+                    Source: ${utmSource || 'N/A'}<br/>
+                    Medium: ${utmMedium || 'N/A'}<br/>
+                    Campaign: ${utmCampaign || 'N/A'}<br/>
+                    Content: ${utmContent || 'N/A'}<br/>
+                    Term: ${utmTerm || 'N/A'}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Source Confidence:</td>
+                  <td style="padding: 8px 0;"><span style="background-color: ${confidence === 'High' ? '#66bb6a' : '#ef5350'}; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${confidence}</span></td>
+                </tr>
+              </table>
+
+              <h3 style="color: #8b5cf6; margin-top: 25px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; font-size: 15px;">Message</h3>
+              <p style="background-color: #1a1e2e; padding: 12px; border-radius: 8px; border: 1px solid #374151; font-family: monospace; font-size: 13px; color: #e5e7eb;">
+                ${message || 'No message provided'}
+              </p>
+              
+              <div style="margin-top: 25px; text-align: center;">
+                <a href="${APP_URL}/admin" style="background-color: #29b6f6; color: #0a0b14; padding: 12px 24px; border-radius: 6px; font-weight: bold; text-decoration: none; display: inline-block; font-size: 14px; text-transform: uppercase;">View Lead Dashboard</a>
+              </div>
+            </div>
           `
         });
       } catch (emailError) {
@@ -1117,20 +1527,80 @@ app.post("/api/contact", async (req, res) => {
       }
     }
     
-    // Insert lead
+    // Insert/Update Lead
     try {
-      const stmt = db.prepare("INSERT INTO leads (first_name, last_name, email, sport) VALUES (?, ?, ?, ?)");
-      const info = stmt.run(firstName, lastName || null, email, sport || null);
+      const existingLead = db.prepare("SELECT id, status FROM leads WHERE email = ?").get(email) as any;
+      if (existingLead) {
+        const currentStatus = existingLead.status;
+        const finalStatus = (currentStatus === 'Evaluation Scheduled' || currentStatus === 'Unsubscribed' || currentStatus === 'Not Interested' || currentStatus === 'Became Client')
+          ? currentStatus
+          : 'Nurture Campaign Active';
+
+        db.prepare(`
+          UPDATE leads SET 
+            first_name = ?, last_name = ?, sport = ?, 
+            utm_source = COALESCE(utm_source, ?),
+            utm_medium = COALESCE(utm_medium, ?),
+            utm_campaign = COALESCE(utm_campaign, ?),
+            utm_content = COALESCE(utm_content, ?),
+            utm_term = COALESCE(utm_term, ?),
+            how_heard = COALESCE(how_heard, ?),
+            how_heard_other = COALESCE(how_heard_other, ?),
+            referral_code = COALESCE(referral_code, ?),
+            affiliate_code = COALESCE(affiliate_code, ?),
+            referral_partner_name = COALESCE(referral_partner_name, ?),
+            referral_partner_type = COALESCE(referral_partner_type, ?),
+            last_touch_source = ?,
+            source_confidence = ?,
+            status = ?,
+            notes = COALESCE(notes || '', '') || ? || '\n',
+            updated_at = CURRENT_TIMESTAMP
+          WHERE email = ?
+        `).run(
+          firstName, lastName || null, sport || null,
+          utmSource || null, utmMedium || null, utmCampaign || null, utmContent || null, utmTerm || null,
+          howHeard || null, howHeardOther || null, referralCode || null,
+          (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
+          parsedRef.name, parsedRef.type,
+          calculatedSource, confidence, finalStatus,
+          message ? `Contact Form Message: ${message}` : '',
+          email
+        );
+
+        if (currentStatus !== finalStatus) {
+          db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, ?)")
+            .run(existingLead.id, currentStatus, finalStatus);
+        }
+      } else {
+        const firstTouch = calculatedSource;
+        const result = db.prepare(`
+          INSERT INTO leads (
+            first_name, last_name, email, sport, lead_source, 
+            utm_source, utm_medium, utm_campaign, utm_content, utm_term, landing_page,
+            how_heard, how_heard_other, referral_code, affiliate_code,
+            referral_partner_name, referral_partner_type, first_touch_source, last_touch_source,
+            source_confidence, status, notes
+          ) VALUES (?, ?, ?, ?, 'Website', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Nurture Campaign Active', ?)
+        `).run(
+          firstName, lastName || null, email, sport || null,
+          utmSource || null, utmMedium || null, utmCampaign || null, utmContent || null, utmTerm || null, landingPage || '/',
+          howHeard || null, howHeardOther || null, referralCode || null,
+          (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
+          parsedRef.name, parsedRef.type, firstTouch, firstTouch,
+          confidence, message ? `Contact Form Message: ${message}` : null
+        );
+
+        db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, 'Nurture Campaign Active')")
+          .run(result.lastInsertRowid, null);
+      }
       
       // Trigger sequence processor immediately for Day 0 email
       setTimeout(() => processEmailSequences(), 1000);
       
       res.json({ success: true, message: "Contact request received. Sequence started." });
     } catch (dbError: any) {
-      if (dbError.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-        return res.status(400).json({ error: "This email is already in our system." });
-      }
-      throw dbError;
+      console.error("Failed to insert/update lead record in contact route:", dbError);
+      res.status(500).json({ error: "Failed to store contact request." });
     }
   } catch (error) {
     console.error("Error processing contact request:", error);
@@ -1153,6 +1623,8 @@ app.post("/api/submit-assessment", async (req, res) => {
       utmSource,
       utmMedium,
       utmCampaign,
+      utmContent,
+      utmTerm,
       landingPage,
       questionnaireScore,
       questionnaireData,
@@ -1166,7 +1638,10 @@ app.post("/api/submit-assessment", async (req, res) => {
       choiceRtTealAcc,
       choiceRtPostErrorSlowing,
       recSpeedAvg,
-      recSpeedAcc
+      recSpeedAcc,
+      howHeard,
+      howHeardOther,
+      referralCode
     } = req.body;
 
     if (!firstName || !email) {
@@ -1177,6 +1652,11 @@ app.post("/api/submit-assessment", async (req, res) => {
     const booked = db.prepare("SELECT id FROM payments WHERE customer_email = ? AND payment_status = 'Paid and Confirmed'").get(email);
     const initialStatus = booked ? 'Evaluation Scheduled' : 'Nurture Campaign Active';
 
+    // Parse referral code and check source confidence
+    const parsedRef = parseReferralCode(referralCode);
+    const confidence = checkSourceConfidence(howHeard, referralCode, utmSource);
+    const calculatedSource = determineSourceString(howHeard, referralCode, utmSource);
+
     // 1. Insert or Update Lead (Merge duplicates)
     try {
       const existingLead = db.prepare("SELECT id, status FROM leads WHERE email = ?").get(email) as any;
@@ -1186,6 +1666,11 @@ app.post("/api/submit-assessment", async (req, res) => {
           ? currentStatus
           : initialStatus;
 
+        let evalScheduledDate = null;
+        if (finalStatus === 'Evaluation Scheduled') {
+          evalScheduledDate = new Date().toISOString();
+        }
+
         db.prepare(`
           UPDATE leads SET 
             first_name = ?, last_name = ?, phone = ?, athlete_name = ?, 
@@ -1193,13 +1678,29 @@ app.post("/api/submit-assessment", async (req, res) => {
             utm_source = COALESCE(utm_source, ?),
             utm_medium = COALESCE(utm_medium, ?),
             utm_campaign = COALESCE(utm_campaign, ?),
+            utm_content = COALESCE(utm_content, ?),
+            utm_term = COALESCE(utm_term, ?),
+            how_heard = COALESCE(how_heard, ?),
+            how_heard_other = COALESCE(how_heard_other, ?),
+            referral_code = COALESCE(referral_code, ?),
+            affiliate_code = COALESCE(affiliate_code, ?),
+            referral_partner_name = COALESCE(referral_partner_name, ?),
+            referral_partner_type = COALESCE(referral_partner_type, ?),
+            last_touch_source = ?,
+            source_confidence = ?,
+            assessment_completed_date = COALESCE(assessment_completed_date, CURRENT_TIMESTAMP),
+            evaluation_scheduled_date = COALESCE(evaluation_scheduled_date, ?),
             status = ?,
             updated_at = CURRENT_TIMESTAMP
           WHERE email = ?
         `).run(
           firstName, lastName || null, phone || null, athleteName || null,
           parentGuardianName || null, sport || null, age || null,
-          utmSource || null, utmMedium || null, utmCampaign || null,
+          utmSource || null, utmMedium || null, utmCampaign || null, utmContent || null, utmTerm || null,
+          howHeard || null, howHeardOther || null, referralCode || null,
+          (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
+          parsedRef.name, parsedRef.type,
+          calculatedSource, confidence, evalScheduledDate,
           finalStatus, email
         );
 
@@ -1208,17 +1709,26 @@ app.post("/api/submit-assessment", async (req, res) => {
             .run(existingLead.id, currentStatus, finalStatus);
         }
       } else {
+        const firstTouch = calculatedSource;
+        const evalScheduledDate = (initialStatus === 'Evaluation Scheduled') ? new Date().toISOString() : null;
+
         const result = db.prepare(`
           INSERT INTO leads (
             first_name, last_name, email, phone, athlete_name, 
             parent_guardian_name, sport, age, lead_source, 
-            utm_source, utm_medium, utm_campaign, landing_page, status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            utm_source, utm_medium, utm_campaign, utm_content, utm_term, landing_page,
+            how_heard, how_heard_other, referral_code, affiliate_code,
+            referral_partner_name, referral_partner_type, first_touch_source, last_touch_source,
+            source_confidence, assessment_completed_date, evaluation_scheduled_date, status
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
         `).run(
           firstName, lastName || null, email, phone || null, athleteName || null,
           parentGuardianName || null, sport || null, age || null, leadSource || 'Website',
-          utmSource || null, utmMedium || null, utmCampaign || null, landingPage || '/',
-          initialStatus
+          utmSource || null, utmMedium || null, utmCampaign || null, utmContent || null, utmTerm || null, landingPage || '/',
+          howHeard || null, howHeardOther || null, referralCode || null,
+          (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
+          parsedRef.name, parsedRef.type, firstTouch, firstTouch,
+          confidence, evalScheduledDate, initialStatus
         );
 
         db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, ?)")
@@ -1383,8 +1893,26 @@ app.post("/api/submit-assessment", async (req, res) => {
                   <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${sport || 'N/A'} (Age: ${age || 'N/A'})</td>
                 </tr>
                 <tr>
-                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Lead Source:</td>
-                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${leadSource || 'Website'} (UTM: ${utmSource || 'N/A'} / ${utmMedium || 'N/A'} / ${utmCampaign || 'N/A'})</td>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Lead Source (Manual):</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${howHeard || 'N/A'} ${howHeardOther ? `(${howHeardOther})` : ''}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Referral / Affiliate Code:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${referralCode || 'None'} ${parsedRef.name ? `-> Resolved to: ${parsedRef.name} (${parsedRef.type})` : ''}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">UTM Tags:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace; font-size: 11px;">
+                    Source: ${utmSource || 'N/A'}<br/>
+                    Medium: ${utmMedium || 'N/A'}<br/>
+                    Campaign: ${utmCampaign || 'N/A'}<br/>
+                    Content: ${utmContent || 'N/A'}<br/>
+                    Term: ${utmTerm || 'N/A'}
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Source Confidence:</td>
+                  <td style="padding: 8px 0;"><span style="background-color: ${confidence === 'High' ? '#66bb6a' : '#ef5350'}; color: #ffffff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">${confidence}</span></td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Evaluation Booked:</td>
@@ -1442,8 +1970,13 @@ app.get("/api/leads", (req, res) => {
       SELECT 
         l.id, l.first_name, l.last_name, l.email, l.phone, l.athlete_name, 
         l.parent_guardian_name, l.sport, l.age, l.lead_source, 
-        l.utm_source, l.utm_medium, l.utm_campaign, l.landing_page, 
+        l.utm_source, l.utm_medium, l.utm_campaign, l.utm_content, l.utm_term, l.landing_page, 
         l.status, l.created_at, l.updated_at,
+        l.how_heard, l.how_heard_other, l.referral_code, l.affiliate_code,
+        l.referral_partner_name, l.referral_partner_type, l.first_touch_source, l.last_touch_source,
+        l.conversion_source, l.assessment_completed_date, l.evaluation_scheduled_date,
+        l.evaluation_completed_date, l.became_client_date, l.source_confidence,
+        l.manually_verified_source, l.lead_owner, l.notes,
         (SELECT questionnaire_score FROM assessments WHERE email = l.email ORDER BY created_at DESC LIMIT 1) as questionnaire_score,
         (SELECT created_at FROM assessments WHERE email = l.email ORDER BY created_at DESC LIMIT 1) as assessment_date
       FROM leads l
@@ -1466,18 +1999,70 @@ app.patch("/api/leads/:id/status", (req, res) => {
       return res.status(400).json({ error: "Status is required" });
     }
 
-    const lead = db.prepare("SELECT status FROM leads WHERE id = ?").get(id) as { status: string } | undefined;
+    const lead = db.prepare("SELECT status, how_heard, referral_code, utm_source FROM leads WHERE id = ?").get(id) as any;
     if (!lead) {
       return res.status(404).json({ error: "Lead not found" });
     }
 
-    db.prepare("UPDATE leads SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(status, id);
+    let dateFieldQuery = "";
+    const params: any[] = [status];
+
+    if (status === 'Became Client') {
+      dateFieldQuery = ", became_client_date = COALESCE(became_client_date, CURRENT_TIMESTAMP)";
+    } else if (status === 'Evaluation Scheduled') {
+      dateFieldQuery = ", evaluation_scheduled_date = COALESCE(evaluation_scheduled_date, CURRENT_TIMESTAMP)";
+    } else if (status === 'Evaluation Completed') {
+      dateFieldQuery = ", evaluation_completed_date = COALESCE(evaluation_completed_date, CURRENT_TIMESTAMP)";
+    }
+
+    // Set conversion_source when they convert
+    if (status === 'Evaluation Scheduled' || status === 'Became Client') {
+      const convSource = determineSourceString(lead.how_heard, lead.referral_code, lead.utm_source);
+      dateFieldQuery += ", conversion_source = COALESCE(conversion_source, ?)";
+      params.push(convSource);
+    }
+
+    params.push(id);
+
+    db.prepare(`UPDATE leads SET status = ?, updated_at = CURRENT_TIMESTAMP ${dateFieldQuery} WHERE id = ?`).run(...params);
     db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, ?)")
       .run(id, lead.status, status);
 
     res.json({ success: true, message: `Lead status updated to ${status}` });
   } catch (error) {
     console.error("Error updating lead status:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Manual override for admin growth attribution cleanup
+app.patch("/api/leads/:id/attribution", (req, res) => {
+  try {
+    const { id } = req.params;
+    const { manuallyVerifiedSource, leadOwner, notes } = req.body;
+
+    if (!manuallyVerifiedSource) {
+      return res.status(400).json({ error: "manuallyVerifiedSource is required" });
+    }
+
+    const lead = db.prepare("SELECT id FROM leads WHERE id = ?").get(id);
+    if (!lead) {
+      return res.status(404).json({ error: "Lead not found" });
+    }
+
+    db.prepare(`
+      UPDATE leads SET 
+        manually_verified_source = ?,
+        lead_owner = COALESCE(?, lead_owner),
+        notes = COALESCE(?, notes),
+        source_confidence = 'High',
+        updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).run(manuallyVerifiedSource, leadOwner || null, notes || null, id);
+
+    res.json({ success: true, message: "Lead attribution manually verified and updated." });
+  } catch (error) {
+    console.error("Error manual verifying lead attribution:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
