@@ -2364,6 +2364,21 @@ app.post("/api/submit-assessment", async (req, res) => {
   }
 });
 
+app.get("/api/diagnose", (req, res) => {
+  try {
+    const tableInfo = db.prepare("PRAGMA table_info(leads)").all();
+    const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+    res.json({
+      success: true,
+      dbPath,
+      tables,
+      leadsColumns: tableInfo.map((t: any) => t.name)
+    });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET all leads for Admin panel
 app.get("/api/leads", (req, res) => {
   try {
