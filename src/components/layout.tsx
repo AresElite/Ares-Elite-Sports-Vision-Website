@@ -20,7 +20,41 @@ const DotMatrix = () => (
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [openMobileCategory, setOpenMobileCategory] = useState<string | null>(null);
   const location = useLocation();
+
+  const navCategories = [
+    {
+      title: "PERFORMANCE",
+      links: [
+        { label: "Elite Athletes", path: "/athletes" },
+        { label: "Parents & Youth", path: "/parents" },
+        { label: "Pro & Motorsports", path: "/pro-sports" },
+        { label: "Officials & Referees", path: "/officials" },
+        { label: "By Sport Hub", path: "/sports" }
+      ]
+    },
+    {
+      title: "PLATFORMS & TECH",
+      links: [
+        { label: "The A.R.E.S. System", path: "/ares-performance-system" },
+        { label: "Coaches Protocol", path: "/coaches" },
+        { label: "Teams & Facilities", path: "/teams-and-organizations" },
+        { label: "Technology & Data", path: "/technology-and-data" },
+        { label: "A.R.E.S. Certification", path: "/certification" }
+      ]
+    },
+    {
+      title: "OUTCOMES & COMPANY",
+      links: [
+        { label: "Results & Case Studies", path: "/results" },
+        { label: "Research & Insights", path: "/resources" },
+        { label: "Speaking & Keynotes", path: "/speaking" },
+        { label: "Who We Are", path: "/identity" },
+        { label: "Training FAQ", path: "/faq" }
+      ]
+    }
+  ];
 
   // Lock body scroll when menu is open
   useEffect(() => {
@@ -74,26 +108,51 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Top Center: Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8 pointer-events-auto mx-4">
-            <Link to="/athletes" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
-              Athletes
-            </Link>
-            <Link to="/parents" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
-              Parents
-            </Link>
-            <Link to="/coaches" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
-              Coaches & Teams
-            </Link>
-            <Link to="/motorsports" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
-              Motorsports
-            </Link>
-            <Link to="/officials" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
-              Officials
-            </Link>
-            <Link to="/certification" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
-              Certification
-            </Link>
+          {/* Top Center: Desktop Navigation Dropdown Menu */}
+          <nav className="hidden lg:flex items-center gap-8 pointer-events-auto relative">
+            <div className="relative group flex items-center">
+              <button className="flex items-center gap-1.5 text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-white transition-colors uppercase outline-none py-4 cursor-pointer">
+                Menu <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              </button>
+              
+              {/* Unified Mega Menu */}
+              <div className="absolute top-[80%] left-1/2 -translate-x-1/2 w-[850px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-4 group-hover:translate-y-0 z-50">
+                {/* Invisible bridge to prevent hover gap issues */}
+                <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent"></div>
+                
+                <div className="bg-[var(--color-ares-charcoal)]/95 backdrop-blur-xl border border-[var(--color-ares-border)] rounded-2xl p-10 shadow-[0_0_60px_rgba(0,0,0,0.8)] overflow-hidden relative">
+                  {/* Decorative ambient lighting */}
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-ares-teal)]/10 rounded-full blur-[80px] pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-[var(--color-ares-purple)]/10 rounded-full blur-[80px] pointer-events-none" />
+                  
+                  <div className="grid grid-cols-3 gap-12 relative z-10">
+                    {navCategories.map(category => (
+                      <div key={category.title} className="flex flex-col">
+                        <div className="flex items-center gap-2 mb-6 pb-2 border-b border-[var(--color-ares-border)]">
+                          <div className="w-1.5 h-1.5 bg-[var(--color-ares-teal)] rounded-full animate-pulse"></div>
+                          <h3 className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-[var(--color-ares-muted)] uppercase">
+                            {category.title}
+                          </h3>
+                        </div>
+                        <ul className="space-y-5">
+                          {category.links.map(link => (
+                            <li key={link.label}>
+                              <Link 
+                                to={link.path} 
+                                className="text-base font-bold text-white hover:text-[var(--color-ares-teal)] transition-colors flex items-center gap-3 group/link"
+                              >
+                                <span className="w-0 h-[2px] bg-[var(--color-ares-teal)] transition-all duration-300 group-hover/link:w-4"></span>
+                                <span className="whitespace-nowrap">{link.label}</span>
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
           </nav>
 
           {/* Top Right: Utility & CTA */}
@@ -108,7 +167,7 @@ export function Navbar() {
               to="/assessment" 
               className="hidden sm:flex items-center justify-center bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] text-xs md:text-sm font-bold tracking-widest uppercase px-4 py-2.5 md:py-3 rounded-lg transition-all shadow-glow"
             >
-              <span>Start Assessment</span>
+              <span>Start Free Assessment</span>
             </Link>
 
             <Link 
@@ -143,7 +202,7 @@ export function Navbar() {
           to="/assessment"
           className="flex-1 text-center py-3 rounded-lg bg-[var(--color-ares-teal)] text-[#0A0B14] text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-[var(--color-ares-teal)]/20 active:scale-95 flex items-center justify-center"
         >
-          Start Assessment
+          Start Free Assessment
         </Link>
       </div>
 
@@ -168,47 +227,68 @@ export function Navbar() {
                 <X className="w-6 h-6" />
               </button>
 
-              <div className="flex flex-col gap-6 mt-12 sm:mt-0 w-full max-w-2xl mx-auto text-center">
-                <motion.div 
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex flex-col gap-6"
-                >
-                  <Link to="/athletes" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
-                    Athletes
-                  </Link>
-                  <Link to="/parents" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
-                    Parents
-                  </Link>
-                  <Link to="/coaches" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
-                    Coaches & Teams
-                  </Link>
-                  <Link to="/motorsports" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
-                    Motorsports
-                  </Link>
-                  <Link to="/officials" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
-                    Officials
-                  </Link>
-                  <Link to="/certification" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
-                    Certification
-                  </Link>
-                </motion.div>
+              <div className="flex flex-col gap-2 mt-12 sm:mt-0 w-full max-w-2xl mx-auto">
+                {navCategories.map((category, idx) => {
+                  const isOpenCategory = openMobileCategory === category.title;
+                  return (
+                    <motion.div 
+                      key={category.title}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.1 + (idx * 0.05), duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                      className="flex flex-col border-b border-white/10 overflow-hidden"
+                    >
+                      <button 
+                        onClick={() => setOpenMobileCategory(isOpenCategory ? null : category.title)}
+                        className="w-full py-5 flex items-center justify-between text-left text-xl font-black tracking-tight text-white uppercase cursor-pointer"
+                      >
+                        <span>{category.title}</span>
+                        <ChevronDown className={`w-5 h-5 text-[var(--color-ares-teal)] transition-transform duration-300 ${isOpenCategory ? 'rotate-180' : ''}`} />
+                      </button>
+                      
+                      <AnimatePresence initial={false}>
+                        {isOpenCategory && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.2, ease: 'easeInOut' }}
+                            className="pl-4 pb-4 overflow-hidden"
+                          >
+                            <ul className="space-y-4">
+                              {category.links.map(link => (
+                                <li key={link.label}>
+                                  <Link 
+                                    to={link.path}
+                                    className="group relative inline-flex text-lg font-bold text-white/80 hover:text-white transition-colors"
+                                  >
+                                    <span>{link.label}</span>
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  );
+                })}
 
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
+                  transition={{ delay: 0.1 + (navCategories.length * 0.05) }}
                   className="flex flex-col gap-4 mt-8 pt-8 border-t border-white/10"
                 >
                   <Link 
                     to="/assessment"
-                    className="w-full py-4 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold text-lg shadow-glow hover:bg-[#4FC3F7] transition-all"
+                    className="w-full py-4 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold text-lg shadow-glow hover:bg-[#4FC3F7] transition-all text-center"
                   >
-                    Start Assessment
+                    Start Free Assessment
                   </Link>
                   <Link 
                     to="/book/evaluation"
-                    className="w-full py-4 rounded-xl bg-transparent border border-[var(--color-ares-purple)] text-white font-bold text-lg hover:bg-[var(--color-ares-purple)]/10 transition-all"
+                    className="w-full py-4 rounded-xl bg-transparent border border-[var(--color-ares-purple)] text-white font-bold text-lg hover:bg-[var(--color-ares-purple)]/10 transition-all text-center"
                   >
                     Book Evaluation
                   </Link>

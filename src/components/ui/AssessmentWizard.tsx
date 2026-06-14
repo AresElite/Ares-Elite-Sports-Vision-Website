@@ -45,21 +45,55 @@ const QUESTIONS: Question[] = [
   { id: 20, text: "Do you experience mild motion sickness or coordination drop during fast-paced drills?", category: 'coordination' }
 ];
 
-const RECOGNITION_SYMBOLS = [
-  ['←', '↑', '→'],
-  ['→', '→', '↑'],
-  ['↓', '←', '↓'],
-  ['↑', '→', '←'],
-  ['←', '↓', '→']
-];
+const ARROWS = ['←', '↑', '→', '↓'];
 
-const RECOGNITION_OPTIONS = [
-  [['←', '↑', '→'], ['←', '↓', '→'], ['→', '↑', '←'], ['←', '↑', '←']],
-  [['→', '→', '↑'], ['→', '↑', '↑'], ['←', '→', '↑'], ['→', '→', '↓']],
-  [['↓', '←', '↓'], ['↓', '→', '↓'], ['↑', '←', '↑'], ['↓', '←', '↑']],
-  [['↑', '→', '←'], ['↑', '←', '←'], ['↓', '→', '←'], ['↑', '→', '→']],
-  [['←', '↓', '→'], ['←', '↑', '→'], ['→', '↓', '←'], ['←', '↓', '↓']]
-];
+function generateRandomSequence(length: number): string[] {
+  const seq: string[] = [];
+  for (let i = 0; i < length; i++) {
+    seq.push(ARROWS[Math.floor(Math.random() * ARROWS.length)]);
+  }
+  return seq;
+}
+
+function generateOptions(correctSeq: string[], length: number): string[][] {
+  const optionsSet = new Set<string>();
+  optionsSet.add(correctSeq.join(''));
+
+  while (optionsSet.size < 4) {
+    const distractor: string[] = [];
+    for (let i = 0; i < length; i++) {
+      distractor.push(ARROWS[Math.floor(Math.random() * ARROWS.length)]);
+    }
+    optionsSet.add(distractor.join(''));
+  }
+
+  const options = Array.from(optionsSet).map(s => Array.from(s));
+
+  // Fisher-Yates shuffle
+  for (let i = options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = options[i];
+    options[i] = options[j];
+    options[j] = temp;
+  }
+
+  return options;
+}
+
+function calculatePercentile(rawAvg: number, choiceAcc: number, recAcc: number): number {
+  let rawPct = 50;
+  if (rawAvg <= 220) {
+    rawPct = 95 + Math.max(0, 220 - rawAvg) * 0.1;
+  } else if (rawAvg <= 350) {
+    rawPct = 95 - ((rawAvg - 220) / (350 - 220)) * 45;
+  } else {
+    rawPct = 50 - ((rawAvg - 350) / (500 - 350)) * 45;
+  }
+  
+  const avgAcc = (choiceAcc + recAcc) / 2;
+  const finalPct = Math.round((rawPct * 0.6) + (avgAcc * 0.4));
+  return Math.max(5, Math.min(99, finalPct));
+}
 
 interface AssessmentWizardProps {
   onClose?: () => void;
@@ -85,6 +119,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   const [rawFalsePositives, setRawFalsePositives] = useState(0);
   const rawTimerRef = useRef<NodeJS.Timeout | null>(null);
   const rawFlashTimeRef = useRef<number>(0);
+  const rawWaitingStateStartRef = useRef<number>(0);
 
   // Drill 2: Choice RT States
   const [choiceTrial, setChoiceTrial] = useState(0);
@@ -102,6 +137,8 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   const [recCountdown, setRecCountdown] = useState(3);
   const recTimerRef = useRef<NodeJS.Timeout | null>(null);
   const recStartTimeRef = useRef<number>(0);
+  const [currentRecPattern, setCurrentRecPattern] = useState<string[]>([]);
+  const [currentRecOptions, setCurrentRecOptions] = useState<string[][]>([]);
 
   // Lead Capture States
   const [leadForm, setLeadForm] = useState({ 
@@ -165,18 +202,27 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
 
   const triggerRawNextTrial = () => {
     setRawState('waiting');
+    rawWaitingStateStartRef.current = performance.now();
     rawHasClickedRef.current = false;
     const delay = 1500 + Math.random() * 2500;
     if (rawTimerRef.current) clearTimeout(rawTimerRef.current);
     
     rawTimerRef.current = setTimeout(() => {
       setRawState('flash');
-      rawFlashTimeRef.current = performance.now();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          rawFlashTimeRef.current = performance.now();
+        });
+      });
     }, delay);
   };
 
   const handleRawClick = () => {
     if (rawState === 'waiting') {
+      const now = performance.now();
+      if (now - rawWaitingStateStartRef.current < 500) {
+        return; // Early click lockout (first 500ms of waiting state)
+      }
       if (rawHasClickedRef.current) return;
       rawHasClickedRef.current = true;
       if (rawTimerRef.current) clearTimeout(rawTimerRef.current);
@@ -199,7 +245,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   };
 
   const advanceRawTrial = () => {
-    if (rawTrial < 4) {
+    if (rawTrial < 14) {
       setRawTrial(prev => prev + 1);
       triggerRawNextTrial();
     } else {
@@ -227,7 +273,11 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
       const color = Math.random() > 0.5 ? 'purple' : 'teal';
       setChoiceTargetColor(color);
       setChoiceState('target');
-      choiceFlashTimeRef.current = performance.now();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          choiceFlashTimeRef.current = performance.now();
+        });
+      });
     }, delay);
   };
 
@@ -244,7 +294,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     setChoiceState('feedback');
 
     setTimeout(() => {
-      if (choiceTrial < 7) {
+      if (choiceTrial < 14) {
         setChoiceTrial(prev => prev + 1);
         triggerChoiceNextTrial();
       } else {
@@ -271,14 +321,27 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   const startRecDrill = () => {
     setRecTrial(0);
     setRecTimes([]);
-    runRecCountdown();
+    runRecCountdown(0);
   };
 
-  const runRecCountdown = () => {
+  const runRecCountdown = (trialIndex: number) => {
     setRecState('countdown');
     setRecCountdown(3);
     recHasClickedRef.current = false;
     
+    let length = 3;
+    if (trialIndex >= 5 && trialIndex < 10) {
+      length = 4;
+    } else if (trialIndex >= 10) {
+      length = 5;
+    }
+
+    const pattern = generateRandomSequence(length);
+    const options = generateOptions(pattern, length);
+
+    setCurrentRecPattern(pattern);
+    setCurrentRecOptions(options);
+
     let currentCount = 3;
     if (recTimerRef.current) clearInterval(recTimerRef.current);
 
@@ -309,16 +372,16 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     const clickTime = performance.now();
     const rt = clickTime - recStartTimeRef.current;
     
-    const targetPattern = RECOGNITION_SYMBOLS[recTrial];
-    const isCorrect = option.join('') === targetPattern.join('');
+    const isCorrect = option.join('') === currentRecPattern.join('');
 
     setRecTimes(prev => [...prev, { time: rt, correct: isCorrect }]);
     setRecState('feedback');
 
     setTimeout(() => {
-      if (recTrial < 4) {
-        setRecTrial(prev => prev + 1);
-        runRecCountdown();
+      if (recTrial < 14) {
+        const nextTrial = recTrial + 1;
+        setRecTrial(nextTrial);
+        runRecCountdown(nextTrial);
       } else {
         nextStep('lead_capture');
       }
@@ -508,6 +571,26 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
 
   const metrics = getCalculatedMetrics();
 
+  // Bell curve calculations
+  const userPct = calculatePercentile(
+    metrics.rawAvg,
+    (metrics.tealAcc + metrics.purpleAcc) / 2,
+    metrics.recAcc
+  );
+  const userX = 50 + (userPct / 100) * 500;
+  const userY = 220 - 150 * Math.exp(-Math.pow((userPct - 50) / 28, 2));
+  const tooltipX = Math.max(10, Math.min(490, userX - 50));
+  const tooltipY = userY - 45;
+
+  const curvePoints: string[] = [];
+  for (let p = 0; p <= 100; p += 1) {
+    const x = 50 + (p / 100) * 500;
+    const y = 220 - 150 * Math.exp(-Math.pow((p - 50) / 28, 2));
+    curvePoints.push(`${x},${y}`);
+  }
+  const curvePath = `M 50,220 L ` + curvePoints.join(' L ') + ` L 550,220 Z`;
+  const strokePath = `M ` + curvePoints.join(' L ');
+
   return (
     <div className={`relative w-full ${isEmbedded ? 'max-w-4xl p-6 md:p-10 bg-[#0e111a]/85 border border-[var(--color-ares-border)] rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.5)]' : 'h-full flex flex-col justify-center'}`}>
       
@@ -635,7 +718,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               DRILL 1: RAW REACTION SPEED
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {rawTrial + 1} / 5
+              Trial {rawTrial + 1} / 15
             </span>
           </div>
 
@@ -686,7 +769,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               DRILL 2: CHOICE REACTION (TEAL VS PURPLE)
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {choiceTrial + 1} / 8
+              Trial {choiceTrial + 1} / 15
             </span>
           </div>
 
@@ -714,11 +797,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               <div className="text-white">
                 {choiceTimes.length > choiceTrial ? (
                   <div className="flex flex-col items-center gap-2">
-                    {choiceTimes[choiceTimes.length - 1].correct ? (
-                      <span className="text-emerald-400 font-bold text-sm tracking-widest uppercase">Correct</span>
-                    ) : (
-                      <span className="text-red-500 font-bold text-sm tracking-widest uppercase">Mismatch</span>
-                    )}
+                    <span className="text-white/50 text-xs font-mono uppercase tracking-widest">Response Captured</span>
                     <span className="text-3xl font-mono font-bold text-white">
                       {Math.round(choiceTimes[choiceTimes.length - 1].time)}ms
                     </span>
@@ -755,12 +834,12 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               DRILL 3: RECOGNITION SPEED (VISUAL PATTERNS)
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {recTrial + 1} / 5
+              Trial {recTrial + 1} / 15
             </span>
           </div>
 
           <p className="text-white/50 text-sm mb-8 max-w-md mx-auto">
-            A pattern of 3 symbols will flash for <strong>800ms</strong>. Memorize it and select the correct option.
+            A sequence of arrows will flash for <strong>800ms</strong>. Memorize it and select the correct pattern.
           </p>
 
           <div className="w-full min-h-[160px] rounded-2xl border border-white/5 bg-black/40 flex flex-col items-center justify-center select-none mb-8 relative overflow-hidden">
@@ -771,7 +850,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
             )}
             {recState === 'flash' && (
               <div className="flex items-center justify-center gap-6">
-                {RECOGNITION_SYMBOLS[recTrial].map((sym, idx) => (
+                {currentRecPattern.map((sym, idx) => (
                   <span key={idx} className="text-5xl font-bold text-white">{sym}</span>
                 ))}
               </div>
@@ -785,11 +864,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               <div className="text-white">
                 {recTimes.length > recTrial ? (
                   <div className="flex flex-col items-center gap-2">
-                    {recTimes[recTimes.length - 1].correct ? (
-                      <span className="text-emerald-400 font-bold text-sm tracking-widest uppercase">Match</span>
-                    ) : (
-                      <span className="text-red-500 font-bold text-sm tracking-widest uppercase">Incorrect</span>
-                    )}
+                    <span className="text-white/50 text-xs font-mono uppercase tracking-widest">Pattern Registered</span>
                     <span className="text-3xl font-mono font-bold text-white">
                       {Math.round(recTimes[recTimes.length - 1].time)}ms
                     </span>
@@ -801,7 +876,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
 
           {recState === 'select' && (
             <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-              {RECOGNITION_OPTIONS[recTrial].map((option, idx) => (
+              {currentRecOptions.map((option, idx) => (
                 <button
                   key={idx}
                   onPointerDown={() => handleRecSelect(option)}
@@ -814,6 +889,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
           )}
         </div>
       )}
+
 
       {/* Lead Capture Gate (with expanded CRM fields) */}
       {step === 'lead_capture' && (
@@ -1119,6 +1195,90 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               <span className="text-[10px] font-mono text-white/40 block">PES Delay: {metrics.pesDiff}ms</span>
             </div>
           </div>
+
+          {/* Bell Curve Percentile Rank Card */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 relative overflow-hidden">
+            <h4 className="text-white font-bold text-xs sm:text-sm tracking-wider uppercase mb-6 flex items-center gap-2 font-mono">
+              <Activity className="w-4 h-4 text-[var(--color-ares-teal)]" />
+              SENSORY PERCENTILE STANDING
+            </h4>
+            
+            <div className="w-full h-auto">
+              <svg viewBox="0 0 600 270" className="w-full h-auto overflow-visible select-none">
+                <defs>
+                  {/* Curve Gradient */}
+                  <linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--color-ares-teal)" stopOpacity="0.25" />
+                    <stop offset="100%" stopColor="var(--color-ares-teal)" stopOpacity="0" />
+                  </linearGradient>
+                  {/* Tooltip glow filter */}
+                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feGaussianBlur stdDeviation="4" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                  </filter>
+                </defs>
+
+                {/* X Axis grid lines */}
+                <line x1="50" y1="220" x2="550" y2="220" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+                <line x1="50" y1="50" x2="50" y2="220" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
+                <line x1="300" y1="50" x2="300" y2="220" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
+                <line x1="550" y1="50" x2="550" y2="220" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
+
+                {/* Shaded Area under Bell Curve */}
+                <path d={curvePath} fill="url(#curveGrad)" />
+
+                {/* Bell Curve Stroke */}
+                <path d={strokePath} fill="none" stroke="var(--color-ares-teal)" strokeWidth="3" />
+
+                {/* Vertical position indicator */}
+                <line 
+                  x1={userX} 
+                  y1="220" 
+                  x2={userX} 
+                  y2={userY} 
+                  stroke="var(--color-ares-teal)" 
+                  strokeWidth="2" 
+                  strokeDasharray="4 4" 
+                  opacity="0.8"
+                />
+
+                {/* Pulsing indicator dot */}
+                <circle cx={userX} cy={userY} r="8" fill="var(--color-ares-teal)" opacity="0.3" className="animate-ping" style={{ transformOrigin: `${userX}px ${userY}px` }} />
+                <circle cx={userX} cy={userY} r="5" fill="var(--color-ares-teal)" filter="url(#glow)" />
+
+                {/* Tooltip Badge */}
+                <g transform={`translate(${tooltipX}, ${tooltipY})`}>
+                  {/* Tooltip box background */}
+                  <rect x="0" y="0" width="100" height="32" rx="6" fill="#0e111a" stroke="var(--color-ares-teal)" strokeWidth="1" filter="url(#glow)" />
+                  {/* Tooltip text */}
+                  <text x="50" y="20" fill="var(--color-ares-teal)" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+                    YOU: TOP {100 - userPct}%
+                  </text>
+                </g>
+
+                {/* X Axis Labels */}
+                <text x="120" y="245" fill="rgba(255,255,255,0.4)" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+                  BELOW AVERAGE
+                </text>
+                <text x="300" y="245" fill="rgba(255,255,255,0.7)" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+                  AVERAGE ATHLETE
+                </text>
+                <text x="480" y="245" fill="var(--color-ares-teal)" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
+                  ELITE TIER
+                </text>
+
+                {/* Percentile ticks */}
+                <text x="50" y="232" fill="rgba(255,255,255,0.3)" fontSize="8" textAnchor="middle" fontFamily="monospace">5th%</text>
+                <text x="300" y="232" fill="rgba(255,255,255,0.3)" fontSize="8" textAnchor="middle" fontFamily="monospace">50th%</text>
+                <text x="550" y="232" fill="rgba(255,255,255,0.3)" fontSize="8" textAnchor="middle" fontFamily="monospace">99th%</text>
+              </svg>
+            </div>
+            
+            <p className="text-white/50 text-[11px] font-mono mt-4 leading-relaxed text-center">
+              * Compares your reaction speed and accuracy to our database of collegiate and professional athletes.
+            </p>
+          </div>
+
 
           <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-6 mb-8">
             <h4 className="text-[var(--color-ares-teal)] font-bold text-lg mb-2 flex items-center gap-2">
