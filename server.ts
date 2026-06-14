@@ -2368,11 +2368,30 @@ app.get("/api/diagnose", (req, res) => {
   try {
     const tableInfo = db.prepare("PRAGMA table_info(leads)").all();
     const tables = db.prepare("SELECT name FROM sqlite_master WHERE type='table'").all();
+    let queryError = null;
+    try {
+      db.prepare(`
+        SELECT 
+          l.id, l.first_name, l.last_name, l.email, l.phone, l.athlete_name, 
+          l.parent_guardian_name, l.sport, l.age, l.lead_source, 
+          l.utm_source, l.utm_medium, l.utm_campaign, l.utm_content, l.utm_term, l.landing_page, 
+          l.status, l.created_at, l.updated_at,
+          l.how_heard, l.how_heard_other, l.referral_code, l.affiliate_code,
+          l.referral_partner_name, l.referral_partner_type, l.first_touch_source, l.last_touch_source,
+          l.conversion_source, l.assessment_completed_date, l.evaluation_scheduled_date,
+          l.evaluation_completed_date, l.became_client_date, l.source_confidence,
+          l.manually_verified_source, l.lead_owner, l.notes
+        FROM leads l
+      `).all();
+    } catch (e: any) {
+      queryError = e.message;
+    }
     res.json({
       success: true,
       dbPath,
       tables,
-      leadsColumns: tableInfo.map((t: any) => t.name)
+      leadsColumns: tableInfo.map((t: any) => t.name),
+      queryError
     });
   } catch (error: any) {
     res.status(500).json({ error: error.message });
