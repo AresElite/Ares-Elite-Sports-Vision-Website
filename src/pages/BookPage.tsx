@@ -112,34 +112,68 @@ export function BookPage() {
         </button>
 
         <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-3xl p-8 sm:p-12 shadow-xl mb-12">
-          <div className="flex flex-col md:flex-row gap-8 items-start mb-8">
-            <div className="flex-1">
-              <h2 className="text-3xl font-bold mb-4">Book a Sports Vision Evaluation</h2>
-              <p className="text-white/70 mb-6 text-lg">
-                The comprehensive 75-minute baseline assessment required for all new athletes. We will measure your visual-cognitive profile and determine your exact areas for improvement.
-              </p>
-              <ul className="space-y-3 pt-4 border-t border-white/10">
-                <li className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[var(--color-ares-teal)] shrink-0" />
-                  <span>Comprehensive 75-minute assessment</span>
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-white uppercase tracking-tight leading-tight">
+            A 75-minute A.R.E.S. Performance Evaluation that maps where your athlete is losing milliseconds and gives a clear training plan.
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-8 border-b border-white/10">
+            <div>
+              <h3 className="text-lg font-bold text-[var(--color-ares-teal)] uppercase mb-4">What Is Measured</h3>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2.5 text-sm text-white/70">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-1.5 shrink-0"></span>
+                  <span><strong>Dynamic Acuity & Contrast Sensitivity:</strong> Gaze tracking and tracking accuracy at high speeds.</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[var(--color-ares-teal)] shrink-0" />
-                  <span>Actionable performance profile</span>
+                <li className="flex items-start gap-2.5 text-sm text-white/70">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-1.5 shrink-0"></span>
+                  <span><strong>Choice reaction speed:</strong> Millisecond latency chain when resolving complex choices.</span>
                 </li>
-                <li className="flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-[var(--color-ares-teal)] shrink-0" />
-                  <span>Requirement for ongoing training</span>
+                <li className="flex items-start gap-2.5 text-sm text-white/70">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-1.5 shrink-0"></span>
+                  <span><strong>Peripheral awareness & multi-object tracking:</strong> Capturing flank targets under load.</span>
+                </li>
+                <li className="flex items-start gap-2.5 text-sm text-white/70">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-1.5 shrink-0"></span>
+                  <span><strong>Post-Error recovery speed:</strong> Visual-cognitive resilience immediately after making a mistake.</span>
                 </li>
               </ul>
             </div>
-            <div className="md:w-1/3 bg-black/30 rounded-2xl p-6 border border-white/5 shadow-inner hidden md:block">
-              <h3 className="text-lg font-bold mb-4 border-b border-white/10 pb-4">Secure Your Slot</h3>
-              <p className="text-white/60 text-sm mb-4">
-                Select a time from the calendar below that works for you. You will complete your intake form and submit payment securely through our scheduling system to confirm your reservation.
+            
+            <div>
+              <h3 className="text-lg font-bold text-[var(--color-ares-purple)] uppercase mb-4">How it Differs From Static Eye Exams</h3>
+              <p className="text-sm text-white/70 leading-relaxed mb-4">
+                A standard 20/20 eye exam checks static optical clarity while sitting in a dark room. It misses 80% of sports vision requirements. We check your visual operating system under G-force, stress, and physical fatigue to find real athletic latency gaps.
               </p>
-              <div className="text-3xl font-bold text-[var(--color-ares-teal)] mt-4 pt-4 border-t border-white/10">$449</div>
-              <div className="text-white/50 text-sm">One-time evaluation fee</div>
+              <h3 className="text-base font-bold text-white uppercase mb-2">What You Leave With</h3>
+              <p className="text-sm text-white/70 leading-relaxed">
+                An empirical neuro-performance telemetry dashboard detailing your latency metrics, plus a custom 12-week progression plan to shave off critical visual bottlenecks.
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col lg:flex-row gap-6 items-center justify-between">
+            <div className="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
+              <button 
+                onClick={() => embedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="py-4 px-8 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold text-sm tracking-widest uppercase transition-all shadow-glow text-center cursor-pointer"
+              >
+                Book Baseline Evaluation ($449)
+              </button>
+              <Link 
+                to="/assessment"
+                className="py-4 px-8 rounded-xl border border-[var(--color-ares-purple)] text-white hover:bg-[var(--color-ares-purple)]/10 font-bold text-sm tracking-widest uppercase transition-all text-center"
+              >
+                Start Assessment
+              </Link>
+              <Link 
+                to="/contact"
+                className="py-4 px-8 rounded-xl border border-white/20 text-white hover:bg-white/5 font-bold text-sm tracking-widest uppercase transition-all text-center"
+              >
+                Schedule Team Consultation
+              </Link>
+            </div>
+            <div className="text-right mt-4 lg:mt-0 font-mono text-xs text-white/40 uppercase tracking-wider shrink-0">
+              * Carmel HQ Location Only
             </div>
           </div>
         </div>

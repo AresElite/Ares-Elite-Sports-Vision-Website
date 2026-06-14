@@ -40,6 +40,8 @@ const ParentsPage = lazy(() => import('./pages/ParentsPage').then(m => ({ defaul
 const CoachesPage = lazy(() => import('./pages/CoachesPage').then(m => ({ default: m.CoachesPage })));
 const ProSportsPage = lazy(() => import('./pages/ProSportsPage').then(m => ({ default: m.ProSportsPage })));
 const OfficialsPage = lazy(() => import('./pages/OfficialsPage').then(m => ({ default: m.OfficialsPage })));
+const MotorsportsPage = lazy(() => import('./pages/MotorsportsPage').then(m => ({ default: m.MotorsportsPage })));
+const AssessmentPage = lazy(() => import('./pages/AssessmentPage').then(m => ({ default: m.AssessmentPage })));
 const SpeakingPage = lazy(() => import('./pages/SpeakingPage').then(m => ({ default: m.SpeakingPage })));
 const TechnologyPage = lazy(() => import('./pages/TechnologyPage').then(m => ({ default: m.TechnologyPage })));
 const ResultsPage = lazy(() => import('./pages/ResultsPage').then(m => ({ default: m.ResultsPage })));
@@ -132,10 +134,14 @@ export default function App() {
                 <Route path="/parents" element={<ParentsPage />} />
                 <Route path="/coaches" element={<CoachesPage />} />
                 <Route path="/pro-sports" element={<ProSportsPage />} />
+                <Route path="/motorsports" element={<MotorsportsPage />} />
                 <Route path="/officials" element={<OfficialsPage />} />
+                <Route path="/assessment" element={<AssessmentPage />} />
                 <Route path="/speaking" element={<SpeakingPage />} />
                 <Route path="/technology-and-data" element={<TechnologyPage />} />
                 <Route path="/results" element={<ResultsPage />} />
+                
+                <Route path="/teams" element={<Navigate to="/teams-and-organizations" replace />} />
                 
                 {/* Legacy/Other Details */}
                 <Route path="/detail/:id" element={<DetailPage />} />

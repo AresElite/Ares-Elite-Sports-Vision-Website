@@ -20,7 +20,6 @@ const DotMatrix = () => (
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [openMobileCategory, setOpenMobileCategory] = useState<string | null>("PLATFORM");
   const location = useLocation();
 
   // Lock body scroll when menu is open
@@ -37,39 +36,6 @@ export function Navbar() {
   useEffect(() => {
     setIsOpen(false);
   }, [location.pathname, location.hash]);
-
-  const navCategories = [
-    {
-      title: "PERFORMANCE",
-      links: [
-        { label: "Elite Athletes", path: "/athletes" },
-        { label: "Parents & Youth", path: "/parents" },
-        { label: "Pro & Motorsports", path: "/pro-sports" },
-        { label: "Officials & Referees", path: "/officials" },
-        { label: "By Sport Hub", path: "/sports" }
-      ]
-    },
-    {
-      title: "PLATFORMS & TECH",
-      links: [
-        { label: "The A.R.E.S. System", path: "/ares-performance-system" },
-        { label: "Coaches Protocol", path: "/coaches" },
-        { label: "Teams & Facilities", path: "/teams-and-organizations" },
-        { label: "Technology & Data", path: "/technology-and-data" },
-        { label: "A.R.E.S. Certification", path: "/certification" }
-      ]
-    },
-    {
-      title: "OUTCOMES & COMPANY",
-      links: [
-        { label: "Results & Case Studies", path: "/results" },
-        { label: "Research & Insights", path: "/resources" },
-        { label: "Speaking & Keynotes", path: "/speaking" },
-        { label: "Who We Are", path: "/identity" },
-        { label: "Training FAQ", path: "/faq" }
-      ]
-    }
-  ];
 
   return (
     <>
@@ -108,71 +74,46 @@ export function Navbar() {
             </Link>
           </div>
 
-          {/* Top Center: Desktop Navigation (Mega Menu) */}
-          <nav className="hidden lg:flex items-center pointer-events-auto mx-4 group relative h-full">
-            <button className="flex items-center gap-2 text-[10px] font-bold tracking-[0.2em] text-[var(--color-ares-teal)] uppercase py-2 transition-colors hover:text-white">
-              Menu <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
-            </button>
-            
-            {/* Unified Mega Menu */}
-            <div className="absolute top-[80%] left-1/2 -translate-x-1/2 w-[850px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-4 group-hover:translate-y-0 gpu-accelerated">
-              {/* Invisible bridge to prevent hover gap issues */}
-              <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent"></div>
-              
-              <div className="bg-[var(--color-ares-charcoal)]/95 backdrop-blur-xl border border-[var(--color-ares-border)] rounded-2xl p-10 shadow-[0_0_60px_rgba(0,0,0,0.8)] overflow-hidden relative">
-                {/* Decorative ambient lighting */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-ares-teal)]/10 rounded-full blur-[80px] pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-[var(--color-ares-purple)]/10 rounded-full blur-[80px] pointer-events-none" />
-                
-                <div className="grid grid-cols-3 gap-12 relative z-10">
-                  {navCategories.map(category => (
-                    <div key={category.title} className="flex flex-col">
-                      <div className="flex items-center gap-2 mb-6 pb-2 border-b border-[var(--color-ares-border)]">
-                        <div className="w-1.5 h-1.5 bg-[var(--color-ares-teal)] rounded-full animate-pulse"></div>
-                        <h3 className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-[var(--color-ares-muted)] uppercase">
-                          {category.title}
-                        </h3>
-                      </div>
-                      <ul className="space-y-5">
-                        {category.links.map(link => (
-                          <li key={link.label}>
-                            <Link 
-                              to={link.path} 
-                              className="text-base font-bold text-white hover:text-[var(--color-ares-teal)] transition-colors flex items-center gap-3 group/link"
-                            >
-                              <span className="w-0 h-[2px] bg-[var(--color-ares-teal)] transition-all duration-300 group-hover/link:w-4"></span>
-                              <span className="whitespace-nowrap">{link.label}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* Top Center: Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-8 pointer-events-auto mx-4">
+            <Link to="/athletes" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
+              Athletes
+            </Link>
+            <Link to="/parents" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
+              Parents
+            </Link>
+            <Link to="/coaches" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
+              Coaches & Teams
+            </Link>
+            <Link to="/motorsports" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
+              Motorsports
+            </Link>
+            <Link to="/officials" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
+              Officials
+            </Link>
+            <Link to="/certification" className="text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-[var(--color-ares-teal)] transition-colors uppercase">
+              Certification
+            </Link>
           </nav>
 
           {/* Top Right: Utility & CTA */}
-          <div className="pointer-events-auto flex items-center gap-3 sm:gap-6 shrink-0">
+          <div className="pointer-events-auto flex items-center gap-3 sm:gap-4 shrink-0">
             <div className="hidden xl:flex flex-col items-end mr-2">
               <a href="tel:+17739811447" className="text-[var(--color-ares-teal)] hover:text-[var(--color-ares-teal)]/80 text-xs font-bold tracking-wider transition-colors">
                 Call Us
               </a>
-              <div className="flex items-center gap-3 mt-1">
-                <a 
-                  href="https://arescertification.com/"
-                  target="_blank" rel="noopener noreferrer"
-                  className="text-white/70 hover:text-white text-[10px] uppercase tracking-widest font-bold transition-colors"
-                >
-                  Apply for Certification
-                </a>
-              </div>
             </div>
             
             <Link 
+              to="/assessment" 
+              className="hidden sm:flex items-center justify-center bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] text-xs md:text-sm font-bold tracking-widest uppercase px-4 py-2.5 md:py-3 rounded-lg transition-all shadow-glow"
+            >
+              <span>Start Assessment</span>
+            </Link>
+
+            <Link 
               to="/book/evaluation" 
-              className="hidden sm:flex items-center justify-center bg-[var(--color-ares-teal)] hover:bg-[var(--color-ares-teal)]/90 text-white text-xs md:text-sm font-bold tracking-widest uppercase px-4 py-2.5 md:py-3 rounded-lg transition-colors shadow-glow"
+              className="hidden sm:flex items-center justify-center border border-[var(--color-ares-purple)] text-white hover:bg-[var(--color-ares-purple)]/20 text-xs md:text-sm font-bold tracking-widest uppercase px-4 py-2.5 md:py-3 rounded-lg transition-all"
             >
               <span>Book Evaluation</span>
             </Link>
@@ -190,23 +131,21 @@ export function Navbar() {
         </div>
       </header>
 
-      {/* Sticky Mobile Book Now Bar */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[90] bg-[var(--color-ares-charcoal)]/95 backdrop-blur-xl border-t border-[var(--color-ares-border)] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] flex items-center justify-between pointer-events-auto shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
-        <div className="flex flex-col">
-          <span className="text-white/60 text-[10px] font-bold uppercase tracking-wider mb-0.5">Start Here</span>
-          <span className="text-white text-sm font-bold flex items-center gap-2 tracking-wide">
-            75-Min Evaluation
-          </span>
-        </div>
+      {/* Sticky Mobile Dual CTA Bar */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-[90] bg-[var(--color-ares-charcoal)]/95 backdrop-blur-xl border-t border-[var(--color-ares-border)] p-4 pb-[max(1rem,env(safe-area-inset-bottom))] flex gap-3 pointer-events-auto shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
         <Link 
           to="/book/evaluation"
-          className="bg-[var(--color-ares-teal)] hover:bg-[var(--color-ares-teal)]/90 text-white text-[11px] sm:text-sm font-bold tracking-widest uppercase px-6 py-3 rounded-lg shadow-lg shadow-[var(--color-ares-teal)]/20 transition-all active:scale-95"
+          className="flex-1 text-center py-3 rounded-lg border border-[var(--color-ares-purple)] text-white text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center"
         >
-          Book Now
+          Book Eval
+        </Link>
+        <Link 
+          to="/assessment"
+          className="flex-1 text-center py-3 rounded-lg bg-[var(--color-ares-teal)] text-[#0A0B14] text-xs font-bold uppercase tracking-wider transition-all shadow-lg shadow-[var(--color-ares-teal)]/20 active:scale-95 flex items-center justify-center"
+        >
+          Start Assessment
         </Link>
       </div>
-
-      {/* Removed Bottom Center Command Grid */}
 
       {/* Routing Matrix Overlay (Mobile & Tablet) */}
       <AnimatePresence>
@@ -229,82 +168,50 @@ export function Navbar() {
                 <X className="w-6 h-6" />
               </button>
 
-              <div className="flex flex-col gap-2 mt-12 sm:mt-0 w-full max-w-2xl mx-auto">
-                {navCategories.map((category, idx) => {
-                  const isOpenCategory = openMobileCategory === category.title;
-                  return (
-                    <motion.div 
-                      key={category.title}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.1 + (idx * 0.05), duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                      className="flex flex-col border-b border-white/10 overflow-hidden"
-                    >
-                      <button 
-                        onClick={() => setOpenMobileCategory(isOpenCategory ? null : category.title)}
-                        className="w-full flex items-center justify-between py-6 text-left"
-                      >
-                        <h3 className={`text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight uppercase transition-colors duration-300 ${isOpenCategory ? 'text-[var(--color-ares-teal)]' : 'text-white'}`}>
-                          {category.title}
-                        </h3>
-                        <ChevronDown className={`w-6 h-6 transition-transform duration-300 ${isOpenCategory ? 'rotate-180 text-[var(--color-ares-teal)]' : 'text-white/30'}`} />
-                      </button>
-                      <AnimatePresence initial={false}>
-                        {isOpenCategory && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: "auto", opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                          >
-                            <ul className="space-y-4 pb-8 pl-4 border-l-2 border-[var(--color-ares-teal)]/30 ml-2">
-                              {category.links.map(link => (
-                                <li key={link.label}>
-                                  <Link 
-                                    to={link.path}
-                                    className="group relative inline-flex text-lg sm:text-xl font-bold text-white/80 hover:text-white transition-colors"
-                                  >
-                                    <span>{link.label}</span>
-                                    <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[var(--color-ares-teal)] transition-all duration-300 ease-out group-hover:w-full"></span>
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </motion.div>
-                  );
-                })}
+              <div className="flex flex-col gap-6 mt-12 sm:mt-0 w-full max-w-2xl mx-auto text-center">
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex flex-col gap-6"
+                >
+                  <Link to="/athletes" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
+                    Athletes
+                  </Link>
+                  <Link to="/parents" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
+                    Parents
+                  </Link>
+                  <Link to="/coaches" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
+                    Coaches & Teams
+                  </Link>
+                  <Link to="/motorsports" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
+                    Motorsports
+                  </Link>
+                  <Link to="/officials" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
+                    Officials
+                  </Link>
+                  <Link to="/certification" className="text-3xl font-black tracking-tight uppercase hover:text-[var(--color-ares-teal)] transition-colors">
+                    Certification
+                  </Link>
+                </motion.div>
 
                 <motion.div 
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 + (navCategories.length * 0.05), duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                  className="flex flex-col mt-8 pt-8"
+                  transition={{ delay: 0.1 }}
+                  className="flex flex-col gap-4 mt-8 pt-8 border-t border-white/10"
                 >
-                  <h3 className="text-[10px] sm:text-[11px] font-mono tracking-[0.2em] text-[var(--color-ares-teal)] mb-4 sm:mb-6 uppercase">
-                    [PORTALS]
-                  </h3>
-                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <li>
-                      <Link 
-                        to="/book/evaluation"
-                        className="flex items-center justify-center gap-2 p-4 rounded-xl bg-white/5 border border-white/10 text-white font-bold hover:bg-[var(--color-ares-teal)] hover:border-[var(--color-ares-teal)] transition-all"
-                      >
-                        Book a Session
-                      </Link>
-                    </li>
-                    <li>
-                      <a 
-                        href="https://arescertification.com/"
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 p-4 rounded-xl bg-transparent border border-white/10 text-white/70 font-bold hover:bg-white/10 hover:text-white transition-all"
-                      >
-                        Apply for Certification
-                      </a>
-                    </li>
-                  </ul>
+                  <Link 
+                    to="/assessment"
+                    className="w-full py-4 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold text-lg shadow-glow hover:bg-[#4FC3F7] transition-all"
+                  >
+                    Start Assessment
+                  </Link>
+                  <Link 
+                    to="/book/evaluation"
+                    className="w-full py-4 rounded-xl bg-transparent border border-[var(--color-ares-purple)] text-white font-bold text-lg hover:bg-[var(--color-ares-purple)]/10 transition-all"
+                  >
+                    Book Evaluation
+                  </Link>
                 </motion.div>
               </div>
 

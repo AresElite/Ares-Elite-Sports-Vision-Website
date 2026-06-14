@@ -110,15 +110,19 @@ export function CoachesPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button 
                   variant="primary" 
-                  href="/contact" 
-                  className="w-full sm:w-auto text-center justify-center font-bold tracking-wide shadow-glow"
+                  href="/assessment" 
+                  className="w-full sm:w-auto text-center justify-center font-bold tracking-wide shadow-glow bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14]"
                 >
-                  Request Team Consultation
+                  Start Assessment
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <Link to="/teams-and-organizations" className="text-white/60 hover:text-white transition-colors text-sm font-medium px-4">
-                  Learn About Team Programs &rarr;
-                </Link>
+                <Button 
+                  variant="outline" 
+                  href="/contact" 
+                  className="w-full sm:w-auto text-center justify-center font-bold tracking-wide border border-[var(--color-ares-purple)] text-white hover:bg-[var(--color-ares-purple)]/10"
+                >
+                  Request Team Consultation
+                </Button>
               </div>
             </section>
             

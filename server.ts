@@ -247,7 +247,18 @@ function runMigrations() {
     { table: "leads", column: "source_confidence", type: "TEXT DEFAULT 'High'" },
     { table: "leads", column: "manually_verified_source", type: "TEXT" },
     { table: "leads", column: "lead_owner", type: "TEXT DEFAULT 'Admin'" },
-    { table: "leads", column: "notes", type: "TEXT" }
+    { table: "leads", column: "notes", type: "TEXT" },
+    { table: "leads", column: "icp_segment", type: "TEXT" },
+    { table: "leads", column: "competitive_level", type: "TEXT" },
+    { table: "leads", column: "location", type: "TEXT" },
+    { table: "leads", column: "bottleneck_profile", type: "TEXT" },
+    { table: "leads", column: "lead_score", type: "INTEGER DEFAULT 0" },
+    { table: "leads", column: "lead_category", type: "TEXT DEFAULT 'Cold'" },
+    { table: "leads", column: "urgency", type: "TEXT" },
+    { table: "leads", column: "desired_next_step", type: "TEXT" },
+    { table: "leads", column: "consent", type: "INTEGER DEFAULT 0" },
+    { table: "leads", column: "drip_stage", type: "TEXT" },
+    { table: "email_logs", column: "notes", type: "TEXT" }
   ];
 
   for (const item of columnsToAdd) {
@@ -301,9 +312,8 @@ function getStripe(): Stripe {
   return stripeClient;
 }
 
-// Email Sequence Definition
-// Email Sequence Definition (Drip Campaign)
-const emails = [
+// Segmented Email Sequences Definitions
+const athleteParentSequence = [
   {
     day: 0,
     subject: (firstName: string, sport: string) => `Next steps for your sensory performance, ${firstName}`,
@@ -348,6 +358,28 @@ Ares Elite Sports Vision`
   },
   {
     day: 5,
+    subject: (firstName: string, sport: string) => `Why 20/20 vision isn't enough on game day`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+A common misconception we hear from ${sport || 'elite'} athletes: "I don't need sports vision training, I have 20/20 vision."
+
+Having 20/20 vision simply means you can read a stationary letter chart from 20 feet away. It tells us nothing about:
+- How fast your eyes track a spinning ball.
+- Your depth perception under stadium glare.
+- Your peripheral awareness when moving at speed.
+
+Sports vision training takes healthy eyes and tunes them for athletic dominance. But we cannot write your protocol until we run the baseline evaluation.
+
+Book your Carmel diagnostic spot here:
+Reserve Evaluation Spot ($449): ${APP_URL}/book/evaluation
+
+Best,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 9,
     subject: (firstName: string, sport: string) => `How the A.R.E.S. framework builds elite athletes`,
     body: (firstName: string, sport: string) => `Hi ${firstName},
 
@@ -365,28 +397,6 @@ Don't let visual latency limit your training gains.
 Find Your Gaps: Schedule Evaluation: ${APP_URL}/book/evaluation
 
 Sincerely,
-
-Dr. Joe LaPlaca
-Ares Elite Sports Vision`
-  },
-  {
-    day: 9,
-    subject: (firstName: string, sport: string) => `Why 20/20 vision isn't enough on game day`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
-
-A common misconception we hear from ${sport || 'elite'} athletes: "I don't need sports vision training, I have 20/20 vision."
-
-Having 20/20 vision simply means you can read a stationary letter chart from 20 feet away. It tells us nothing about:
-- How fast your eyes track a spinning ball.
-- Your depth perception under stadium glare.
-- Your peripheral awareness when moving at speed.
-
-Sports vision training takes healthy eyes and tunes them for athletic dominance. But we cannot write your protocol until we run the baseline evaluation.
-
-Book your Carmel diagnostic spot here:
-Reserve Evaluation Spot ($449): ${APP_URL}/book/evaluation
-
-Best,
 
 Dr. Joe LaPlaca
 Ares Elite Sports Vision`
@@ -414,19 +424,33 @@ Dr. Joe LaPlaca
 Ares Elite Sports Vision`
   },
   {
-    day: 21,
-    subject: (firstName: string, sport: string) => `Are you ignoring the command center?`,
+    day: 20,
+    subject: (firstName: string, sport: string) => `Missing baseline data alert for ${firstName}`,
     body: (firstName: string, sport: string) => `Hi ${firstName},
 
-Imagine buying a race car and upgrading the tires, suspension, and body, but leaving a stock, low-grade computer chip to run the engine.
+We noticed that we are still missing your baseline visual-performance telemetry.
 
-That is what athletes do when they train their muscles, buy premium gear, and practice skills, but ignore their visual-cognitive command center.
+Without a scheduled A.R.E.S. Evaluation, your cognitive profile remains incomplete. We cannot prescribe target drills, peripheral response training, or strobe occlusion work without these primary benchmarks.
 
-Every physical reaction is preceded by a visual decision.
+Let's get your calibration scheduled before the season moves forward.
 
-By skipping the evaluation, you are continuing to train blind spots that can easily be ironed out. Let's fix it.
+Schedule Evaluation Spot ($449): ${APP_URL}/book/evaluation
 
-Tune Your Brain: Book Your Evaluation: ${APP_URL}/book/evaluation
+Best,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 25,
+    subject: (firstName: string, sport: string) => `Take control of your reaction times`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+If you are waiting for performance gaps to resolve on their own, they won't. Latency in visual capture and split-second hesitation under fatigue are trained patterns that require targeted training.
+
+The A.R.E.S. Evaluation is the first step toward reclaiming those crucial milliseconds.
+
+Book Your Performance Evaluation: ${APP_URL}/book/evaluation
 
 Sincerely,
 
@@ -455,6 +479,305 @@ Ares Elite Sports Vision`
   }
 ];
 
+const coachTeamSequence = [
+  {
+    day: 0,
+    subject: (firstName: string, sport: string) => `Objective player diagnostics for your roster`,
+    body: (firstName: string, sport: string) => `Hi Coach ${firstName},
+
+Thank you for completing the A.R.E.S. assessment.
+
+As a coach, you know that physical conditioning has diminishing returns. When everyone is strong and fast, the ultimate competitive advantage is visual processing and decision speed.
+
+We specialize in establishing team visual baselines to identify which players have processing latency that leads to turnovers, late reads, or hesitations under pressure.
+
+We can run on-site testing days for your entire roster. Let's schedule a time to discuss a custom team screening program.
+
+Request a Consultation: ${APP_URL}/contact
+
+Best regards,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 2,
+    subject: (firstName: string, sport: string) => `Decision speed: The ultimate team advantage`,
+    body: (firstName: string, sport: string) => `Hi Coach ${firstName},
+
+If your players are strong but constantly reacting late, their visual routing is congested.
+
+At the elite level, spatial coordinates must travel from the eyes to the motor cortex in under 180 milliseconds. If a player's eyes take 240ms to acquire the target, they are slow before their muscles even contract.
+
+Ares trains the system that controls movement. We help your athletes read the field, track dynamic objects, and execute decisions faster.
+
+Let's discuss how we can integrate neuro-performance screening into your roster:
+Request Team Consultation: ${APP_URL}/contact
+
+Best,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 5,
+    subject: (firstName: string, sport: string) => `Vision vs. Sight: Why eye charts fail your athletes`,
+    body: (firstName: string, sport: string) => `Hi Coach ${firstName},
+
+A player with 20/20 sight can read a stationary chart. But can they track a ball in their peripheral field under glare while running at full speed?
+
+Standard eye exams check static vision at rest. They miss 80% of sports vision requirements. Ares evaluates and trains:
+- Saccadic eye movement speed
+- Peripheral reaction times
+- Cognitive stamina under fatigue
+
+Let's build a roster that doesn't blink under pressure.
+
+Request a Consultation: ${APP_URL}/contact
+
+Sincerely,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 9,
+    subject: (firstName: string, sport: string) => `Establish your team's visual baseline`,
+    body: (firstName: string, sport: string) => `Hi Coach ${firstName},
+
+Before the season gets fully underway, we recommend setting a baseline for your athletes.
+
+Our team screenings provide you with:
+1. Player visual speed and coordination telemetry dashboards.
+2. Team-wide reports identifying potential bottleneck trends.
+3. Pre-season concussion baselines that map visual processing (which is affected in over 50% of brain injuries).
+
+Secure a consultation to discuss testing packages:
+Request Team Consultation: ${APP_URL}/contact
+
+Best,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 14,
+    subject: (firstName: string, sport: string) => `Integrating neurocognitive drills into your practice`,
+    body: (firstName: string, sport: string) => `Hi Coach ${firstName},
+
+Adding sensory training to your standard practices doesn't require extra hours. We design plug-and-play neurocognitive drills that can be integrated directly into your existing conditioning and skill work.
+
+By combining physical fatigue with visual decisions, we train your players to maintain composure and precision in the fourth quarter.
+
+Let's coordinate a consultation to review sample drills.
+
+Request Team Consultation: ${APP_URL}/contact
+
+Best regards,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 21,
+    subject: (firstName: string, sport: string) => `Let's discuss your team's visual blueprint`,
+    body: (firstName: string, sport: string) => `Hi Coach ${firstName},
+
+I wanted to send a final check-in. Visual bottlenecks in your athletes lead to turnovers, sluggish plays, and increased injury risks.
+
+Whenever you are ready to establish roster baselines and build an elite decision-making team, the door is open. You can coordinate a consultation below or reply directly to this email.
+
+Schedule Consultation: ${APP_URL}/contact
+
+Wishing you a successful season,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  }
+];
+
+const facilitySequence = [
+  {
+    day: 0,
+    subject: (firstName: string, sport: string) => `Adding a premium performance revenue stream`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+Thank you for completing the A.R.E.S. assessment.
+
+Sports vision and neurocognitive training are the fastest-growing sectors in elite athlete development. Parents and coaches are looking for objective cognitive telemetry to give their athletes a competitive edge.
+
+The A.R.E.S. Certification and Provider Licensing Program allows you to add our premium neuro-performance protocols directly into your facility, creating a highly profitable standalone service or primary training pillar.
+
+Let's schedule a call to review integration pathways and equipment needs.
+
+Schedule Facility Call: ${APP_URL}/contact
+
+Best regards,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 3,
+    subject: (firstName: string, sport: string) => `The plug-and-play neuro-performance model`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+Integrating sports vision training doesn't require rebuilding your facility. The A.R.E.S. system is designed to be highly spatial-efficient.
+
+We provide:
+- The equipment specifications and hardware sourcing.
+- 3 days of clinical and operational intensive training with Dr. LaPlaca.
+- Proprietary software, EMR tracking tools, and client onboarding systems.
+
+This allows you to begin running certified baseline evaluations and selling packages within weeks of certification.
+
+Let's discuss regional licensing options:
+Schedule Facility Integration Call: ${APP_URL}/contact
+
+Best,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 7,
+    subject: (firstName: string, sport: string) => `Clinical progression and EMR integration`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+The biggest challenge with cognitive training is proving the value. Parents want to see objective progress, not just lights flashing on a board.
+
+Our proprietary A.R.E.S. EMR platform logs player telemetry data from every drill. This allows you to generate visual report cards showing improvements in:
+- Raw reaction times (ms)
+- Peripheral awareness field (degrees)
+- Choice reaction accuracy (%)
+
+When parents see objective, millisecond-level improvements mapped on a graph, retention and package renewals follow naturally.
+
+Let's discuss integration details:
+Schedule Facility Call: ${APP_URL}/contact
+
+Sincerely,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 14,
+    subject: (firstName: string, sport: string) => `Exclusive territory licensing details`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+To protect the value of the A.R.E.S. brand and ensure the success of our partners, we enforce strict geographic territory exclusivity. We only certify a limited number of facility partners per market.
+
+If you want to establish your facility as the exclusive destination for elite sports vision in your region, securing territory rights is crucial.
+
+Review our licensing packages and apply for certification today:
+Contact Certification Team: ${APP_URL}/contact
+
+Best,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  },
+  {
+    day: 21,
+    subject: (firstName: string, sport: string) => `Schedule your facility integration call`,
+    body: (firstName: string, sport: string) => `Hi ${firstName},
+
+This is my final automated follow-up. If you want to differentiate your facility, increase average client value, and attract elite collegiate and pro athletes, neuro-performance training is the path.
+
+Whenever you are ready to review the operational blueprints and coordinate a licensing call, the door is open.
+
+Schedule Facility Integration Call: ${APP_URL}/contact
+
+Best regards,
+
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`
+  }
+];
+
+function getLeadSequence(icpSegment: string | null): { name: string, emails: any[] } {
+  const segment = icpSegment || 'Elite Athlete';
+  if (segment.includes('Motorsports')) {
+    return { name: 'athleteParentSequence', emails: athleteParentSequence };
+  }
+  if (segment.includes('Coach') || segment.includes('Team') || segment.includes('Org')) {
+    return { name: 'coachTeamSequence', emails: coachTeamSequence };
+  }
+  if (segment.includes('Facility')) {
+    return { name: 'facilitySequence', emails: facilitySequence };
+  }
+  return { name: 'athleteParentSequence', emails: athleteParentSequence };
+}
+
+function calculateLeadScore(leadData: {
+  role: string | null;
+  competitiveLevel: string | null;
+  location: string | null;
+  urgency: string | null;
+  phone: string | null;
+  referralCode: string | null;
+  desiredNextStep: string | null;
+  booked: boolean;
+}): number {
+  let score = 0;
+  
+  if (leadData.booked) {
+    score += 25;
+  }
+  
+  if (leadData.location) {
+    const loc = leadData.location.toLowerCase();
+    if (loc.includes('indiana') || loc.includes('carmel') || loc.includes('indianapolis') || /\bin\b/.test(loc)) {
+      score += 20;
+    }
+  }
+  
+  const isAthleteOrParent = leadData.role && (
+    leadData.role.includes('Athlete') || 
+    leadData.role.includes('Parent')
+  );
+  if (isAthleteOrParent && leadData.urgency === 'Immediate') {
+    score += 20;
+  }
+  
+  const isCoachOrOrg = leadData.role && (
+    leadData.role.includes('Coach') || 
+    leadData.role.includes('Team') || 
+    leadData.role.includes('Facility')
+  );
+  if (isCoachOrOrg) {
+    score += 20;
+  }
+  
+  if (leadData.competitiveLevel) {
+    const lvl = leadData.competitiveLevel.toLowerCase();
+    if (lvl.includes('college') || lvl.includes('professional') || lvl.includes('elite')) {
+      score += 15;
+    }
+  }
+  
+  if (leadData.referralCode && leadData.referralCode.trim().length > 0) {
+    score += 10;
+  }
+  
+  if (leadData.phone && leadData.phone.trim().length > 0) {
+    score += 10;
+  }
+
+  if (leadData.desiredNextStep === 'Book Evaluation') {
+    score += 10;
+  }
+  
+  return Math.min(score, 100);
+}
+
+function getLeadCategory(score: number): 'Hot' | 'Warm' | 'Cold' {
+  if (score >= 75) return 'Hot';
+  if (score >= 40) return 'Warm';
+  return 'Cold';
+}
+
 // Process Sequences Function
 async function processEmailSequences() {
   console.log("Running email sequence processor...");
@@ -462,11 +785,14 @@ async function processEmailSequences() {
   // Get all active leads in nurture, excluding internal domains
   const leads = db.prepare(`
     SELECT * FROM leads 
-    WHERE (status = 'Nurture Campaign Active' OR status = 'Evaluation Not Scheduled' OR status LIKE 'Email % Sent')
+    WHERE (status IN ('Nurture Campaign Active', 'Evaluation Not Scheduled') OR status LIKE 'Email % Sent')
       AND email NOT LIKE '%@areselitesportsvision.com'
   `).all() as any[];
   
   for (const lead of leads) {
+    // Determine the correct sequence based on icp_segment
+    const { name: sequenceName, emails: currentSequence } = getLeadSequence(lead.icp_segment);
+    
     // Calculate days since creation
     const createdAt = new Date(lead.created_at);
     const now = new Date();
@@ -474,17 +800,17 @@ async function processEmailSequences() {
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
     
     // Find which emails should have been sent by now
-    for (let i = 0; i < emails.length; i++) {
-      const emailDef = emails[i];
+    for (let i = 0; i < currentSequence.length; i++) {
+      const emailDef = currentSequence[i];
       
       if (diffDays >= emailDef.day) {
         // Check if this specific email was already sent
-        const log = db.prepare("SELECT * FROM email_logs WHERE lead_id = ? AND email_index = ?").get(lead.id, i);
+        const log = db.prepare("SELECT * FROM email_logs WHERE lead_id = ? AND email_index = ? AND notes = ?").get(lead.id, i, sequenceName);
         
         if (!log) {
           // Send email
           try {
-            console.log(`Sending email ${i + 1} (Day ${emailDef.day}) to ${lead.email}`);
+            console.log(`Sending email index ${i} (Day ${emailDef.day}) in ${sequenceName} to ${lead.email}`);
             
             const subjectText = emailDef.subject(lead.first_name, lead.sport || 'elite');
             const bodyText = emailDef.body(lead.first_name, lead.sport || 'elite') +
@@ -507,13 +833,13 @@ async function processEmailSequences() {
             }
             
             // Log it
-            db.prepare("INSERT INTO email_logs (lead_id, email_index) VALUES (?, ?)").run(lead.id, i);
+            db.prepare("INSERT INTO email_logs (lead_id, email_index, notes) VALUES (?, ?, ?)").run(lead.id, i, sequenceName);
             
-            // Update lead status
-            const statusLabel = i === emails.length - 1 ? 'Final Follow-Up Sent' : `Email ${i + 1} Sent`;
-            db.prepare("UPDATE leads SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(statusLabel, lead.id);
+            // Update lead status and drip_stage
+            const statusLabel = i === currentSequence.length - 1 ? 'Final Follow-Up Sent' : `Email ${i + 1} Sent`;
+            db.prepare("UPDATE leads SET status = ?, drip_stage = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").run(statusLabel, `${sequenceName}:${i}`, lead.id);
           } catch (error) {
-            console.error(`Failed to send email ${i + 1} to ${lead.email}:`, error);
+            console.error(`Failed to send email index ${i} to ${lead.email}:`, error);
           }
         }
       }
@@ -1641,7 +1967,14 @@ app.post("/api/submit-assessment", async (req, res) => {
       recSpeedAcc,
       howHeard,
       howHeardOther,
-      referralCode
+      referralCode,
+      role,
+      competitiveLevel,
+      location,
+      urgency,
+      desiredNextStep,
+      consent,
+      bottleneckProfile
     } = req.body;
 
     if (!firstName || !email) {
@@ -1656,6 +1989,19 @@ app.post("/api/submit-assessment", async (req, res) => {
     const parsedRef = parseReferralCode(referralCode);
     const confidence = checkSourceConfidence(howHeard, referralCode, utmSource);
     const calculatedSource = determineSourceString(howHeard, referralCode, utmSource);
+
+    // Calculate lead score and category
+    const leadScore = calculateLeadScore({
+      role: role || null,
+      competitiveLevel: competitiveLevel || null,
+      location: location || null,
+      urgency: urgency || null,
+      phone: phone || null,
+      referralCode: referralCode || null,
+      desiredNextStep: desiredNextStep || null,
+      booked: !!booked
+    });
+    const leadCategory = getLeadCategory(leadScore);
 
     // 1. Insert or Update Lead (Merge duplicates)
     try {
@@ -1691,6 +2037,15 @@ app.post("/api/submit-assessment", async (req, res) => {
             assessment_completed_date = COALESCE(assessment_completed_date, CURRENT_TIMESTAMP),
             evaluation_scheduled_date = COALESCE(evaluation_scheduled_date, ?),
             status = ?,
+            icp_segment = ?,
+            competitive_level = ?,
+            location = ?,
+            bottleneck_profile = ?,
+            lead_score = ?,
+            lead_category = ?,
+            urgency = ?,
+            desired_next_step = ?,
+            consent = ?,
             updated_at = CURRENT_TIMESTAMP
           WHERE email = ?
         `).run(
@@ -1701,7 +2056,9 @@ app.post("/api/submit-assessment", async (req, res) => {
           (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
           parsedRef.name, parsedRef.type,
           calculatedSource, confidence, evalScheduledDate,
-          finalStatus, email
+          finalStatus, role || null, competitiveLevel || null, location || null,
+          bottleneckProfile || null, leadScore, leadCategory, urgency || null,
+          desiredNextStep || null, consent || 0, email
         );
 
         if (currentStatus !== finalStatus) {
@@ -1719,8 +2076,10 @@ app.post("/api/submit-assessment", async (req, res) => {
             utm_source, utm_medium, utm_campaign, utm_content, utm_term, landing_page,
             how_heard, how_heard_other, referral_code, affiliate_code,
             referral_partner_name, referral_partner_type, first_touch_source, last_touch_source,
-            source_confidence, assessment_completed_date, evaluation_scheduled_date, status
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
+            source_confidence, assessment_completed_date, evaluation_scheduled_date, status,
+            icp_segment, competitive_level, location, bottleneck_profile, lead_score,
+            lead_category, urgency, desired_next_step, consent
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           firstName, lastName || null, email, phone || null, athleteName || null,
           parentGuardianName || null, sport || null, age || null, leadSource || 'Website',
@@ -1728,7 +2087,9 @@ app.post("/api/submit-assessment", async (req, res) => {
           howHeard || null, howHeardOther || null, referralCode || null,
           (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
           parsedRef.name, parsedRef.type, firstTouch, firstTouch,
-          confidence, evalScheduledDate, initialStatus
+          confidence, evalScheduledDate, initialStatus, role || null, competitiveLevel || null,
+          location || null, bottleneckProfile || null, leadScore, leadCategory, urgency || null,
+          desiredNextStep || null, consent || 0
         );
 
         db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, ?)")
@@ -1862,19 +2223,37 @@ app.post("/api/submit-assessment", async (req, res) => {
         const evalBookedLabel = booked ? "YES - evaluation scheduled and paid" : "NO - nurture campaign active";
         const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
 
+        const subjectLine = leadScore >= 75
+          ? `HOT LEAD: ${firstName} ${lastName || ''} - ${sport || role || 'Elite'} - Score: ${leadScore}`
+          : `[Lead Alert] Assessment Completed: ${firstName} ${lastName || ''} (Score: ${leadScore})`;
+
         await resend.emails.send({
           from: 'A.R.E.S. Onboarding <onboarding@resend.dev>',
           to: emailTo,
-          subject: `[Lead Alert] High-Intent Assessment Completed: ${firstName} ${lastName || ''}`,
+          subject: subjectLine,
           html: `
             <div style="font-family: Arial, sans-serif; background-color: #0e111a; color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #29b6f6; max-width: 600px;">
-              <h2 style="color: #29b6f6; border-bottom: 1px solid #1f2937; padding-bottom: 12px; margin-top: 0;">[Lead Alert] High-Intent Assessment Completed</h2>
-              <p>A new visitor has completed the interactive assessment.</p>
+              <h2 style="color: ${leadScore >= 75 ? '#ef5350' : '#29b6f6'}; border-bottom: 1px solid #1f2937; padding-bottom: 12px; margin-top: 0;">
+                ${leadScore >= 75 ? '🔥 [HOT LEAD ALERT] Assessment Completed' : '[Lead Alert] Assessment Completed'}
+              </h2>
+              <p>A new visitor has completed the interactive assessment and sensory drills.</p>
               
               <table style="width: 100%; border-collapse: collapse;">
                 <tr>
                   <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">Lead Name:</td>
                   <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${firstName} ${lastName || ''}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Role / ICP Segment:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${role || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Competitive Level:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${competitiveLevel || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Location:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${location || 'N/A'}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Athlete Name:</td>
@@ -1891,6 +2270,24 @@ app.post("/api/submit-assessment", async (req, res) => {
                 <tr>
                   <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Sport & Age:</td>
                   <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${sport || 'N/A'} (Age: ${age || 'N/A'})</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Lead Score:</td>
+                  <td style="padding: 8px 0; color: ${leadScore >= 75 ? '#ef5350' : '#29b6f6'}; font-weight: bold; font-family: monospace;">
+                    ${leadScore} / 100 (${leadCategory} Lead)
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Timeline / Urgency:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${urgency || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Desired Next Step:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${desiredNextStep || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Consent Opt-In:</td>
+                  <td style="padding: 8px 0; color: #ffffff; font-family: monospace;">${consent ? 'YES (Opted In)' : 'NO'}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Lead Source (Manual):</td>
@@ -1923,7 +2320,11 @@ app.post("/api/submit-assessment", async (req, res) => {
               <h3 style="color: #8b5cf6; margin-top: 25px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; font-size: 15px;">Assessment Results Summary</h3>
               <table style="width: 100%; border-collapse: collapse;">
                 <tr>
-                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">Visual Symptom Score:</td>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">Primary Bottleneck:</td>
+                  <td style="padding: 8px 0; color: #29b6f6; font-weight: bold; font-family: monospace;">${bottleneckProfile || 'N/A'}</td>
+                </tr>
+                <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Visual Symptom Score:</td>
                   <td style="padding: 8px 0; color: #8b5cf6; font-weight: bold; font-family: monospace;">${questionnaireScore} / 200</td>
                 </tr>
                 <tr>

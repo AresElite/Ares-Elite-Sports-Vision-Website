@@ -110,15 +110,19 @@ export function ParentsPage() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button 
                   variant="primary" 
-                  href="/book/evaluation" 
-                  className="w-full sm:w-auto text-center justify-center font-bold tracking-wide shadow-glow"
+                  href="/assessment" 
+                  className="w-full sm:w-auto text-center justify-center font-bold tracking-wide shadow-glow bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14]"
                 >
-                  Schedule Youth Baseline Evaluation
+                  Start Assessment
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
-                <Link to="/concussion-baseline-testing" className="text-white/60 hover:text-white transition-colors text-sm font-medium px-4">
-                  Learn About Baseline Testing &rarr;
-                </Link>
+                <Button 
+                  variant="outline" 
+                  href="/book/evaluation" 
+                  className="w-full sm:w-auto text-center justify-center font-bold tracking-wide border border-[var(--color-ares-purple)] text-white hover:bg-[var(--color-ares-purple)]/10"
+                >
+                  Schedule Youth Evaluation
+                </Button>
               </div>
             </section>
             

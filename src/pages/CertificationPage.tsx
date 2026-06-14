@@ -192,10 +192,18 @@ export function CertificationPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8 border-t border-[var(--color-ares-border)]">
-            <Button variant="primary" href="/contact">
+            <Button 
+              variant="primary" 
+              href="/contact"
+              className="w-full sm:w-auto text-center justify-center font-bold tracking-wide shadow-glow bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14]"
+            >
               Contact Certification Team
             </Button>
-            <Button variant="outline" href="/book/consultation">
+            <Button 
+              variant="outline" 
+              href="/book/consultation"
+              className="w-full sm:w-auto text-center justify-center font-bold tracking-wide border border-[var(--color-ares-purple)] text-white hover:bg-[var(--color-ares-purple)]/10"
+            >
               Book Consultation
             </Button>
           </div>
