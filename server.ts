@@ -226,7 +226,7 @@ function runMigrations() {
     { table: "leads", column: "utm_medium", type: "TEXT" },
     { table: "leads", column: "utm_campaign", type: "TEXT" },
     { table: "leads", column: "landing_page", type: "TEXT DEFAULT '/'" },
-    { table: "leads", column: "updated_at", type: "DATETIME DEFAULT CURRENT_TIMESTAMP" },
+    { table: "leads", column: "updated_at", type: "DATETIME" },
     
     // New growth attribution fields
     { table: "leads", column: "how_heard", type: "TEXT" },
