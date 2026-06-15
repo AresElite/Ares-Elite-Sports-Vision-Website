@@ -4,6 +4,8 @@ import { ArrowLeft, CheckCircle, AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { SEO } from '../components/SEO';
+import { db } from '../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 export function ContactPage() {
   const [formData, setFormData] = useState({
@@ -84,6 +86,28 @@ export function ContactPage() {
     };
 
     try {
+      // 1. Save to Firebase Firestore (Non-blocking background promise)
+      addDoc(collection(db, 'contacts'), {
+        firstName: formData.firstName,
+        lastName: formData.lastName || null,
+        email: formData.email,
+        sport: formData.sport || null,
+        message: formData.message || null,
+        howHeard: formData.howHeard || null,
+        howHeardOther: formData.howHeard === 'Other (Please specify)' ? formData.howHeardOther : null,
+        referralCode: formData.referralCode || null,
+        utmSource,
+        utmMedium,
+        utmCampaign,
+        utmContent,
+        utmTerm,
+        landingPage,
+        createdAt: serverTimestamp()
+      }).catch(fsError => {
+        console.error("Firebase Firestore contact write failed:", fsError);
+      });
+
+      // 2. Submit to express server SQLite
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {

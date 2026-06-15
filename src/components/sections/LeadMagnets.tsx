@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Brain, Eye, X, Loader2, ArrowRight } from 'lucide-react';
 import { ScrollReveal } from '../ui/ScrollReveal';
+import { db } from '../../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const resources = [
   {
@@ -35,6 +37,19 @@ export function LeadMagnets() {
     setIsSubmitting(true);
     
     try {
+      // 1. Save to Firebase Firestore (Non-blocking background promise)
+      addDoc(collection(db, 'resource_downloads'), {
+        firstName: formData.firstName,
+        lastName: formData.lastName || null,
+        email: formData.email,
+        sport: formData.sport || null,
+        resourceName: activeResource?.title || null,
+        createdAt: serverTimestamp()
+      }).catch(fsError => {
+        console.error("Firebase Firestore resource download write failed:", fsError);
+      });
+
+      // 2. Submit to express server SQLite
       const response = await fetch('/api/resource-download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

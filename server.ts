@@ -2058,7 +2058,7 @@ app.post("/api/submit-assessment", async (req, res) => {
           calculatedSource, confidence, evalScheduledDate,
           finalStatus, role || null, competitiveLevel || null, location || null,
           bottleneckProfile || null, leadScore, leadCategory, urgency || null,
-          desiredNextStep || null, consent || 0, email
+          desiredNextStep || null, consent ? 1 : 0, email
         );
 
         if (currentStatus !== finalStatus) {
@@ -2089,7 +2089,7 @@ app.post("/api/submit-assessment", async (req, res) => {
           parsedRef.name, parsedRef.type, firstTouch, firstTouch,
           confidence, evalScheduledDate, initialStatus, role || null, competitiveLevel || null,
           location || null, bottleneckProfile || null, leadScore, leadCategory, urgency || null,
-          desiredNextStep || null, consent || 0
+          desiredNextStep || null, consent ? 1 : 0
         );
 
         db.prepare("INSERT INTO lead_status_history (lead_id, old_status, new_status) VALUES (?, ?, ?)")

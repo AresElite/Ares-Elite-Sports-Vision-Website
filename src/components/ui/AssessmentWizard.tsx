@@ -5,6 +5,8 @@ import {
   AlertCircle, ArrowRight, Loader2, Award, Eye, Activity
 } from 'lucide-react';
 import { Button } from './Button';
+import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 type WizardStep = 
   | 'welcome' 
@@ -540,6 +542,77 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     };
 
     try {
+      // 1. Save to Firebase Firestore (Non-blocking background promise)
+      (async () => {
+        try {
+          const leadDocRef = doc(db, 'leads', leadForm.email);
+          await setDoc(leadDocRef, {
+            firstName: leadForm.firstName,
+            lastName: leadForm.lastName || null,
+            email: leadForm.email,
+            phone: leadForm.phone || null,
+            athleteName: leadForm.isParentOrCoach ? leadForm.athleteName : null,
+            parentGuardianName: (Number(leadForm.age) > 0 && Number(leadForm.age) < 18) ? leadForm.parentGuardianName : null,
+            age: leadForm.age ? parseInt(leadForm.age, 10) : null,
+            sport: leadForm.sport,
+            role: leadForm.role,
+            competitiveLevel: leadForm.competitiveLevel || null,
+            location: leadForm.location || null,
+            primaryConcern: leadForm.primaryConcern || null,
+            urgency: leadForm.urgency || null,
+            desiredNextStep: leadForm.desiredNextStep || null,
+            consent: leadForm.consent ? 1 : 0,
+            leadSource: 'Website',
+            utmSource,
+            utmMedium,
+            utmCampaign,
+            utmContent,
+            utmTerm,
+            landingPage,
+            questionnaireScore: metrics.surveyScore,
+            rawRtAvg: metrics.rawAvg,
+            rawRtFastest: metrics.rawFastest,
+            rawRtSlowest: metrics.rawSlowest,
+            rawRtFalsePositives: metrics.rawFalsePositives,
+            choiceRtPurpleAvg: metrics.purpleAvg,
+            choiceRtPurpleAcc: metrics.purpleAcc,
+            choiceRtTealAvg: metrics.tealAvg,
+            choiceRtTealAcc: metrics.tealAcc,
+            choiceRtPostErrorSlowing: metrics.pesDiff,
+            recSpeedAvg: metrics.recAvg,
+            recSpeedAcc: metrics.recAcc,
+            howHeard: leadForm.howHeard || null,
+            howHeardOther: leadForm.howHeard === 'Other (Please specify)' ? leadForm.howHeardOther : null,
+            referralCode: leadForm.referralCode || null,
+            bottleneckProfile: calculatedBottleneck,
+            updatedAt: serverTimestamp(),
+            createdAt: serverTimestamp()
+          }, { merge: true });
+
+          await addDoc(collection(db, 'assessments'), {
+            email: leadForm.email,
+            questionnaireScore: metrics.surveyScore,
+            questionnaireData: JSON.stringify(surveyAnswers),
+            rawRtAvg: metrics.rawAvg,
+            rawRtFastest: metrics.rawFastest,
+            rawRtSlowest: metrics.rawSlowest,
+            rawRtFalsePositives: metrics.rawFalsePositives,
+            choiceRtPurpleAvg: metrics.purpleAvg,
+            choiceRtPurpleAcc: metrics.purpleAcc,
+            choiceRtTealAvg: metrics.tealAvg,
+            choiceRtTealAcc: metrics.tealAcc,
+            choiceRtPostErrorSlowing: metrics.pesDiff,
+            recSpeedAvg: metrics.recAvg,
+            recSpeedAcc: metrics.recAcc,
+            createdAt: serverTimestamp()
+          });
+          console.log("Firebase Firestore write completed successfully.");
+        } catch (fsError) {
+          console.error("Firebase Firestore write failed:", fsError);
+        }
+      })();
+
+      // 2. Submit to express server SQLite
       const response = await fetch('/api/submit-assessment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
