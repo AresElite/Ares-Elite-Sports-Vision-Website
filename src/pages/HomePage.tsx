@@ -33,10 +33,16 @@ export function HomePage() {
 
   const homeSchema = {
     "@context": "https://schema.org",
-    "@type": "SportsActivityLocation",
+    "@type": ["SportsActivityLocation", "OptometricBusiness"],
     "name": "Ares Elite Sports Vision",
     "url": "https://areselitesports.vision",
-    "description": "Premium neurocognitive sports training and sports vision evaluations in Carmel, IN (Indianapolis area).",
+    "description": "Premium neurocognitive sports training and sports vision evaluations in Carmel, IN led by sports vision optometrist Dr. Joseph LaPlaca, OD.",
+    "founder": {
+      "@type": "Person",
+      "name": "Dr. Joseph LaPlaca, OD",
+      "jobTitle": "Sports Vision Optometrist",
+      "medicalSpecialty": "Optometry"
+    },
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "510 W. Carmel Dr., Inside Elemental Fitness, 2nd Floor",
