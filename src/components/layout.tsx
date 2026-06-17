@@ -81,15 +81,15 @@ export function Navbar() {
         <div className="w-full bg-[var(--color-ares-charcoal)] border-b border-[var(--color-ares-border)] py-1.5 px-4 flex justify-center items-center pointer-events-auto">
           <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[10px] sm:text-xs font-mono tracking-widest uppercase">
             <span className="text-[var(--color-ares-muted)] font-bold">Active Clients:</span>
-            <a href="https://areselite.as.me/?appointmentType=41066855" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5">
+            <Link to="/book/in-office" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)]"></span>
               Book In-Office
-            </a>
+            </Link>
             <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
-            <a href="https://areselite.as.me/?appointmentType=54947883" target="_blank" rel="noopener noreferrer" className="text-white hover:text-[var(--color-ares-purple)] transition-colors inline-flex items-center gap-1.5">
+            <Link to="/book/tele-training" className="text-white hover:text-[var(--color-ares-purple)] transition-colors inline-flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-purple)]"></span>
               Book Tele-Training
-            </a>
+            </Link>
             <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
             <Link to="/book/packages" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5 animate-pulse">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] animate-ping"></span>

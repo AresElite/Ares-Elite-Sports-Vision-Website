@@ -424,6 +424,62 @@ export function BookPage() {
     );
   };
 
+  const renderInOfficeFlow = () => {
+    return (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
+        <button onClick={() => navigate('/book')} className="text-white/60 hover:text-white mb-8 flex items-center gap-2 transition-colors">
+          <ChevronRight className="w-4 h-4 rotate-180" /> Back to options
+        </button>
+
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white uppercase tracking-tight">Book In-Office Session</h2>
+          <p className="text-white/70 max-w-2xl mx-auto text-base">
+            Schedule your in-office training session or evaluation at our Carmel HQ facility.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl overflow-hidden shadow-glow mb-24 min-h-[900px] relative z-10 w-full p-2">
+          <iframe
+            src="https://areselite.as.me/?appointmentType=41066855"
+            title="Book In-Office Session"
+            width="100%"
+            height="900"
+            frameBorder="0"
+            className="w-full h-full border-none min-h-[900px]"
+          ></iframe>
+        </div>
+      </div>
+    );
+  };
+
+  const renderTeleTrainingFlow = () => {
+    return (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
+        <button onClick={() => navigate('/book')} className="text-white/60 hover:text-white mb-8 flex items-center gap-2 transition-colors">
+          <ChevronRight className="w-4 h-4 rotate-180" /> Back to options
+        </button>
+
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white uppercase tracking-tight">Book Tele-Training Session</h2>
+          <p className="text-white/70 max-w-2xl mx-auto text-base">
+            Schedule your remote visual-cognitive training session from anywhere.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl overflow-hidden shadow-glow mb-24 min-h-[900px] relative z-10 w-full p-2">
+          <iframe
+            src="https://areselite.as.me/?appointmentType=54947883"
+            title="Book Tele-Training Session"
+            width="100%"
+            height="900"
+            frameBorder="0"
+            className="w-full h-full border-none min-h-[900px]"
+          ></iframe>
+        </div>
+      </div>
+    );
+  };
+
   const renderSelectionGrid = () => {
     return (
       <div className="animate-in fade-in duration-500">
@@ -582,6 +638,8 @@ export function BookPage() {
             {(type === 'client' || type === 'training') && renderExistingClientFlow()}
             {type === 're-evaluation' && renderReevalFlow()}
             {type === 'packages' && renderPackagesFlow()}
+            {type === 'in-office' && renderInOfficeFlow()}
+            {type === 'tele-training' && renderTeleTrainingFlow()}
             {type === 'consultation' && renderTeamFlow()}
             {type?.startsWith('training-') && renderPackagePurchaseFlow()}
           </div>
