@@ -41,6 +41,7 @@ export function Navbar() {
         { label: "Coaches Protocol", path: "/coaches" },
         { label: "Teams & Facilities", path: "/teams-and-organizations" },
         { label: "Technology & Data", path: "/technology-and-data" },
+        { label: "Purchase Packages", path: "/book/packages" },
         { label: "A.R.E.S. Certification", path: "/certification" }
       ]
     },
@@ -89,6 +90,11 @@ export function Navbar() {
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-purple)]"></span>
               Book Tele-Training
             </a>
+            <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
+            <Link to="/book/packages" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] animate-ping"></span>
+              Purchase Packages
+            </Link>
           </div>
         </div>
 
@@ -362,6 +368,7 @@ export function Footer() {
               <li><Link to="/parents" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Parents & Youth</Link></li>
               <li><Link to="/pro-sports" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Pro & Motorsports</Link></li>
               <li><Link to="/teams-and-organizations" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Teams & Facilities</Link></li>
+              <li><Link to="/book/packages" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors font-bold text-[var(--color-ares-teal)]">Purchase Packages</Link></li>
             </ul>
           </div>
           <div className="col-span-1 md:col-span-2">

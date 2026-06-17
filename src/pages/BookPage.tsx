@@ -210,80 +210,40 @@ export function BookPage() {
           </p>
         </div>
 
-        <div className="max-w-md mx-auto mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-24">
           <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-3xl p-8 flex flex-col items-center text-center shadow-xl">
-             <div className="w-16 h-16 rounded-full bg-[var(--color-ares-teal)]/20 flex items-center justify-center mb-6">
-                <RefreshCw className="w-8 h-8 text-[var(--color-ares-teal)]" />
+             <div className="w-16 h-16 rounded-full bg-[var(--color-ares-purple)]/20 flex items-center justify-center mb-6">
+                <RefreshCw className="w-8 h-8 text-[var(--color-ares-purple)]" />
              </div>
-             <h3 className="text-2xl font-bold mb-4">Book a Re-Evaluation</h3>
+             <h3 className="text-2xl font-bold mb-4 uppercase">Book a Re-Evaluation</h3>
              <p className="text-white/60 mb-8 flex-1">
                Follow-up assessment to measure your progress and adjust training protocols. Only for existing athletes who have already completed an initial Evaluation.
              </p>
              <div className="text-2xl font-bold mb-6">$299</div>
              <button
                 onClick={() => navigate('/book/re-evaluation')}
-                className="w-full py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 font-bold transition-all text-lg"
+                className="w-full py-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 font-bold transition-all text-lg cursor-pointer"
              >
                Start Re-Evaluation Booking
              </button>
           </div>
-        </div>
 
-        <div className="bg-black/30 border border-white/10 rounded-3xl p-8 sm:p-12 mb-24">
-           <h3 className="text-2xl font-bold text-center mb-10">Purchase Training Packages & Memberships</h3>
-           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-             <div>
-                <h4 className="text-[var(--color-ares-teal)] font-bold tracking-widest uppercase text-sm mb-4 border-b border-white/10 pb-4">Session Packages</h4>
-                <div className="space-y-4">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex justify-between items-center hover:border-white/20 transition-colors">
-                    <div>
-                      <div className="font-bold text-lg mb-1">20-Session Package</div>
-                      <div className="text-white/50 text-sm">Valid for 1 year</div>
-                    </div>
-                    <div className="text-right">
-                       <div className="font-bold text-xl mb-2">$1,999</div>
-                       <button onClick={() => navigate('/book/training-20-pack')} className="text-[var(--color-ares-teal)] font-bold text-sm hover:underline">Purchase</button>
-                    </div>
-                  </div>
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex justify-between items-center hover:border-white/20 transition-colors">
-                    <div>
-                      <div className="font-bold text-lg mb-1">40-Session Package</div>
-                      <div className="text-white/50 text-sm">Valid for 1 year</div>
-                    </div>
-                    <div className="text-right">
-                       <div className="font-bold text-xl mb-2">$3,599</div>
-                       <button onClick={() => navigate('/book/training-40-pack')} className="text-[var(--color-ares-teal)] font-bold text-sm hover:underline">Purchase</button>
-                    </div>
-                  </div>
-                </div>
+          <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-3xl p-8 flex flex-col items-center text-center shadow-xl">
+             <div className="w-16 h-16 rounded-full bg-[var(--color-ares-teal)]/20 flex items-center justify-center mb-6">
+                <Award className="w-8 h-8 text-[var(--color-ares-teal)]" />
              </div>
-             
-             <div>
-                <h4 className="text-[var(--color-ares-purple)] font-bold tracking-widest uppercase text-sm mb-4 border-b border-white/10 pb-4">Monthly Subscriptions</h4>
-                <div className="space-y-4">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex justify-between items-center hover:border-white/20 transition-colors">
-                    <div>
-                      <div className="font-bold text-lg mb-1">4 Sessions / Month</div>
-                      <div className="text-white/50 text-sm">Renews monthly</div>
-                    </div>
-                    <div className="text-right">
-                       <div className="font-bold mt-1 mb-2"><span className="text-xl">$399</span><span className="text-sm font-normal text-white/50">/mo</span></div>
-                       <button onClick={() => navigate('/book/training-4-pack')} className="text-[var(--color-ares-purple)] font-bold text-sm hover:underline">Subscribe</button>
-                    </div>
-                  </div>
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex justify-between items-center hover:border-white/20 transition-colors">
-                    <div>
-                      <div className="font-bold text-lg mb-1">8 Sessions / Month</div>
-                      <div className="text-white/50 text-sm">Renews monthly</div>
-                    </div>
-                    <div className="text-right">
-                       <div className="font-bold mt-1 mb-2"><span className="text-xl">$599</span><span className="text-sm font-normal text-white/50">/mo</span></div>
-                       <button onClick={() => navigate('/book/training-8-pack')} className="text-[var(--color-ares-purple)] font-bold text-sm hover:underline">Subscribe</button>
-                    </div>
-                  </div>
-                </div>
-             </div>
-           </div>
+             <h3 className="text-2xl font-bold mb-4 uppercase">Purchase Packages & Memberships</h3>
+             <p className="text-white/60 mb-8 flex-1">
+               Purchase session packages or monthly training subscriptions directly online through our secure portal.
+             </p>
+             <div className="text-2xl font-bold mb-6">Packages & Plans</div>
+             <button
+                onClick={() => navigate('/book/packages')}
+                className="w-full py-4 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold transition-all text-lg cursor-pointer uppercase tracking-wider"
+             >
+               View Store Options
+             </button>
+          </div>
         </div>
       </div>
     );
@@ -431,6 +391,34 @@ export function BookPage() {
               <>Complete Secure Payment <ExternalLink className="w-5 h-5 mx-1" /></>
             )}
           </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderPackagesFlow = () => {
+    return (
+      <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-5xl mx-auto">
+        <button onClick={() => navigate('/book/client')} className="text-white/60 hover:text-white mb-8 flex items-center gap-2 transition-colors">
+          <ChevronRight className="w-4 h-4 rotate-180" /> Back to client options
+        </button>
+
+        <div className="text-center mb-12">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4 text-white uppercase tracking-tight">Purchase Training Packages & Subscriptions</h2>
+          <p className="text-white/70 max-w-2xl mx-auto text-base">
+            Select a session package or monthly training subscription below to purchase and secure your credits.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl overflow-hidden shadow-glow mb-24 min-h-[900px] relative z-10 w-full p-2">
+          <iframe
+            src="https://areselite.as.me/schedule/45c1a107"
+            title="Purchase Training Packages & Subscriptions"
+            width="100%"
+            height="900"
+            frameBorder="0"
+            className="w-full h-full border-none min-h-[900px]"
+          ></iframe>
         </div>
       </div>
     );
@@ -593,6 +581,7 @@ export function BookPage() {
             {type === 'evaluation' && renderNewAthleteFlow()}
             {(type === 'client' || type === 'training') && renderExistingClientFlow()}
             {type === 're-evaluation' && renderReevalFlow()}
+            {type === 'packages' && renderPackagesFlow()}
             {type === 'consultation' && renderTeamFlow()}
             {type?.startsWith('training-') && renderPackagePurchaseFlow()}
           </div>
