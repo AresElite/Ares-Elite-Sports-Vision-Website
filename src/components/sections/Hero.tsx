@@ -60,7 +60,7 @@ export function Hero({ isReady = true }: HeroProps) {
             </motion.h1>
             
             <p className="text-xl sm:text-2xl xl:text-[1.35rem] 2xl:text-2xl text-white/90 font-medium mb-10 max-w-2xl leading-snug text-balance drop-shadow-lg">
-              Ares Elite Sports Vision evaluates and trains the visual, cognitive, and reaction-speed systems athletes rely on under pressure — from how the eyes acquire information to how the brain routes decisions and the body executes in real time.
+              Cut reaction-time lag, make faster decisions under fatigue, and uncover hidden bottlenecks. Whether you're struggling with late reads or looking to squeeze another 10% out of an already elite performance, Ares finds the milliseconds that keep you ahead.
             </p>
 
             <div className="flex flex-col w-full items-center xl:items-start gap-4">
@@ -73,7 +73,7 @@ export function Hero({ isReady = true }: HeroProps) {
                 </Link>
               </div>
               <p className="text-white/60 text-xs sm:text-sm max-w-sm text-center xl:text-left mt-1 font-medium tracking-wide">
-                Secure your 75-minute baseline evaluation to see what your visual system is costing you.
+                Secure your 80-90 minute objective evaluation to discover the processing gaps you didn't know were holding you back.
               </p>
             </div>
           </motion.div>

@@ -7,18 +7,18 @@ import { variants } from '../../config/motion';
 const problems = [
   {
     icon: Eye,
-    title: "20/20 Vision Is Not Enough",
-    description: "A regular eye exam tells you if you can see letters clearly while sitting still. It does not measure how fast your brain processes what you see. 20/20 static vision does not guarantee elite performance under pressure."
+    title: "The 20/20 Optical Illusion",
+    description: "You can have perfect 20/20 eyesight and still react late. A standard eye exam only checks static optical clarity while sitting in a dark room. Ares measures how fast your brain processes visual data under stress to identify the latency you aren't aware of."
   },
   {
     icon: Clock,
-    title: "The Invisible Bottleneck",
-    description: "Coaches see the late reaction or the missed read, but that's just the outcome. If your eyes and brain are processing information slowly, no amount of physical drills will fix the delay. We evaluate what happens before the mistake becomes visible."
+    title: "Late Reads Are Upstream Gaps",
+    description: "Late reactions, missed gaps, and post-error lag are rarely mechanical issues—they are visual processing bottlenecks. Physical conditioning cannot fix a delayed signal. We isolate and train the exact neural path to make reads automatic."
   },
   {
     icon: Activity,
-    title: "Guessing Isn't Training",
-    description: "Generic 'reaction drills' without a structural framework are just guessing. A.R.E.S. evaluates the exact system breakdown—whether it's acquisition, routing, or execution—so we can turn hidden weaknesses into trainable targets."
+    title: "Even the Best Have Latency",
+    description: "Elite athletes might feel their visual system is functioning perfectly, but milliseconds decide podiums. We help the best of the best identify hidden visual fatigue points, replacing random drills with targeted training built around your actual data."
   }
 ];
 

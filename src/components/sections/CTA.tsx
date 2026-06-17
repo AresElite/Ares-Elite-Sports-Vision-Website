@@ -14,10 +14,10 @@ export function CTASection() {
       <div className="max-w-4xl mx-auto px-6 sm:px-6 lg:px-8 relative z-10 text-center">
         <ScrollReveal direction="up" distance={40} speed={0.8}>
           <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-8 tracking-tight text-balance">
-            IF EVERY DETAIL MATTERS, EVERY DETAIL SHOULD BE EVALUATED.
+            IF MILLISECONDS DECIDE THE WINNER, EVERY HIDDEN GAP MUST BE ELIMINATED.
           </h2>
           <p className="text-lg sm:text-xl text-white/70 mb-12 max-w-2xl mx-auto leading-relaxed text-balance">
-            Stop guessing and start measuring. Whether you are an athlete searching for the hidden millisecond, a coach evaluating a team, or a professional looking to redefine performance, A.R.E.S. is your infrastructure.
+            Stop guessing and start measuring. Traditional eye exams check eyesight; Ares evaluates and trains the visual-cognitive speed that controls your body's execution. Find your hidden margins and elevate your baseline today.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center">

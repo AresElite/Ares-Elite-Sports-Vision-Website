@@ -49,12 +49,12 @@ export function PerformanceResults() {
                 <div>
                   <div className="flex justify-between text-sm mb-2 text-[var(--color-ares-teal)] font-bold">
                     <span>Post-Protocol</span>
-                    <span className="font-mono">398ms</span>
+                    <span className="font-mono">317ms</span>
                   </div>
                   <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
                     <motion.div 
                       initial={{ width: 0 }}
-                      whileInView={{ width: "77%" }}
+                      whileInView={{ width: "62%" }}
                       viewport={{ once: true }}
                       transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
                       className="h-full bg-[var(--color-ares-teal)]" 
@@ -63,8 +63,8 @@ export function PerformanceResults() {
                 </div>
                 
                 <div className="pt-4 border-t border-[var(--color-ares-border)]">
-                  <div className="text-[var(--color-ares-teal)] text-3xl font-bold tracking-tighter">-22%</div>
-                  <div className="text-white/40 text-[10px] font-mono mt-1 uppercase">Reduction in lag</div>
+                  <div className="text-[var(--color-ares-teal)] text-3xl font-bold tracking-tighter">-38%</div>
+                  <div className="text-white/40 text-[10px] font-mono mt-1 uppercase">Choice Latency Reduction</div>
                 </div>
               </div>
             </div>
@@ -155,29 +155,29 @@ export function PerformanceResults() {
             </div>
           </ScrollReveal>
 
-          {/* Oculomotor Tracking */}
+          {/* Simple Reaction Time */}
           <ScrollReveal direction="up" distance={30} speed={1.3}>
             <div className="bg-[#0B0F2A] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-purple)]/50 transition-colors h-full flex flex-col">
               <div className="text-white/50 text-xs font-mono uppercase tracking-widest mb-2">Metric</div>
-              <h4 className="text-white font-bold text-lg mb-8">Dynamic Acuity Speed</h4>
+              <h4 className="text-white font-bold text-lg mb-8">Simple Reaction Time</h4>
               
               <div className="mt-auto space-y-6">
                  <div className="flex items-end gap-3 h-24">
                   <div className="w-1/2 flex flex-col justify-end items-center relative">
-                    <span className="text-xs text-white/50 font-mono mb-2">Pre</span>
+                    <span className="text-xs text-white/50 font-mono mb-2">280ms Pre</span>
                     <motion.div 
                       initial={{ height: 0 }}
-                      whileInView={{ height: "35%" }}
+                      whileInView={{ height: "80%" }}
                       viewport={{ once: true }}
                       transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
                       className="w-full bg-white/20 rounded-t-sm"
                     />
                   </div>
                   <div className="w-1/2 flex flex-col justify-end items-center relative">
-                    <span className="text-xs text-[var(--color-ares-purple)] font-mono mb-2">Post</span>
+                    <span className="text-xs text-[var(--color-ares-purple)] font-bold mb-2">210ms Post</span>
                     <motion.div 
                       initial={{ height: 0 }}
-                      whileInView={{ height: "92%" }}
+                      whileInView={{ height: "60%" }}
                       viewport={{ once: true }}
                       transition={{ duration: 1, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
                       className="w-full bg-[var(--color-ares-purple)] rounded-t-sm"
@@ -186,14 +186,33 @@ export function PerformanceResults() {
                 </div>
                 
                 <div className="pt-4 border-t border-[var(--color-ares-border)]">
-                  <div className="text-[var(--color-ares-purple)] text-3xl font-bold tracking-tighter">2.6x</div>
-                  <div className="text-white/40 text-[10px] font-mono mt-1 uppercase">Tracking Velocity</div>
+                  <div className="text-[var(--color-ares-purple)] text-3xl font-bold tracking-tighter">-25%</div>
+                  <div className="text-white/40 text-[10px] font-mono mt-1 uppercase">Simple Latency Reduction</div>
                 </div>
               </div>
             </div>
           </ScrollReveal>
 
         </div>
+
+        {/* Credibility Stats Bar */}
+        <div className="mt-20 pt-12 border-t border-[var(--color-ares-border)]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 text-center max-w-4xl mx-auto">
+            <div>
+              <div className="text-[var(--color-ares-teal)] text-4xl sm:text-5xl font-extrabold tracking-tight">2,500+</div>
+              <div className="text-white/50 text-[10px] sm:text-xs font-mono mt-2 uppercase tracking-widest">Evaluations Completed</div>
+            </div>
+            <div>
+              <div className="text-[var(--color-ares-purple)] text-4xl sm:text-5xl font-extrabold tracking-tight">7,000+</div>
+              <div className="text-white/50 text-[10px] sm:text-xs font-mono mt-2 uppercase tracking-widest">Training Sessions</div>
+            </div>
+            <div>
+              <div className="text-[var(--color-ares-teal)] text-4xl sm:text-5xl font-extrabold tracking-tight">600,000+</div>
+              <div className="text-white/50 text-[10px] sm:text-xs font-mono mt-2 uppercase tracking-widest">Performance Data Points</div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </SectionReveal>
   );
