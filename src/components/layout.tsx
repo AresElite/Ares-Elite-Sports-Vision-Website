@@ -234,6 +234,41 @@ export function Navbar() {
               </button>
 
               <div className="flex flex-col gap-2 mt-12 sm:mt-0 w-full max-w-2xl mx-auto">
+                {/* Quick Action Hub for High-Conversion Links */}
+                <div className="mb-6 bg-white/5 border border-white/10 rounded-2xl p-5">
+                  <h3 className="text-[10px] font-mono tracking-[0.2em] text-[var(--color-ares-teal)] uppercase mb-4">Quick Actions</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Link 
+                      to="/book/evaluation" 
+                      onClick={() => setIsOpen(false)}
+                      className="py-3 px-4 rounded-xl bg-[var(--color-ares-purple)] text-white text-xs font-bold uppercase tracking-wider text-center hover:bg-[var(--color-ares-purple)]/90 transition-colors"
+                    >
+                      Book Eval
+                    </Link>
+                    <Link 
+                      to="/book/packages" 
+                      onClick={() => setIsOpen(false)}
+                      className="py-3 px-4 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] text-xs font-bold uppercase tracking-wider text-center hover:bg-[#4FC3F7] transition-colors"
+                    >
+                      Packages
+                    </Link>
+                    <Link 
+                      to="/book/in-office" 
+                      onClick={() => setIsOpen(false)}
+                      className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-wider text-center hover:bg-white/10 transition-colors"
+                    >
+                      In-Office
+                    </Link>
+                    <Link 
+                      to="/book/tele-training" 
+                      onClick={() => setIsOpen(false)}
+                      className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-wider text-center hover:bg-white/10 transition-colors"
+                    >
+                      Tele-Session
+                    </Link>
+                  </div>
+                </div>
+
                 {navCategories.map((category, idx) => {
                   const isOpenCategory = openMobileCategory === category.title;
                   return (

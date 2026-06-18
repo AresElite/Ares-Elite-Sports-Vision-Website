@@ -68,8 +68,8 @@ export function Hero({ isReady = true }: HeroProps) {
                 <Link to="/book/evaluation" className="inline-flex items-center justify-center px-8 py-4 bg-[var(--color-ares-teal)] hover:bg-[var(--color-ares-teal)]/90 text-white rounded-xl transition-all shadow-[0_0_20px_rgba(41,152,170,0.3)] hover:shadow-[0_0_30px_rgba(41,152,170,0.5)] font-bold tracking-wide uppercase text-sm sm:text-base">
                   Find Your Baseline
                 </Link>
-                <Link to="/ares-performance-system" className="inline-flex items-center justify-center px-8 py-4 bg-black/40 backdrop-blur-md border border-[var(--color-ares-border)] hover:bg-white/10 text-white rounded-xl transition-all font-bold tracking-wide uppercase text-sm sm:text-base shadow-md">
-                  See How It Works
+                <Link to="/assessment" className="inline-flex items-center justify-center px-8 py-4 bg-black/40 backdrop-blur-md border border-[var(--color-ares-border)] hover:bg-white/10 text-white rounded-xl transition-all font-bold tracking-wide uppercase text-sm sm:text-base shadow-md">
+                  Start Free Assessment
                 </Link>
               </div>
               <p className="text-white/60 text-xs sm:text-sm max-w-sm text-center xl:text-left mt-1 font-medium tracking-wide">
