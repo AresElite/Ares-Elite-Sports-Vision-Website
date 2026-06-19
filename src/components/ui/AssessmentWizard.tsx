@@ -1236,149 +1236,53 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
 
       {/* Success Report results page */}
       {step === 'success' && (
-        <div className="w-full max-w-2xl mx-auto py-4">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
-              <Award className="w-8 h-8 text-emerald-400" />
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-white uppercase tracking-tight">
-              A.R.E.S. Diagnostics Results
-            </h2>
-            <p className="text-white/50 text-sm mt-2">
-              Your telemetry baseline reports have been logged and emailed to <strong>{leadForm.email}</strong>.
-            </p>
+        <div className="w-full max-w-2xl mx-auto py-4 text-center">
+          <div className="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
+            <CheckCircle2 className="w-10 h-10 text-emerald-400 animate-pulse" />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
-              <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Visual Symptoms</span>
-              <span className="text-3xl font-bold text-white block mb-1">{metrics.surveyScore}</span>
-              <span className="text-[10px] font-mono text-white/40 block">Max Score: 200</span>
-            </div>
+          <h2 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tight">
+            A.R.E.S. Diagnostics Dispatched
+          </h2>
+          <p className="text-white/60 text-lg mb-10 max-w-lg mx-auto font-light leading-relaxed">
+            Your visual-cognitive baseline scores, sensory percentile standing, and primary performance bottleneck analysis have been successfully logged.
+          </p>
 
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
-              <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Raw Reaction Speed</span>
-              <span className="text-3xl font-bold text-[var(--color-ares-teal)] block mb-1">{metrics.rawAvg}ms</span>
-              <span className="text-[10px] font-mono text-white/40 block">Fastest: {metrics.rawFastest}ms</span>
-            </div>
-
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 text-center">
-              <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Choice Processing</span>
-              <span className="text-3xl font-bold text-[var(--color-ares-purple)] block mb-1">{Math.round((metrics.tealAcc + metrics.purpleAcc) / 2)}%</span>
-              <span className="text-[10px] font-mono text-white/40 block">PES Delay: {metrics.pesDiff}ms</span>
-            </div>
-          </div>
-
-          {/* Bell Curve Percentile Rank Card */}
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 relative overflow-hidden">
-            <h4 className="text-white font-bold text-xs sm:text-sm tracking-wider uppercase mb-6 flex items-center gap-2 font-mono">
+          {/* Glassmorphic Report Details Card */}
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 mb-10 text-left relative overflow-hidden backdrop-blur-md">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--color-ares-teal)]/5 rounded-full blur-[50px] pointer-events-none" />
+            <h4 className="text-white font-bold text-sm tracking-wider uppercase mb-6 flex items-center gap-2 font-mono">
               <Activity className="w-4 h-4 text-[var(--color-ares-teal)]" />
-              SENSORY PERCENTILE STANDING
+              What is waiting in your inbox:
             </h4>
             
-            <div className="w-full h-auto">
-              <svg viewBox="0 0 600 270" className="w-full h-auto overflow-visible select-none">
-                <defs>
-                  {/* Curve Gradient */}
-                  <linearGradient id="curveGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="var(--color-ares-teal)" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="var(--color-ares-teal)" stopOpacity="0" />
-                  </linearGradient>
-                  {/* Tooltip glow filter */}
-                  <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-                    <feGaussianBlur stdDeviation="4" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                  </filter>
-                </defs>
+            <ul className="space-y-4 mb-8">
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-2 shrink-0"></span>
+                <p className="text-white/80 text-sm sm:text-base leading-snug">
+                  <strong>Visual Symptoms Score:</strong> An analysis of your system's susceptibility to tracking fatigue.
+                </p>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-2 shrink-0"></span>
+                <p className="text-white/80 text-sm sm:text-base leading-snug">
+                  <strong>Raw & Choice Response Times:</strong> Your baseline millisecond speed compared to collegiate and professional metrics.
+                </p>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-2 shrink-0"></span>
+                <p className="text-white/80 text-sm sm:text-base leading-snug">
+                  <strong>Primary Bottleneck Identification:</strong> Discovers if your lag is in visual *Acquisition*, brain *Routing*, or motor *Execution*.
+                </p>
+              </li>
+            </ul>
 
-                {/* X Axis grid lines */}
-                <line x1="50" y1="220" x2="550" y2="220" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-                <line x1="50" y1="50" x2="50" y2="220" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                <line x1="300" y1="50" x2="300" y2="220" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                <line x1="550" y1="50" x2="550" y2="220" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-
-                {/* Shaded Area under Bell Curve */}
-                <path d={curvePath} fill="url(#curveGrad)" />
-
-                {/* Bell Curve Stroke */}
-                <path d={strokePath} fill="none" stroke="var(--color-ares-teal)" strokeWidth="3" />
-
-                {/* Vertical position indicator */}
-                <line 
-                  x1={userX} 
-                  y1="220" 
-                  x2={userX} 
-                  y2={userY} 
-                  stroke="var(--color-ares-teal)" 
-                  strokeWidth="2" 
-                  strokeDasharray="4 4" 
-                  opacity="0.8"
-                />
-
-                {/* Pulsing indicator dot */}
-                <circle cx={userX} cy={userY} r="8" fill="var(--color-ares-teal)" opacity="0.3" className="animate-ping" style={{ transformOrigin: `${userX}px ${userY}px` }} />
-                <circle cx={userX} cy={userY} r="5" fill="var(--color-ares-teal)" filter="url(#glow)" />
-
-                {/* Tooltip Badge */}
-                <g transform={`translate(${tooltipX}, ${tooltipY})`}>
-                  {/* Tooltip box background */}
-                  <rect x="0" y="0" width="100" height="32" rx="6" fill="#0e111a" stroke="var(--color-ares-teal)" strokeWidth="1" filter="url(#glow)" />
-                  {/* Tooltip text */}
-                  <text x="50" y="20" fill="var(--color-ares-teal)" fontSize="11" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
-                    YOU: TOP {100 - userPct}%
-                  </text>
-                </g>
-
-                {/* X Axis Labels */}
-                <text x="120" y="245" fill="rgba(255,255,255,0.4)" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
-                  BELOW AVERAGE
-                </text>
-                <text x="300" y="245" fill="rgba(255,255,255,0.7)" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
-                  AVERAGE ATHLETE
-                </text>
-                <text x="480" y="245" fill="var(--color-ares-teal)" fontSize="10" fontWeight="bold" textAnchor="middle" fontFamily="monospace">
-                  ELITE TIER
-                </text>
-
-                {/* Percentile ticks */}
-                <text x="50" y="232" fill="rgba(255,255,255,0.3)" fontSize="8" textAnchor="middle" fontFamily="monospace">5th%</text>
-                <text x="300" y="232" fill="rgba(255,255,255,0.3)" fontSize="8" textAnchor="middle" fontFamily="monospace">50th%</text>
-                <text x="550" y="232" fill="rgba(255,255,255,0.3)" fontSize="8" textAnchor="middle" fontFamily="monospace">99th%</text>
-              </svg>
+            <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+              <div className="text-xs font-mono text-white/40 uppercase">Sent report to:</div>
+              <div className="text-sm font-bold text-[var(--color-ares-teal)] font-mono break-all text-center sm:text-right">{leadForm.email}</div>
             </div>
-            
-            <p className="text-white/50 text-[11px] font-mono mt-4 leading-relaxed text-center">
-              * Compares your reaction speed and accuracy to our database of collegiate and professional athletes.
-            </p>
-          </div>
-
-
-          <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-6 mb-8">
-            <h4 className="text-[var(--color-ares-teal)] font-bold text-lg mb-2 flex items-center gap-2">
-              <Target className="w-5 h-5 text-[var(--color-ares-teal)]" />
-              Primary Bottleneck: {bottleneckResult}
-            </h4>
-            <p className="text-white/70 text-sm leading-relaxed">
-              {bottleneckResult === 'Acquire Bottleneck' && (
-                <>
-                  <strong>Acquire Profile:</strong> Your primary latency bottleneck lies at the visual capture stage. You are losing crucial milliseconds in tracking high-speed objects, maintaining fixation under fatigue, and recognizing target motions. In-office training with our high-contrast tactile systems will help you capture cues faster.
-                </>
-              )}
-              {bottleneckResult === 'Route Bottleneck' && (
-                <>
-                  <strong>Route Profile:</strong> Your visual-cognitive routing is experiencing congestion. Your raw sensory hardware is clear, but your brain takes too long filtering and prioritizing visual coordinates under fatigue. A.R.E.S. strobe-occlusion protocols will accelerate your neural routing.
-                </>
-              )}
-              {bottleneckResult === 'Execute Bottleneck' && (
-                <>
-                  <strong>Execute Profile:</strong> Your bottleneck is at the motor execution stage. You recognize targets and route information correctly, but hesitate when turning recognition into physical choices. Calibrating your decision threshold will reduce split-second hesitations.
-                </>
-              )}
-              {bottleneckResult === 'Synchronize Bottleneck' && (
-                <>
-                  <strong>Synchronize Profile:</strong> Your visual-cognitive loop breaks down under pressure and physical fatigue. While you perform well in isolation, you lose spatial timing, rhythm, and accuracy under chaotic conditions. Standardized performance loading will synchronize your systems.
-                </>
-              )}
+            <p className="text-white/30 text-[10px] font-mono mt-3 leading-snug text-center">
+              * Please check your spam, updates, or promotions folder if the email does not arrive within 60 seconds.
             </p>
           </div>
 
@@ -1386,24 +1290,24 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
             <Button 
               variant="primary" 
               href="/book/evaluation"
-              className="w-full sm:w-auto text-center justify-center font-bold tracking-wide shadow-glow"
+              className="w-full sm:w-auto text-center justify-center font-bold tracking-wide shadow-glow px-8 py-4"
             >
-              Book 75-Min Baseline Evaluation ($449)
+              Book Baseline Evaluation ($449)
             </Button>
             {onClose ? (
               <button 
                 onClick={onClose}
-                className="w-full sm:w-auto py-3.5 px-6 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-sm tracking-wider uppercase transition-all cursor-pointer"
+                className="w-full sm:w-auto py-4 px-8 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-sm tracking-wider uppercase transition-all cursor-pointer"
               >
-                Close Report
+                Close Window
               </button>
             ) : (
               <Button
                 variant="outline"
                 href="/"
-                className="w-full sm:w-auto text-center justify-center font-bold tracking-wide cursor-pointer"
+                className="w-full sm:w-auto text-center justify-center font-bold tracking-wide px-8 py-4 cursor-pointer"
               >
-                Explore Homepage
+                Explore Website
               </Button>
             )}
           </div>
