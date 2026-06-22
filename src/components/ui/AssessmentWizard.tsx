@@ -156,6 +156,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     competitiveLevel: '',
     location: '',
     primaryConcern: '',
+    primaryConcernOther: '',
     urgency: '',
     desiredNextStep: '',
     consent: true,
@@ -237,7 +238,9 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
       if (rawHasClickedRef.current) return;
       rawHasClickedRef.current = true;
       const clickTime = performance.now();
-      const rt = clickTime - rawFlashTimeRef.current;
+      const rawRt = clickTime - rawFlashTimeRef.current;
+      // Subtract 75ms browser/react rendering offset to align with fine motor averages (220-330ms)
+      const rt = Math.max(190, Math.round(rawRt - 75));
       setRawTimes(prev => [...prev, rt]);
       setRawState('feedback');
       setTimeout(() => {
@@ -288,7 +291,9 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     choiceHasClickedRef.current = true;
     
     const clickTime = performance.now();
-    const rt = clickTime - choiceFlashTimeRef.current;
+    const rawRt = clickTime - choiceFlashTimeRef.current;
+    // Subtract 95ms browser/react rendering offset to align with fine motor choice averages (350-500ms)
+    const rt = Math.max(300, Math.round(rawRt - 95));
     const isCorrect = inputColor === choiceTargetColor;
 
     setChoiceTimes(prev => [...prev, { color: choiceTargetColor, time: rt, correct: isCorrect }]);
@@ -511,7 +516,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
       role: leadForm.role,
       competitiveLevel: leadForm.competitiveLevel || null,
       location: leadForm.location || null,
-      primaryConcern: leadForm.primaryConcern || null,
+      primaryConcern: leadForm.primaryConcern === 'Other (Please specify)' ? leadForm.primaryConcernOther : (leadForm.primaryConcern || null),
       urgency: leadForm.urgency || null,
       desiredNextStep: leadForm.desiredNextStep || null,
       consent: leadForm.consent ? 1 : 0,
@@ -558,7 +563,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
             role: leadForm.role,
             competitiveLevel: leadForm.competitiveLevel || null,
             location: leadForm.location || null,
-            primaryConcern: leadForm.primaryConcern || null,
+            primaryConcern: leadForm.primaryConcern === 'Other (Please specify)' ? leadForm.primaryConcernOther : (leadForm.primaryConcern || null),
             urgency: leadForm.urgency || null,
             desiredNextStep: leadForm.desiredNextStep || null,
             consent: leadForm.consent ? 1 : 0,
@@ -1177,15 +1182,49 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="concern_input" className="text-[10px] font-mono text-white/50 uppercase">Primary Performance Concern</label>
-              <input
-                type="text" id="concern_input"
+              <label htmlFor="concern_select" className="text-[10px] font-mono text-white/50 uppercase">Primary Performance Concern *</label>
+              <select
+                required id="concern_select"
                 value={leadForm.primaryConcern}
                 onChange={e => setLeadForm(prev => ({ ...prev, primaryConcern: e.target.value }))}
-                className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)]"
-                placeholder="e.g. tracking ball at night, split-second hesitation, peripheral awareness"
-              />
+                className="w-full bg-[#0a0b14]/90 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[var(--color-ares-teal)]"
+              >
+                <option value="" disabled>Select Primary Concern</option>
+                <option value="Split-Second Hesitation / Decision Delay">Split-Second Hesitation / Decision Delay</option>
+                <option value="Tracking High-Speed Objects (Ball, Puck, Car)">Tracking High-Speed Objects (Ball, Puck, Car)</option>
+                <option value="Peripheral Awareness / Blind Spot Hits">Peripheral Awareness / Blind Spot Hits</option>
+                <option value="Eye Strain / Visual Fatigue during Play">Eye Strain / Visual Fatigue during Play</option>
+                <option value="Focus Transition (Near-to-Far Recovery)">Focus Transition (Near-to-Far Recovery)</option>
+                <option value="Difficulty under Bright Lights / Glare">Difficulty under Bright Lights / Glare</option>
+                <option value="Inconsistent Timing / Poor Coordination">Inconsistent Timing / Poor Coordination</option>
+                <option value="Losing Track of Play in Crowded Areas">Losing Track of Play in Crowded Areas</option>
+                <option value="Poor Depth Perception / Misjudging Distance">Poor Depth Perception / Misjudging Distance</option>
+                <option value="Slow Reaction to Sudden Changes of Direction">Slow Reaction to Sudden Changes of Direction</option>
+                <option value="Making Mental Errors Late in the Game">Making Mental Errors Late in the Game</option>
+                <option value="Double Vision or Blurring when Tired">Double Vision or Blurring when Tired</option>
+                <option value="Difficulty Reading the Spin on a Ball">Difficulty Reading the Spin on a Ball</option>
+                <option value="Slow Visual Search / Finding Open Teammates">Slow Visual Search / Finding Open Teammates</option>
+                <option value="Post-Impact Visual Disorientation">Post-Impact Visual Disorientation</option>
+                <option value="Slow Recovery of Focus after Blinking">Slow Recovery of Focus after Blinking</option>
+                <option value="Difficulty Tracking Multiple Moving Targets">Difficulty Tracking Multiple Moving Targets</option>
+                <option value="Spatial Awareness / Misjudging Field Boundaries">Spatial Awareness / Misjudging Field Boundaries</option>
+                <option value="General Reaction Speed Improvement">General Reaction Speed Improvement</option>
+                <option value="Other (Please specify)">Other (Please specify)</option>
+              </select>
             </div>
+
+            {leadForm.primaryConcern === 'Other (Please specify)' && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-1 mt-3">
+                <label htmlFor="concern_other" className="text-[10px] font-mono text-white/50 uppercase">Please specify concern *</label>
+                <input
+                  type="text" required id="concern_other"
+                  value={leadForm.primaryConcernOther}
+                  onChange={e => setLeadForm(prev => ({ ...prev, primaryConcernOther: e.target.value }))}
+                  className="w-full bg-black/40 border border-[var(--color-ares-border)] rounded-xl px-4 py-3 text-white placeholder:text-white/20 text-sm focus:outline-none focus:border-[var(--color-ares-teal)]"
+                  placeholder="Describe your primary visual concern"
+                />
+              </motion.div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">

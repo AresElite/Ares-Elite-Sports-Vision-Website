@@ -296,7 +296,7 @@ try {
 } catch (e) {
   console.warn("Failed to initialize Resend:", e);
 }
-const SENDER_EMAIL = "Dr. Joe LaPlaca <laplacajn@gmail.com>"; // In a real app, this needs to be a verified domain in Resend
+const SENDER_EMAIL = "Dr. Joe LaPlaca <onboarding@areselitesportsvision.com>"; // In a real app, this needs to be a verified domain in Resend
 
 const APP_URL = process.env.APP_URL || 'https://aresvision.com';
 
@@ -1644,7 +1644,7 @@ app.post("/api/resource-download", async (req, res) => {
       try {
         const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
         await resend.emails.send({
-          from: 'A.R.E.S. Website <onboarding@resend.dev>',
+          from: 'A.R.E.S. Website <onboarding@areselitesportsvision.com>',
           to: emailTo,
           subject: `New Resource Download: ${firstName} ${lastName || ''}`,
           html: `
@@ -1793,7 +1793,7 @@ app.post("/api/contact", async (req, res) => {
       try {
         const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
         await resend.emails.send({
-          from: 'A.R.E.S. Website <onboarding@resend.dev>',
+          from: 'A.R.E.S. Website <onboarding@areselitesportsvision.com>',
           to: emailTo,
           subject: `New Contact Request: ${firstName} ${lastName || ''}`,
           html: `
@@ -2228,7 +2228,7 @@ app.post("/api/submit-assessment", async (req, res) => {
           : `[Lead Alert] Assessment Completed: ${firstName} ${lastName || ''} (Score: ${leadScore})`;
 
         await resend.emails.send({
-          from: 'A.R.E.S. Onboarding <onboarding@resend.dev>',
+          from: 'A.R.E.S. Onboarding <onboarding@areselitesportsvision.com>',
           to: emailTo,
           subject: subjectLine,
           html: `
