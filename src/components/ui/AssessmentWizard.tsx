@@ -247,7 +247,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   };
 
   const advanceRawTrial = () => {
-    if (rawTrial < 14) {
+    if (rawTrial < 7) {
       setRawTrial(prev => prev + 1);
       triggerRawNextTrial();
     } else {
@@ -296,7 +296,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     setChoiceState('feedback');
 
     setTimeout(() => {
-      if (choiceTrial < 14) {
+      if (choiceTrial < 7) {
         setChoiceTrial(prev => prev + 1);
         triggerChoiceNextTrial();
       } else {
@@ -332,9 +332,9 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     recHasClickedRef.current = false;
     
     let length = 3;
-    if (trialIndex >= 5 && trialIndex < 10) {
+    if (trialIndex >= 3 && trialIndex < 6) {
       length = 4;
-    } else if (trialIndex >= 10) {
+    } else if (trialIndex >= 6) {
       length = 5;
     }
 
@@ -380,7 +380,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     setRecState('feedback');
 
     setTimeout(() => {
-      if (recTrial < 14) {
+      if (recTrial < 7) {
         const nextTrial = recTrial + 1;
         setRecTrial(nextTrial);
         runRecCountdown(nextTrial);
@@ -667,6 +667,50 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   return (
     <div className={`relative w-full ${isEmbedded ? 'max-w-4xl p-6 md:p-10 bg-[#0e111a]/85 border border-[var(--color-ares-border)] rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.5)]' : 'h-full flex flex-col justify-center'}`}>
       
+      {/* Visual progress bar for drills */}
+      {(step === 'drill_raw' || step === 'drill_choice' || step === 'drill_recognition') && (
+        <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-white/5">
+          <div className="flex-1 flex items-center gap-2">
+            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+              step === 'drill_raw' 
+                ? 'bg-[var(--color-ares-teal)] shadow-[0_0_10px_rgba(41,182,246,0.3)]' 
+                : 'bg-emerald-500'
+            }`} />
+            <span className={`text-[10px] font-mono tracking-wider uppercase hidden sm:inline ${
+              step === 'drill_raw' ? 'text-[var(--color-ares-teal)] font-bold' : 'text-emerald-500'
+            }`}>
+              1. Reaction Speed
+            </span>
+          </div>
+          <div className="flex-1 flex items-center gap-2">
+            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+              step === 'drill_raw' 
+                ? 'bg-white/10' 
+                : step === 'drill_choice' 
+                  ? 'bg-[var(--color-ares-purple)] shadow-[0_0_10px_rgba(139,92,246,0.3)]' 
+                  : 'bg-emerald-500'
+            }`} />
+            <span className={`text-[10px] font-mono tracking-wider uppercase hidden sm:inline ${
+              step === 'drill_choice' ? 'text-[var(--color-ares-purple)] font-bold' : step === 'drill_recognition' ? 'text-emerald-500' : 'text-white/30'
+            }`}>
+              2. Choice Speed
+            </span>
+          </div>
+          <div className="flex-1 flex items-center gap-2">
+            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+              step === 'drill_recognition' 
+                ? 'bg-[var(--color-ares-teal)] shadow-[0_0_10px_rgba(41,182,246,0.3)]' 
+                : 'bg-white/10'
+            }`} />
+            <span className={`text-[10px] font-mono tracking-wider uppercase hidden sm:inline ${
+              step === 'drill_recognition' ? 'text-[var(--color-ares-teal)] font-bold' : 'text-white/30'
+            }`}>
+              3. Recognition
+            </span>
+          </div>
+        </div>
+      )}
+      
       {/* Welcome Screen */}
       {step === 'welcome' && (
         <div className="text-center max-w-2xl mx-auto py-8">
@@ -791,7 +835,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               DRILL 1: RAW REACTION SPEED
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {rawTrial + 1} / 15
+              Trial {rawTrial + 1} / 8
             </span>
           </div>
 
@@ -842,7 +886,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               DRILL 2: CHOICE REACTION (TEAL VS PURPLE)
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {choiceTrial + 1} / 15
+              Trial {choiceTrial + 1} / 8
             </span>
           </div>
 
@@ -907,7 +951,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               DRILL 3: RECOGNITION SPEED (VISUAL PATTERNS)
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {recTrial + 1} / 15
+              Trial {recTrial + 1} / 8
             </span>
           </div>
 
@@ -975,6 +1019,52 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
             <p className="text-white/60 text-sm">
               Enter details below to calculate your lead score, identify visual bottlenecks, and unlock baseline recommendations.
             </p>
+          </div>
+
+          {/* Blurred Scorecard Preview */}
+          <div className="relative mb-8 rounded-2xl border border-white/5 bg-white/5 p-5 overflow-hidden select-none">
+            {/* The actual content that is blurred */}
+            <div className="filter blur-[5px] opacity-35 space-y-4 pointer-events-none">
+              <div className="flex justify-between items-center text-xs font-mono text-white">
+                <span>REACTION TIME: 242ms</span>
+                <span>PERCENTILE: 84th</span>
+              </div>
+              <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                <div className="h-full w-[84%] bg-[var(--color-ares-teal)]" />
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2 pt-2">
+                <div className="bg-white/5 p-2 rounded-lg text-center">
+                  <div className="text-[9px] text-white/40 font-mono">ACQUISITION</div>
+                  <div className="text-xs font-bold text-white uppercase">Fast (230ms)</div>
+                </div>
+                <div className="bg-white/5 p-2 rounded-lg text-center">
+                  <div className="text-[9px] text-white/40 font-mono">ROUTING</div>
+                  <div className="text-xs font-bold text-white uppercase">Latent (350ms)</div>
+                </div>
+                <div className="bg-white/5 p-2 rounded-lg text-center">
+                  <div className="text-[9px] text-white/40 font-mono">EXECUTION</div>
+                  <div className="text-xs font-bold text-white uppercase">Optimal</div>
+                </div>
+              </div>
+
+              {/* A mock svg path representing a bell curve */}
+              <div className="h-16 w-full flex items-end">
+                <svg className="w-full h-12 stroke-white/20 fill-white/5" viewBox="0 0 100 50">
+                  <path d="M 0 45 Q 25 45 50 10 T 75 45 Q 100 45 100 45" strokeWidth="2" fill="none" />
+                  <circle cx="65" cy="22" r="3" className="fill-[var(--color-ares-teal)]" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Glowing lock overlay */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/45 backdrop-blur-[2px] p-4 text-center">
+              <div className="w-10 h-10 rounded-full bg-[var(--color-ares-teal)]/20 border border-[var(--color-ares-teal)]/40 flex items-center justify-center mb-2 shadow-[0_0_15px_rgba(41,182,246,0.3)]">
+                <Eye className="w-5 h-5 text-[var(--color-ares-teal)]" />
+              </div>
+              <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">Sensory Profile Generated</span>
+              <span className="text-[10px] text-white/50 mt-1 uppercase tracking-wider font-mono">Submit email below to unlock your custom breakdown</span>
+            </div>
           </div>
 
           <form onSubmit={handleSubmitLead} className="space-y-4">
