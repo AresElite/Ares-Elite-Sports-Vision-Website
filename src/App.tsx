@@ -8,6 +8,13 @@ import { SocialShare } from './components/ui/SocialShare';
 import { NewsletterOverlay } from './components/ui/NewsletterOverlay';
 import { MobileStickyCTA } from './components/ui/MobileStickyCTA';
 
+// Initialize theme from localStorage immediately to prevent layout flashes
+if (localStorage.getItem('theme') === 'light') {
+  document.documentElement.classList.add('light');
+} else {
+  document.documentElement.classList.remove('light');
+}
+
 const HomePage = lazy(() => import('./pages/HomePage').then(m => ({ default: m.HomePage })));
 const DetailPage = lazy(() => import('./pages/DetailPage').then(m => ({ default: m.DetailPage })));
 const CertificationPage = lazy(() => import('./pages/CertificationPage').then(m => ({ default: m.CertificationPage })));
@@ -101,8 +108,8 @@ export default function App() {
     <HelmetProvider>
       <Router>
         <ScrollToHash />
-        <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white selection:bg-[var(--color-ares-teal)] selection:text-white overflow-x-hidden relative">
-          <div className="fixed inset-0 bg-[url('/logo.png')] bg-no-repeat bg-center bg-[length:35%_auto] opacity-[0.08] pointer-events-none z-0"></div>
+        <div className="min-h-dvh bg-[var(--color-ares-bg)] text-[var(--color-ares-white)] selection:bg-[var(--color-ares-teal)] selection:text-white overflow-x-hidden relative">
+          <div className="fixed inset-0 bg-logo-ambient bg-[url('/logo.png')] bg-no-repeat bg-center bg-[length:35%_auto] pointer-events-none z-0"></div>
           <div className="relative z-10">
             <SystemOverlay />
             <SocialShare />

@@ -78,7 +78,7 @@ export function SportsVisionTrainingPage() {
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-                <div className="bg-[#0B0F2A] border border-[var(--color-ares-border)] rounded-xl p-6 md:p-8 hover:border-[var(--color-ares-teal)]/50 transition-colors">
+                <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-xl p-6 md:p-8 hover:border-[var(--color-ares-teal)]/50 transition-colors">
                   <div className="text-[var(--color-ares-teal)] font-mono text-xl font-bold mb-4">WEEKS 1-2</div>
                   <h3 className="text-white font-bold text-lg leading-tight mb-3">System De-Synchronization</h3>
                   <p className="text-white/60 text-sm leading-relaxed">
@@ -86,7 +86,7 @@ export function SportsVisionTrainingPage() {
                   </p>
                 </div>
                 
-                <div className="bg-[#0B0F2A] border border-[var(--color-ares-border)] rounded-xl p-6 md:p-8 hover:border-[var(--color-ares-purple)]/50 transition-colors">
+                <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-xl p-6 md:p-8 hover:border-[var(--color-ares-purple)]/50 transition-colors">
                   <div className="text-[var(--color-ares-purple)] font-mono text-xl font-bold mb-4">WEEKS 3-4</div>
                   <h3 className="text-white font-bold text-lg leading-tight mb-3">Neuromuscular Integration</h3>
                   <p className="text-white/60 text-sm leading-relaxed">
@@ -94,7 +94,7 @@ export function SportsVisionTrainingPage() {
                   </p>
                 </div>
 
-                <div className="bg-[#0B0F2A] border border-[var(--color-ares-border)] rounded-xl p-6 md:p-8 hover:border-white/50 transition-colors">
+                <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-xl p-6 md:p-8 hover:border-white/50 transition-colors">
                   <div className="text-white font-mono text-xl font-bold mb-4">WEEKS 5-6</div>
                   <h3 className="text-white font-bold text-lg leading-tight mb-3">Pressure Consolidation</h3>
                   <p className="text-white/60 text-sm leading-relaxed">

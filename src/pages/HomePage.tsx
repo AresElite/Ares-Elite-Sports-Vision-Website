@@ -7,7 +7,6 @@ import { ICPSection } from '../components/sections/ICP';
 import { PerformanceResults } from '../components/sections/PerformanceResults';
 import { TrainingShowcase } from '../components/sections/TrainingShowcase';
 import { TestimonialsSection } from '../components/sections/Testimonials';
-import { FAQSection } from '../components/sections/FAQSection';
 import { CTASection } from '../components/sections/CTA';
 import { SEO } from '../components/SEO';
 import { AssessmentModal } from '../components/ui/AssessmentModal';
@@ -104,7 +103,6 @@ export function HomePage() {
         <TrainingShowcase />
         {/* Trust */}
         <TestimonialsSection />
-        <FAQSection />
         <CTASection />
       </main>
       <AssessmentModal />

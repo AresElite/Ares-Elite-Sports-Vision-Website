@@ -75,7 +75,7 @@ export function MeasurementSection() {
                 {/* Inner Screen */}
                 <div className="w-full bg-[var(--color-ares-charcoal)] rounded-[1.2rem] border border-black/50 overflow-hidden relative flex flex-col">
                   {/* Fake App Header */}
-                  <div className="bg-[#0B0F2A] px-6 py-4 flex justify-between items-center border-b border-[var(--color-ares-border)]">
+                  <div className="bg-[var(--color-ares-bg)] px-6 py-4 flex justify-between items-center border-b border-[var(--color-ares-border)]">
                     <div className="flex items-center gap-2">
                        <div className="w-2 h-2 rounded-full bg-red-500"></div>
                        <div className="w-2 h-2 rounded-full bg-yellow-500"></div>

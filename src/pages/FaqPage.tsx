@@ -5,81 +5,108 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FAQ {
-  category: 'frameworks' | 'reaction' | 'cognitive' | 'sports' | 'location';
+  category: 'athletes' | 'parents' | 'coaches' | 'teams' | 'optometrists' | 'location';
   q: string;
   a: string;
 }
 
 const faqs: FAQ[] = [
+  // Athletes Category
   {
-    category: 'frameworks',
-    q: "What is sports vision training and how does it differ from a regular eye exam?",
-    a: "A regular eye exam is passive and measures static visual acuity (how clearly you see stationary letters from 20 feet away on a wall chart). Sports vision training evaluates and trains the dynamic visual-cognitive loop—how fast your eyes capture moving targets (Acquire), how quickly your brain filters noise and prioritizes options (Route), how rapidly your body responds (Execute), and how precisely your timing aligns with game-speed reality (Synchronize). We do not train your eyes to see letters; we train your brain to route visual data faster under athletic load."
+    category: 'athletes',
+    q: "How does sports vision training transfer to actual game-day performance?",
+    a: "Sports vision training bridges the gap between raw physical capability and execution. While strength and speed allow you to move faster, vision training allows you to react faster. By reducing Choice Reaction Time (CRT), expanding your peripheral awareness, and training your gaze control, you read plays earlier, track high-speed objects (like a baseball, puck, or opponent) accurately, and make precise decisions under physical fatigue. In elite sports, visual routing delays are often what makes an athlete feel 'half a step slow.'"
   },
   {
-    category: 'frameworks',
-    q: "Why is 20/20 vision not enough for elite athletic performance?",
-    a: "20/20 vision only tells you that your optical hardware is clear. In sport, clear eyesight is useless if the routing to the brain is congested. Elite performance requires dynamic visual processing: peripheral object tracking, high-speed depth perception, and focus preservation under fatigue. Having 20/20 static vision does not guarantee you can process a 95 mph fastball or read a split-second gap in traffic at 200 mph."
+    category: 'athletes',
+    q: "What is a typical training session like, and what is the weekly time commitment?",
+    a: "A typical in-office training session lasts 45 minutes and is highly focused. You will run through dynamic drills that couple visual tracking with physical motor responses—such as tracking multiple moving targets on a screen while balancing, reacting to peripheral cues on tactile boards (Senaptec/SVT), or executing sport-specific movements while wearing strobe-occlusion eyewear. To see optimal gains, we recommend 1 to 2 sessions per week for a 12-week cycle, combined with 10 minutes of daily home neuro-visual work."
   },
   {
-    category: 'frameworks',
-    q: "What is a visual bottleneck in sports performance?",
-    a: "A visual bottleneck is a processing delay at any point in the visual-cognitive-motor loop. It occurs when an athlete's eyes capture information slowly (Acquire bottleneck), when the brain delays processing the choice (Route bottleneck), or when the motor response is laggy (Execute bottleneck). Even if an athlete is physically fast, a visual bottleneck will cause them to react late, make poor decisions under pressure, or struggle with spatial tracking."
+    category: 'athletes',
+    q: "I already have 20/20 vision. Why do I need sports vision training?",
+    a: "Having 20/20 vision only checks your static visual acuity—how clearly you can read stationary letters on a wall chart in a dark room. It tells us nothing about how well your visual system operates in motion. Elite sports require dynamic visual processing: tracking moving targets, estimating depth and speed, maintaining peripheral awareness, and routing visual coordinate data to your muscles under extreme fatigue. Standard eye exams ignore over 80% of the visual skills required for athletic dominance."
+  },
+  
+  // Parents Category
+  {
+    category: 'parents',
+    q: "Is sports vision training safe for youth athletes, and at what age should they start?",
+    a: "Yes, sports vision training is entirely safe, non-invasive, and drug-free. It uses physical exercises, eye-tracking systems, and specialized lighting equipment to train neurological pathways. We recommend starting around age 9 or 10. At this developmental stage, the visual-cognitive system is highly adaptable, allowing young athletes to build superior visual tracking habits, hand-eye coordination, and spatial awareness that serve as a strong foundation for their athletic career."
   },
   {
-    category: 'frameworks',
-    q: "What does A.R.E.S. stand for?",
-    a: "A.R.E.S. stands for Acquire, Route, Execute, and Synchronize. It is the proprietary framework Ares Elite Sports Vision uses to evaluate and train how athletes collect visual information, process it through the brain, respond through the body, and coordinate the full system under athletic load."
+    category: 'parents',
+    q: "How does vision training help prevent injuries and concussions on the field?",
+    a: "Safety is one of the most significant benefits of vision training. A major cause of concussions and impact injuries is the 'blind-spot hit'—an opponent or object the athlete never saw coming. By training and expanding an athlete's peripheral field of view, they can detect peripheral threats and react to avoid or brace for impacts. Faster visual capture means extra milliseconds to get out of the way or prepare, significantly reducing injury risks."
   },
   {
-    category: 'reaction',
-    q: "How does reaction time affect athletic performance, and can it be trained?",
-    a: "Reaction time directly determines an athlete's spacing, timing, and execution. Raw reflex is genetic, but sport-specific reaction time—Choice Reaction Time (CRT)—is highly trainable. Ares decomposes reaction speed into sensory latency, routing latency, and motor latency. By isolating the bottleneck in this chain, athletes learn to filter distractions, anticipate plays, and respond faster, achieving a 20% to 30% reduction in response lag."
+    category: 'parents',
+    q: "Will sports vision training benefit my child's academic performance or reading?",
+    a: "Yes. Many of the visual skills trained at Ares—such as saccades (rapid eye movements from one point to another), eye teaming (how well the eyes work together), and sustained visual focus—are directly tied to reading, classroom focus, and cognitive endurance. Parents frequently report that their children experience less eye strain, improved reading speed, and better concentration in school after training."
+  },
+
+  // Coaches Category
+  {
+    category: 'coaches',
+    q: "How do coaches integrate Ares visual metrics and data into team training?",
+    a: "We provide coaches with objective visual-cognitive profiles for their roster. By identifying each player's primary bottleneck (visual capture delay, cognitive routing lag, or motor execution delay), coaches can tailor skill training and position assignments. For example, a quarterback with a routing bottleneck may benefit from simplified visual reads, while a receiver with an acquisition bottleneck requires tracking drills."
   },
   {
-    category: 'reaction',
-    q: "What reaction speed drills do NFL players and football athletes use?",
-    a: "NFL and football athletes use neurocognitive drills that couple visual tracking with physical motor responses. Instead of reacting to simple lights, they practice Choice Reaction drills (reacting to visual patterns, changing target colors, or visual cues), spatial recall, and peripheral awareness drills while executing dropbacks, cuts, or catches. This trains the brain to maintain executive control and make split-second decisions in high-stimulus environments."
+    category: 'coaches',
+    q: "Can visual baseline data predict how an athlete will perform under pressure or fatigue?",
+    a: "Yes. We test reaction time and decision accuracy both at rest and under athletic load (elevated heart rate and physical fatigue). Athletes with high static processing speed but poor visual stamina will show a major drop-off in decision speed and a spike in error rates late in the game. Knowing this baseline telemetry allows coaches to make informed choices about rotations and identify which players can maintain execution in the final minutes."
+  },
+
+  // Teams & Organizations Category
+  {
+    category: 'teams',
+    q: "How does Ares run visual screenings for entire teams or organizations?",
+    a: "Ares offers mobile on-site visual screening services for clubs, high schools, universities, and professional teams. We bring portable eye-tracking systems and tactile response arrays to your facility to benchmark your entire roster in a single day. Each player receives a millisecond-accurate visual scorecard, and the coaching staff receives a group dashboard summarizing roster-wide strengths and bottlenecks."
   },
   {
-    category: 'cognitive',
-    q: "What is sports cognitive training and how does it improve decision-making?",
-    a: "Sports cognitive training is the optimization of the brain’s executive functions, including spatial awareness, peripheral attention, pattern recognition, and go/no-go inhibitory control. Ares couples cognitive load (such as target tracking and distraction filtering) with sport-relevant motor outputs (footwork, hand-eye coordination, balance) to ensure that the cognitive gains transfer directly to the field or court."
+    category: 'teams',
+    q: "What space and logistics are required for an on-site team baseline evaluation?",
+    a: "We require a standard indoor room (such as a classroom, conference room, or section of a gym) with access to power outlets and stable Wi-Fi. Our team handles the entire setup, and we coordinate with your coaching staff to rotate players through the 15-minute screening stations in small groups, ensuring minimal disruption to your practice or meeting schedules."
+  },
+
+  // Optometrists Category
+  {
+    category: 'optometrists',
+    q: "What is the clinical and neuroscientific foundation of the A.R.E.S. protocols?",
+    a: "Our training is grounded in the principles of neuroplasticity and visual-motor integration. We target visual processing at the cortical level—focusing on saccadic accuracy, smooth pursuits, stereopsis under load, contrast sensitivity, and multiple object tracking. We utilize peer-reviewed visual-cognitive training methods that strengthen synaptic pathways between the visual cortex, frontoparietal attention networks, and the motor cortex. We address temporal processing delays, helping athletes capture and route spatial coordinate data more efficiently."
   },
   {
-    category: 'cognitive',
-    q: "Can sports vision training and objective baseline testing aid in concussion recovery?",
-    a: "Yes. Since the visual system utilizes over 50% of the brain's pathways, post-concussion deficits show up immediately as tracking errors, routing delays, or reaction lag. Ares provides objective, millisecond-accurate visual-cognitive baselines. Comparing pre-injury baselines to post-injury metrics removes subjective guesswork, allowing coaches and medical professionals to make safe, data-driven return-to-play decisions and guide targeted concussion vision therapy."
+    category: 'optometrists',
+    q: "How does sports vision performance training differ from traditional vision therapy?",
+    a: "Traditional clinical vision therapy focuses on rehabilitating visual deficits and pathologies (such as amblyopia, strabismus, convergence insufficiency, or brain injury rehabilitation) to return a patient to normal baseline function. Sports vision training takes healthy, 20/20 visual systems and optimizes them for superior, hyper-efficient performance. It is performance-tuning for the visual engine, pushing visual-motor integration beyond normal parameters."
   },
   {
-    category: 'sports',
-    q: "Is sports vision and neurocognitive training effective for youth/young athletes?",
-    a: "Absolutely. The visual-cognitive system undergoes rapid development during adolescence. Early training helps young athletes establish superior tracking mechanics, depth perception, spatial awareness, and cognitive control. This not only accelerates athletic development and hand-eye coordination but also improves safety by expanding their peripheral field of view, helping them see and avoid unexpected impacts."
+    category: 'optometrists',
+    q: "What specialized equipment is utilized during the evaluation and training phases?",
+    a: "We use a curated suite of elite sensory technologies, including eye-tracking systems, strobe-occlusion eyewear (to force reliance on predictive spatial awareness), tactile coordinate reaction boards (Senaptec / SVT) for Choice Reaction Time and peripheral response, and 3D multiple object tracking (MOT) systems to train spatial attention mapping under high cognitive load."
   },
+
+  // Location & Pricing Category
   {
-    category: 'sports',
-    q: "How does sports vision training benefit motorsport and racing athletes?",
-    a: "Motorsport athletes operate in high-speed, G-force environments where visual latency is critical. Ares trains racing drivers in high-speed visual acquisition, dynamic depth perception, and peripheral tracking. Drills simulate rapid visual shifts, helping drivers track visual gaps, anticipate braking points, and maintain split-second reaction times even under extreme physical fatigue and high heart rates."
+    category: 'location',
+    q: "How much does the Sports Vision Performance Evaluation cost and how do I book?",
+    a: "The comprehensive 75-minute Sports Vision Performance Evaluation costs $449. This diagnostic session includes static/dynamic vision audits, eye-tracking calibration, Choice Reaction Time (CRT) mapping, post-error slowing telemetry, and a complete, printed/dispatched Millisecond Scorecard. You can review availability and reserve a slot directly at areselitesports.vision/book/evaluation."
   },
   {
     category: 'location',
-    q: "Where can I get a professional sports vision evaluation in Carmel or Indianapolis, Indiana?",
-    a: "Ares Elite Sports Vision is located at 510 W. Carmel Dr. Carmel, IN 46032, serving Carmel, Indianapolis, and the surrounding regional area. Our facility is equipped with state-of-the-art neurocognitive and sports vision technology. You can book a comprehensive 75-minute in-office evaluation directly through our website to audit your dynamic visual system."
-  },
-  {
-    category: 'location',
-    q: "What is included in the Ares Sports Vision Performance Evaluation?",
-    a: "The evaluation is a comprehensive 75-minute assessment that measures: static and dynamic visual acuity, contrast sensitivity, depth perception, binocular coordination, peripheral tracking, choice reaction time, post-error slowing, and spatial recall. You receive a complete sensory telemetry report detailing your visual strengths, weaknesses, and a customized performance training recommendation."
+    q: "Where is Ares Elite Sports Vision located, and are there remote training options?",
+    a: "Our facility is located on the second floor of Elemental Fitness at 510 W. Carmel Dr., Carmel, IN 46032. For athletes outside Central Indiana, we offer virtual Tele-Training packages. After completing an online or in-office baseline, we ship customized training gear (including strobe-occlusion eyewear) and host live, one-on-one virtual training sessions with our performance staff."
   }
 ];
 
 const categories = [
   { id: 'all', label: 'All Questions', icon: <HelpCircle className="w-4 h-4" /> },
-  { id: 'frameworks', label: 'General & Frameworks', icon: <Award className="w-4 h-4" /> },
-  { id: 'reaction', label: 'Reaction Speed', icon: <Activity className="w-4 h-4" /> },
-  { id: 'cognitive', label: 'Cognitive & Concussions', icon: <Brain className="w-4 h-4" /> },
-  { id: 'sports', label: 'Youth & Motorsports', icon: <ShieldAlert className="w-4 h-4" /> },
-  { id: 'location', label: 'Local Evaluations', icon: <MapPin className="w-4 h-4" /> }
+  { id: 'athletes', label: 'For Athletes', icon: <Activity className="w-4 h-4" /> },
+  { id: 'parents', label: 'For Parents', icon: <ShieldAlert className="w-4 h-4" /> },
+  { id: 'coaches', label: 'For Coaches', icon: <Award className="w-4 h-4" /> },
+  { id: 'teams', label: 'For Teams', icon: <Brain className="w-4 h-4" /> },
+  { id: 'optometrists', label: 'For Optometrists', icon: <HelpCircle className="w-4 h-4" /> },
+  { id: 'location', label: 'Pricing & Location', icon: <MapPin className="w-4 h-4" /> }
 ];
 
 export function FaqPage() {
@@ -124,7 +151,7 @@ export function FaqPage() {
         {/* Background gradient flares */}
         <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-gradient-to-br from-[var(--color-ares-teal)]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-1/4 right-1/10 w-96 h-96 bg-gradient-to-br from-[var(--color-ares-purple)]/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-
+ 
         <div className="max-w-4xl mx-auto relative z-10">
           <Link to="/" className="inline-flex items-center text-white/60 hover:text-white transition-colors mb-12 group">
              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
@@ -145,7 +172,7 @@ export function FaqPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
             <input 
               type="text"
-              placeholder="Search questions or keywords (e.g. 'Carmel', 'NFL', 'Motorsports')..."
+              placeholder="Search questions or keywords (e.g. 'parents', 'coaches', 'clinical', 'evaluation')..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -166,7 +193,7 @@ export function FaqPage() {
                 }}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                   activeCategory === cat.id
-                    ? 'bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] shadow-lg shadow-[var(--color-ares-teal)]/15 scale-[1.02]'
+                    ? 'bg-[var(--color-ares-teal)] text-white shadow-lg shadow-[var(--color-ares-teal)]/15 scale-[1.02]'
                     : 'bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] text-white/70 hover:text-white hover:border-white/20'
                 }`}
               >
@@ -226,7 +253,7 @@ export function FaqPage() {
                   animate={{ opacity: 1 }}
                   className="text-center py-12 text-white/50"
                 >
-                  No matching questions found. Try search terms like 'visual', 'reaction', or 'evaluation'.
+                  No matching questions found. Try search terms like 'visual', 'reaction', or 'optometrist'.
                 </motion.div>
               )}
             </AnimatePresence>

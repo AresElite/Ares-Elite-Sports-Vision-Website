@@ -252,6 +252,7 @@ function runMigrations() {
     { table: "leads", column: "competitive_level", type: "TEXT" },
     { table: "leads", column: "location", type: "TEXT" },
     { table: "leads", column: "bottleneck_profile", type: "TEXT" },
+    { table: "leads", column: "primary_concern", type: "TEXT" },
     { table: "leads", column: "lead_score", type: "INTEGER DEFAULT 0" },
     { table: "leads", column: "lead_category", type: "TEXT DEFAULT 'Cold'" },
     { table: "leads", column: "urgency", type: "TEXT" },
@@ -316,14 +317,28 @@ function getStripe(): Stripe {
 const athleteParentSequence = [
   {
     day: 0,
-    subject: (firstName: string, sport: string) => `Next steps for your sensory performance, ${firstName}`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
+    subject: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => 
+      bottleneck 
+        ? `Next steps for your ${bottleneck.toLowerCase()}, ${firstName}`
+        : `Next steps for your sensory performance, ${firstName}`,
+    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+      const bottleneckIntro = bottleneck 
+        ? `Based on your assessment, your eyes show signs of a ${bottleneck}. This means your visual system is lagging when trying to process dynamic play.` 
+        : `While your initial metrics give us a snapshot, the next step is mapping your complete visual engine.`;
+      
+      const concernDetail = concern 
+        ? `Specifically, your concern with "${concern.toLowerCase()}" is a classic indicator of visual-cognitive latency.`
+        : `High-speed coordination, peripheral accuracy, and focus under physical fatigue cannot be fully diagnosed online.`;
+
+      return `Hi ${firstName},
 
 Great job completing the A.R.E.S. sensory assessment.
 
-While your initial metrics give us a snapshot, the next step is mapping your complete visual engine. High-speed coordination, peripheral accuracy, and focus under physical fatigue cannot be fully diagnosed online.
+${bottleneckIntro}
 
-That is why we begin with the Sports Vision Performance Evaluation. This is a 75-minute, in-depth diagnostic session at our facility in Carmel where we run you through our specialized tactile boards, eye-tracking systems, and strobe-occlusion diagnostics.
+${concernDetail}
+
+That is why we begin with the Sports Vision Performance Evaluation. This is a 75-minute, in-depth diagnostic session at our Carmel HQ where we run you through our specialized tactile boards, eye-tracking systems, and strobe-occlusion diagnostics.
 
 Delaying this evaluation means training with blind spots. Let's lock in your baseline.
 
@@ -333,20 +348,41 @@ Best regards,
 
 Dr. Joe LaPlaca
 Ares Elite Sports Vision
-Milliseconds Matter™`
+Milliseconds Matter™`;
+    }
   },
   {
     day: 2,
-    subject: (firstName: string, sport: string) => `The 200-millisecond bottleneck in ${sport || 'sports'}`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
+    subject: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => 
+      bottleneck 
+        ? `The 200ms ${bottleneck.toLowerCase()} in ${sport || 'sports'}`
+        : `The 200-millisecond bottleneck in ${sport || 'sports'}`,
+    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+      const bottleneckP = bottleneck === 'Acquire Bottleneck'
+        ? `Your assessment indicated an Acquire Bottleneck. This means your eyes are taking too long to capture and track high-speed movements, leaving you reacting late.`
+        : bottleneck === 'Route Bottleneck'
+        ? `Your assessment indicated a Route Bottleneck. Your eyes capture the play, but there is a delay in routing that coordinate data through the optic nerve to your brain.`
+        : bottleneck === 'Execute Bottleneck'
+        ? `Your assessment indicated an Execute Bottleneck. Your brain processes the play, but your motor cortex has a latency delay commanding your hands and feet to move.`
+        : bottleneck === 'Synchronize Bottleneck'
+        ? `Your assessment indicated a Synchronize Bottleneck. Under fatigue or pressure, your visual and physical motor systems fall out of sync, leading to late-game errors.`
+        : `In ${sport || 'elite sports'}, the physical game moves fast, but the cognitive game moves faster.`;
+
+      const concernP = concern 
+        ? `This explains why you've been noticing issues like: ${concern.toLowerCase()}. By training your visual pathways, we can shave off those latency delays.`
+        : `A 90mph fastball, an opponent's sudden change of direction, or a high-speed corner all require visual processing in under 200 milliseconds.`;
+
+      return `Hi ${firstName},
 
 In ${sport || 'elite sports'}, the physical game moves fast, but the cognitive game moves faster.
 
-A 90mph fastball, an opponent's sudden change of direction, or a high-speed corner on a racetrack all require visual acquisition in under 200 milliseconds. If your eyes take 250 milliseconds to process the target and route that info to your brain, you are late before your muscles even contract.
+${bottleneckP}
 
-Most athletes spend thousands of dollars on strength and skills coaching, yet ignore the very engine that controls those movements.
+${concernP}
 
-Our evaluation exposes the exact bottleneck where you are giving away precious milliseconds.
+Most athletes spend thousands of dollars on strength and skills coaching, yet ignore the neural visual engine that controls those physical movements.
+
+Our in-office evaluation exposes the exact bottleneck where you are giving away precious milliseconds.
 
 Review our schedule and book your diagnostic slot this week:
 Book Your Evaluation: ${APP_URL}/book/evaluation
@@ -354,17 +390,23 @@ Book Your Evaluation: ${APP_URL}/book/evaluation
 Best,
 
 Dr. Joe LaPlaca
-Ares Elite Sports Vision`
+Ares Elite Sports Vision`;
+    }
   },
   {
     day: 5,
-    subject: (firstName: string, sport: string) => `Why 20/20 vision isn't enough on game day`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
+    subject: (firstName: string, sport: string) => `Why 20/20 vision isn't enough in ${sport || 'sports'}`,
+    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+      const concernText = concern 
+        ? `Even if you have perfect eyesight, cognitive latency in areas like "${concern.toLowerCase()}" is completely separate from how clear your static vision is.`
+        : `Having 20/20 vision simply means you can read a stationary letter chart from 20 feet away.`;
+
+      return `Hi ${firstName},
 
 A common misconception we hear from ${sport || 'elite'} athletes: "I don't need sports vision training, I have 20/20 vision."
 
-Having 20/20 vision simply means you can read a stationary letter chart from 20 feet away. It tells us nothing about:
-- How fast your eyes track a spinning ball.
+${concernText} Static vision tells us nothing about:
+- How fast your eyes track a spinning ball or high-speed target.
 - Your depth perception under stadium glare.
 - Your peripheral awareness when moving at speed.
 
@@ -376,21 +418,43 @@ Reserve Evaluation Spot ($449): ${APP_URL}/book/evaluation
 Best,
 
 Dr. Joe LaPlaca
-Ares Elite Sports Vision`
+Ares Elite Sports Vision`;
+    }
   },
   {
     day: 9,
-    subject: (firstName: string, sport: string) => `How the A.R.E.S. framework builds elite athletes`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
+    subject: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => 
+      bottleneck 
+        ? `Eliminating your ${bottleneck.toLowerCase()} with A.R.E.S.`
+        : `How the A.R.E.S. framework builds elite athletes`,
+    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+      const intro = bottleneck 
+        ? `We have mapped your initial results to our A.R.E.S. framework and identified a primary target: your ${bottleneck.toLowerCase()}.`
+        : `We build elite vision using a proprietary cognitive training loop: A.R.E.S.`;
 
-We build elite vision using a proprietary cognitive training loop: A.R.E.S.
+      const targetFocus = bottleneck === 'Acquire Bottleneck'
+        ? `For your Acquire Bottleneck, we focus on training your saccades, smooth pursuit tracking, and visual search speed so you can lock onto targets faster.`
+        : bottleneck === 'Route Bottleneck'
+        ? `For your Route Bottleneck, we focus on optic nerve processing, visual memory recognition, and spatial processing so your brain receives coordinates instantly.`
+        : bottleneck === 'Execute Bottleneck'
+        ? `For your Execute Bottleneck, we focus on choice reaction speed, motor reaction triggers, and hand-eye coordination to decrease motor reaction lag.`
+        : bottleneck === 'Synchronize Bottleneck'
+        ? `For your Synchronize Bottleneck, we focus on dynamic visual fatigue endurance, peripheral decision accuracy, and play-calling under load.`
+        : `The A.R.E.S. framework breaks visual performance down into four pillars.`;
 
+      return `Hi ${firstName},
+
+${intro}
+
+The A.R.E.S. framework breaks visual performance down into four pillars:
 - Acquire: How fast and accurately do your eyes capture high-speed targets?
 - Route: How efficiently does your optic nerve send spatial coordinates to your brain?
 - Execute: How quickly does your motor cortex command physical muscle reactions?
 - Synchronize: How consistently do these systems align under fatigue and pressure?
 
-Standard eye exams only check static 20/20 vision. They miss 80% of dynamic sports vision. The A.R.E.S. Evaluation is the only way to measure all four pillars under athletic load.
+${targetFocus}
+
+Standard eye exams only check static 20/20 vision. The A.R.E.S. Evaluation is the only way to measure all four pillars under athletic load.
 
 Don't let visual latency limit your training gains.
 
@@ -399,19 +463,25 @@ Find Your Gaps: Schedule Evaluation: ${APP_URL}/book/evaluation
 Sincerely,
 
 Dr. Joe LaPlaca
-Ares Elite Sports Vision`
+Ares Elite Sports Vision`;
+    }
   },
   {
     day: 14,
-    subject: (firstName: string, sport: string) => `What coaches, parents, and scouts look for`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
+    subject: (firstName: string, sport: string) => `What coaches, parents, and scouts look for in ${sport || 'sports'}`,
+    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+      const concernDetail = concern 
+        ? `They look for players who don't suffer from things like: ${concern.toLowerCase()}.`
+        : `These aren't abstract traits — they are directly tied to your visual-cognitive stamina.`;
 
-When scouts and coaches evaluate an athlete, they look for "decision-making speed" and "high-pressure composure."
+      return `Hi ${firstName},
 
-These aren't abstract traits — they are directly tied to your visual-cognitive stamina.
+When scouts and coaches evaluate an athlete in ${sport || 'sports'}, they look for "decision-making speed" and "high-pressure composure."
+
+${concernDetail}
 
 - Coaches love athletes who read plays half a second before they happen.
-- Parents value the safety margin: faster tracking means fewer blind-spot hits and lower concussion risk.
+- Parents value the safety margin: faster tracking means fewer blind-spot hits and lower injury risk.
 - Scouts look for neurological efficiency: the athlete who stays cool and accurate in the final minutes of a game.
 
 An A.R.E.S. Evaluation gives you the empirical telemetry data to show them you have that elite cognitive edge.
@@ -421,16 +491,22 @@ Book Your Performance Evaluation: ${APP_URL}/book/evaluation
 Best regards,
 
 Dr. Joe LaPlaca
-Ares Elite Sports Vision`
+Ares Elite Sports Vision`;
+    }
   },
   {
     day: 20,
     subject: (firstName: string, sport: string) => `Missing baseline data alert for ${firstName}`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
+    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+      const focusText = bottleneck 
+        ? `We cannot prescribe target drills, peripheral response training, or dynamic focus work for your ${bottleneck.toLowerCase()} without these primary benchmarks.`
+        : `Without a scheduled A.R.E.S. Evaluation, your cognitive profile remains incomplete.`;
+
+      return `Hi ${firstName},
 
 We noticed that we are still missing your baseline visual-performance telemetry.
 
-Without a scheduled A.R.E.S. Evaluation, your cognitive profile remains incomplete. We cannot prescribe target drills, peripheral response training, or strobe occlusion work without these primary benchmarks.
+${focusText}
 
 Let's get your calibration scheduled before the season moves forward.
 
@@ -439,14 +515,20 @@ Schedule Evaluation Spot ($449): ${APP_URL}/book/evaluation
 Best,
 
 Dr. Joe LaPlaca
-Ares Elite Sports Vision`
+Ares Elite Sports Vision`;
+    }
   },
   {
     day: 25,
-    subject: (firstName: string, sport: string) => `Take control of your reaction times`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
+    subject: (firstName: string, sport: string) => `Take control of your reaction times in ${sport || 'sports'}`,
+    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+      const concernP = concern 
+        ? `Latency in visual capture and specific concerns like "${concern.toLowerCase()}" are trained patterns that require targeted training.`
+        : `If you are waiting for performance gaps to resolve on their own, they won't.`;
 
-If you are waiting for performance gaps to resolve on their own, they won't. Latency in visual capture and split-second hesitation under fatigue are trained patterns that require targeted training.
+      return `Hi ${firstName},
+
+${concernP}
 
 The A.R.E.S. Evaluation is the first step toward reclaiming those crucial milliseconds.
 
@@ -455,16 +537,22 @@ Book Your Performance Evaluation: ${APP_URL}/book/evaluation
 Sincerely,
 
 Dr. Joe LaPlaca
-Ares Elite Sports Vision`
+Ares Elite Sports Vision`;
+    }
   },
   {
     day: 30,
     subject: (firstName: string, sport: string) => `Leaving the door open (A.R.E.S. Evaluation)`,
-    body: (firstName: string, sport: string) => `Hi ${firstName},
+    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+      const bottleneckP = bottleneck 
+        ? `Visual bottlenecks like your ${bottleneck.toLowerCase()} do not go away on their own. They manifest as split-second hesitations, late reactions, and performance drop-offs during physical fatigue.`
+        : `Visual bottlenecks do not go away on their own. They manifest as split-second hesitations, late reactions, and performance drop-offs during physical fatigue.`;
+
+      return `Hi ${firstName},
 
 I have checked in a few times and haven't heard back, which is completely fine. Timing is everything in sports and training, and if this isn't the right window for you, I understand.
 
-This is my last automated follow-up. I want to leave you with one final thought: visual bottlenecks do not go away on their own. They manifest as split-second hesitations, late reactions, and performance drop-offs during physical fatigue.
+${bottleneckP}
 
 Whenever you are ready to proactively build your processing speed and claim those crucial milliseconds, the door is open.
 
@@ -475,7 +563,8 @@ Book Evaluation When Ready: ${APP_URL}/book/evaluation
 Wishing you a healthy and successful season.
 
 Dr. Joe LaPlaca
-Ares Elite Sports Vision`
+Ares Elite Sports Vision`;
+    }
   }
 ];
 
@@ -812,8 +901,18 @@ async function processEmailSequences() {
           try {
             console.log(`Sending email index ${i} (Day ${emailDef.day}) in ${sequenceName} to ${lead.email}`);
             
-            const subjectText = emailDef.subject(lead.first_name, lead.sport || 'elite');
-            const bodyText = emailDef.body(lead.first_name, lead.sport || 'elite') +
+            const subjectText = emailDef.subject(
+              lead.first_name, 
+              lead.sport || 'elite', 
+              lead.bottleneck_profile || null, 
+              lead.primary_concern || null
+            );
+            const bodyText = emailDef.body(
+              lead.first_name, 
+              lead.sport || 'elite', 
+              lead.bottleneck_profile || null, 
+              lead.primary_concern || null
+            ) +
               `\n\n---\n` +
               `If you no longer wish to receive these training updates, you can unsubscribe here:\n` +
               `${APP_URL}/api/unsubscribe?email=${encodeURIComponent(lead.email)}\n\n` +
@@ -1974,7 +2073,8 @@ app.post("/api/submit-assessment", async (req, res) => {
       urgency,
       desiredNextStep,
       consent,
-      bottleneckProfile
+      bottleneckProfile,
+      primaryConcern
     } = req.body;
 
     if (!firstName || !email) {
@@ -2041,6 +2141,7 @@ app.post("/api/submit-assessment", async (req, res) => {
             competitive_level = ?,
             location = ?,
             bottleneck_profile = ?,
+            primary_concern = ?,
             lead_score = ?,
             lead_category = ?,
             urgency = ?,
@@ -2057,7 +2158,7 @@ app.post("/api/submit-assessment", async (req, res) => {
           parsedRef.name, parsedRef.type,
           calculatedSource, confidence, evalScheduledDate,
           finalStatus, role || null, competitiveLevel || null, location || null,
-          bottleneckProfile || null, leadScore, leadCategory, urgency || null,
+          bottleneckProfile || null, primaryConcern || null, leadScore, leadCategory, urgency || null,
           desiredNextStep || null, consent ? 1 : 0, email
         );
 
@@ -2077,9 +2178,9 @@ app.post("/api/submit-assessment", async (req, res) => {
             how_heard, how_heard_other, referral_code, affiliate_code,
             referral_partner_name, referral_partner_type, first_touch_source, last_touch_source,
             source_confidence, assessment_completed_date, evaluation_scheduled_date, status,
-            icp_segment, competitive_level, location, bottleneck_profile, lead_score,
+            icp_segment, competitive_level, location, bottleneck_profile, primary_concern, lead_score,
             lead_category, urgency, desired_next_step, consent
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
           firstName, lastName || null, email, phone || null, athleteName || null,
           parentGuardianName || null, sport || null, age || null, leadSource || 'Website',
@@ -2088,7 +2189,7 @@ app.post("/api/submit-assessment", async (req, res) => {
           (parsedRef.type === 'Affiliate Partner' ? referralCode : null),
           parsedRef.name, parsedRef.type, firstTouch, firstTouch,
           confidence, evalScheduledDate, initialStatus, role || null, competitiveLevel || null,
-          location || null, bottleneckProfile || null, leadScore, leadCategory, urgency || null,
+          location || null, bottleneckProfile || null, primaryConcern || null, leadScore, leadCategory, urgency || null,
           desiredNextStep || null, consent ? 1 : 0
         );
 

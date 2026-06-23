@@ -25,7 +25,7 @@ export function PerformanceResults() {
           
           {/* Reaction Time Improvement */}
           <ScrollReveal direction="up" distance={30} speed={1.0}>
-            <div className="bg-[#0B0F2A] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-teal)]/50 transition-colors h-full flex flex-col">
+            <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-teal)]/50 transition-colors h-full flex flex-col">
               <div className="text-white/50 text-xs font-mono uppercase tracking-widest mb-2">Metric</div>
               <h4 className="text-white font-bold text-lg mb-8">Choice Reaction Time</h4>
               
@@ -72,7 +72,7 @@ export function PerformanceResults() {
 
           {/* Spatial Awareness */}
           <ScrollReveal direction="up" distance={30} speed={1.1}>
-            <div className="bg-[#0B0F2A] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-purple)]/50 transition-colors h-full flex flex-col">
+            <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-purple)]/50 transition-colors h-full flex flex-col">
               <div className="text-white/50 text-xs font-mono uppercase tracking-widest mb-2">Metric</div>
               <h4 className="text-white font-bold text-lg mb-8">Peripheral Processing</h4>
               
@@ -119,7 +119,7 @@ export function PerformanceResults() {
 
           {/* Cognitive Load Accuracy */}
           <ScrollReveal direction="up" distance={30} speed={1.2}>
-            <div className="bg-[#0B0F2A] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-teal)]/50 transition-colors h-full flex flex-col">
+            <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-teal)]/50 transition-colors h-full flex flex-col">
               <div className="text-white/50 text-xs font-mono uppercase tracking-widest mb-2">Metric</div>
               <h4 className="text-white font-bold text-lg mb-8">Execution Under Load</h4>
               
@@ -157,7 +157,7 @@ export function PerformanceResults() {
 
           {/* Simple Reaction Time */}
           <ScrollReveal direction="up" distance={30} speed={1.3}>
-            <div className="bg-[#0B0F2A] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-purple)]/50 transition-colors h-full flex flex-col">
+            <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-8 hover:border-[var(--color-ares-purple)]/50 transition-colors h-full flex flex-col">
               <div className="text-white/50 text-xs font-mono uppercase tracking-widest mb-2">Metric</div>
               <h4 className="text-white font-bold text-lg mb-8">Simple Reaction Time</h4>
               

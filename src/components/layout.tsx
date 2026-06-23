@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown } from 'lucide-react';
+import { X, ChevronDown, Sun, Moon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/Button';
 
@@ -22,6 +22,23 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [openMobileCategory, setOpenMobileCategory] = useState<string | null>(null);
   const location = useLocation();
+
+  const [isLightMode, setIsLightMode] = useState(() => {
+    return document.documentElement.classList.contains('light');
+  });
+
+  const toggleTheme = () => {
+    const root = document.documentElement;
+    if (root.classList.contains('light')) {
+      root.classList.remove('light');
+      localStorage.setItem('theme', 'dark');
+      setIsLightMode(false);
+    } else {
+      root.classList.add('light');
+      localStorage.setItem('theme', 'light');
+      setIsLightMode(true);
+    }
+  };
 
   const navCategories = [
     {
@@ -162,7 +179,16 @@ export function Navbar() {
           </nav>
 
           {/* Top Right: Utility & CTA */}
-          <div className="pointer-events-auto flex items-center gap-3 sm:gap-4 shrink-0">
+          <div className="pointer-events-auto flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 sm:p-2.5 rounded-lg bg-[var(--color-ares-charcoal)]/80 hover:bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] text-[var(--color-ares-white)] hover:text-[var(--color-ares-teal)] transition-colors cursor-pointer"
+              aria-label="Toggle theme"
+            >
+              {isLightMode ? <Moon className="w-4 h-4 sm:w-5 h-5" /> : <Sun className="w-4 h-4 sm:w-5 h-5" />}
+            </button>
+
             <div className="hidden xl:flex flex-col items-end mr-2">
               <a href="tel:+17739811447" className="text-[var(--color-ares-teal)] hover:text-[var(--color-ares-teal)]/80 text-xs font-bold tracking-wider transition-colors">
                 Call Us
@@ -224,6 +250,15 @@ export function Navbar() {
           >
             <nav className="min-h-dvh px-6 py-20 sm:py-24 md:p-24 max-w-[1400px] mx-auto relative flex flex-col justify-center">
               
+              {/* Mobile Theme Toggle */}
+              <button 
+                onClick={toggleTheme}
+                className="absolute top-6 right-16 md:top-8 md:right-24 text-[var(--color-ares-white)]/70 hover:text-[var(--color-ares-white)] bg-[var(--color-ares-charcoal)]/90 border border-[var(--color-ares-border)] p-3 rounded-full transition-colors z-10 cursor-pointer"
+                aria-label="Toggle theme"
+              >
+                {isLightMode ? <Moon className="w-6 h-6" /> : <Sun className="w-6 h-6" />}
+              </button>
+
               {/* Close Button */}
               <button 
                 onClick={() => setIsOpen(false)}
