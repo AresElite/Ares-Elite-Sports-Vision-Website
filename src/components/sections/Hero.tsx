@@ -37,16 +37,21 @@ function HeroDrillWidget() {
     }, 800);
   };
 
+  useEffect(() => {
+    if (gameState === 'active') {
+      startTimeRef.current = performance.now();
+    }
+  }, [gameState]);
+
   const triggerWaitingState = () => {
     setGameState('waiting');
     const delay = 1200 + Math.random() * 1800; // 1.2s to 3s random delay
     timerRef.current = setTimeout(() => {
       setGameState('active');
-      startTimeRef.current = performance.now();
     }, delay);
   };
 
-  const handleTap = (e: React.MouseEvent) => {
+  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (gameState === 'waiting') {
@@ -116,7 +121,8 @@ function HeroDrillWidget() {
 
       {(gameState === 'waiting' || gameState === 'active') && (
         <div 
-          onClick={handleTap}
+          onMouseDown={handleTap}
+          onTouchStart={handleTap}
           className="relative z-10 flex flex-col items-center justify-center flex-grow py-4 cursor-pointer select-none"
         >
           {gameState === 'waiting' ? (
@@ -127,6 +133,7 @@ function HeroDrillWidget() {
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1.05, opacity: 1 }}
+              transition={{ duration: 0.05, ease: "easeOut" }}
               className="flex items-center justify-center h-28 w-28 rounded-full bg-[var(--color-ares-teal)] border-4 border-white shadow-[0_0_40px_rgba(41,152,170,0.8)] active:scale-95"
             >
               <span className="text-xs font-black text-[#0B0F2A] uppercase tracking-widest">TAP NOW!</span>
