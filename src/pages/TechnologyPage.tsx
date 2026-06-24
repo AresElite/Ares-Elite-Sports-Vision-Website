@@ -1,9 +1,20 @@
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { SEO } from '../components/SEO';
 import { ArrowLeft, ArrowRight, Monitor, Database, BarChart2, Shield } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import { ScrollReveal } from '../components/ui/ScrollReveal';
+import { VideoEmbed } from '../components/ui/VideoEmbed';
 
 export function TechnologyPage() {
+  const [activeTab, setActiveTab] = useState<0 | 1 | 2>(0);
+  const emrImages = [
+    '/EMR Screenshot 1.jpeg',
+    '/EMR Screenshot 2.jpeg',
+    '/EMR Screenshot 3.jpeg'
+  ];
+
   return (
     <>
       <SEO 
@@ -100,24 +111,83 @@ export function TechnologyPage() {
                     This is the standard of performance analytics that elite collegiate programs and professional motorsports rosters demand.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {[
-                    { src: '/EMR Screenshot 1.jpeg', label: 'Sensory Score AQ™' },
-                    { src: '/EMR Screenshot 2.jpeg', label: 'Processing Latency' },
-                    { src: '/EMR Screenshot 3.jpeg', label: 'Imbalance Tracking' }
-                  ].map((img, i) => (
-                    <div key={i} className="group relative rounded-xl overflow-hidden border border-white/10 hover:border-[var(--color-ares-teal)] transition-all bg-black/40">
-                      <img 
-                        src={img.src} 
-                        alt={img.label} 
-                        className="w-full aspect-[4/3] object-cover object-top group-hover:scale-105 transition-transform duration-300"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-3">
-                        <span className="text-[10px] font-mono font-bold tracking-wider text-white/90 uppercase">{img.label}</span>
+                <div className="relative flex justify-center">
+                  <div className="w-full max-w-lg bg-[#1a1b23] rounded-[2rem] border-[4px] border-[#2b2b36] p-2 sm:p-3 shadow-2xl relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                    {/* Camera Notch/Bezel detail */}
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#000] rounded-full mt-3"></div>
+                    
+                    {/* Inner Screen */}
+                    <div className="w-full bg-[var(--color-ares-charcoal)] rounded-[1.2rem] border border-black/50 overflow-hidden relative flex flex-col">
+                      {/* Fake App Header */}
+                      <div className="bg-[var(--color-ares-bg)] px-6 py-4 flex justify-between items-center border-b border-[var(--color-ares-border)]">
+                        <div className="flex items-center gap-2">
+                           <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                           <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+                           <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        </div>
+                        <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">A.R.E.S. EMR Portal</div>
+                        <div className="w-8"></div>
+                      </div>
+
+                      {/* Tabbed Selectors */}
+                      <div className="bg-[#0e111a] px-4 py-3 flex justify-center gap-2 border-b border-[var(--color-ares-border)]">
+                        {['Overview', 'Acquisition Stats', 'Cognitive Load'].map((label, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => setActiveTab(idx as any)}
+                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase transition-all ${
+                              activeTab === idx 
+                                ? 'bg-[var(--color-ares-teal)] text-black shadow-lg shadow-[var(--color-ares-teal)]/20' 
+                                : 'bg-white/5 text-white/50 hover:text-white hover:bg-white/10'
+                            }`}
+                          >
+                            {label}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Dashboard Image Viewport */}
+                      <div className="relative aspect-[4/3] bg-black overflow-hidden flex items-center justify-center">
+                        <AnimatePresence mode="wait">
+                          <motion.img
+                            key={activeTab}
+                            src={emrImages[activeTab]}
+                            alt={`A.R.E.S. EMR Screenshot ${activeTab + 1}`}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 1.02 }}
+                            transition={{ duration: 0.3 }}
+                            className="w-full h-full object-cover object-top"
+                          />
+                        </AnimatePresence>
                       </div>
                     </div>
-                  ))}
+                  </div>
                 </div>
+              </div>
+            </section>
+
+            {/* Analytics Video Row */}
+            <section className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-8 md:p-12">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+                <ScrollReveal direction="left" distance={30} speed={0.8}>
+                  <div>
+                    <h3 className="text-[var(--color-ares-teal)] font-mono text-[10px] sm:text-xs tracking-[0.3em] uppercase mb-4">Analytics & EMR Platform</h3>
+                    <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-6 uppercase">OBJECTIVE DATA. NOT GUESSWORK.</h2>
+                    <p className="text-white/70 leading-relaxed text-base sm:text-lg mb-6">
+                      If something affects performance, it should be measured, tracked, and communicated clearly. We built a custom EMR and tracking platform because athletes deserve more than opinions and vague notes. We measure what most programs miss. We track what others guess.
+                    </p>
+                  </div>
+                </ScrollReveal>
+
+                <ScrollReveal direction="right" distance={30} speed={0.8}>
+                  <div className="mx-auto w-full max-w-2xl lg:max-w-none">
+                    <VideoEmbed 
+                      src="https://www.youtube.com/embed/qdEmN0iYLq4?si=r7kK-W1VnQe5L7P1" 
+                      title="Importance of Analytics and Tracking Information for Athletes" 
+                    />
+                  </div>
+                </ScrollReveal>
               </div>
             </section>
 

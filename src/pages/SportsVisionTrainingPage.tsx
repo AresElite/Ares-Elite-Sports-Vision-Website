@@ -2,6 +2,7 @@ import { SEO } from '../components/SEO';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
+import { ScrollReveal } from '../components/ui/ScrollReveal';
 
 export function SportsVisionTrainingPage() {
   return (
@@ -102,6 +103,84 @@ export function SportsVisionTrainingPage() {
                   </p>
                 </div>
               </div>
+            </section>
+
+            {/* Section: Inside The Lab Video Showcase */}
+            <section className="border-t border-white/10 pt-12">
+               <div className="text-center max-w-3xl mx-auto mb-12">
+                 <h2 className="text-sm font-mono text-[var(--color-ares-teal)] tracking-[0.2em] mb-4 uppercase">Inside The Lab</h2>
+                 <h3 className="text-2xl md:text-3xl font-display font-bold text-white mb-6 uppercase">
+                   Neural Adaptation in Practice
+                 </h3>
+                 <p className="text-white/70 leading-relaxed">
+                   Take a look inside real A.R.E.S. sessions. We use cognitive loading, reactive tech, and VR tools to force adaptation at the speed of competitive sports.
+                 </p>
+               </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+                 <ScrollReveal direction="up" distance={30} speed={1.0}>
+                   <div className="rounded-2xl border border-[var(--color-ares-border)] overflow-hidden bg-[var(--color-ares-charcoal)] relative group h-[400px]">
+                     <video 
+                       className="absolute inset-0 w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
+                       autoPlay 
+                       muted 
+                       loop 
+                       playsInline
+                       poster="/Office 6.jpg"
+                     >
+                       <source src="/cam-fl-6.mov" type="video/mp4" />
+                       <source src="/cam-fl-6.mov" type="video/quicktime" />
+                     </video>
+                     <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-[var(--color-ares-charcoal)] via-[var(--color-ares-charcoal)]/90 to-transparent flex flex-col justify-end p-6 group-hover:from-black/90 transition-colors duration-500">
+                       <div className="text-[10px] text-[var(--color-ares-teal)] font-mono tracking-widest uppercase mb-1 drop-shadow-md translate-y-6 group-hover:translate-y-0 transition-transform duration-500">Reactive Protocol</div>
+                       <div className="text-white font-bold tracking-tight text-xl drop-shadow-md translate-y-6 group-hover:translate-y-0 transition-transform duration-500">Peripheral Execution</div>
+                       <p className="text-white/80 text-sm mt-3 leading-relaxed opacity-0 group-hover:opacity-100 translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-75">Processing multi-point data arrays to expand the usable visual field during dynamic movement.</p>
+                     </div>
+                   </div>
+                 </ScrollReveal>
+
+                 <ScrollReveal direction="up" distance={30} speed={1.1}>
+                   <div className="rounded-2xl border border-[var(--color-ares-border)] overflow-hidden bg-[var(--color-ares-charcoal)] relative group h-[400px]">
+                     <video 
+                       className="absolute inset-0 w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
+                       autoPlay 
+                       muted 
+                       loop 
+                       playsInline
+                       poster="/Office 2.jpg"
+                     >
+                       <source src="/ryan-fl-2.mov" type="video/mp4" />
+                       <source src="/ryan-fl-2.mov" type="video/quicktime" />
+                     </video>
+                     <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-[var(--color-ares-charcoal)] via-[var(--color-ares-charcoal)]/90 to-transparent flex flex-col justify-end p-6 group-hover:from-black/90 transition-colors duration-500">
+                        <div className="text-[10px] text-[var(--color-ares-purple)] font-mono tracking-widest uppercase mb-1 drop-shadow-md translate-y-6 group-hover:translate-y-0 transition-transform duration-500">Decision Speed</div>
+                        <div className="text-white font-bold tracking-tight text-xl drop-shadow-md translate-y-6 group-hover:translate-y-0 transition-transform duration-500">Multi-Target Coordination</div>
+                        <p className="text-white/80 text-sm mt-3 leading-relaxed opacity-0 group-hover:opacity-100 translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-75">High-tension neural loading to force quicker, more accurate decision making under pressure.</p>
+                     </div>
+                   </div>
+                 </ScrollReveal>
+
+                 <ScrollReveal direction="up" distance={30} speed={1.2}>
+                   <div className="rounded-2xl border border-[var(--color-ares-border)] overflow-hidden bg-[var(--color-ares-charcoal)] relative group h-[400px]">
+                     <video 
+                       className="absolute inset-0 w-full h-full object-cover grayscale opacity-50 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
+                       autoPlay 
+                       muted 
+                       loop 
+                       playsInline
+                       poster="/Office 7.jpg"
+                     >
+                       <source src="/ryan-vr.mov" type="video/mp4" />
+                       <source src="/ryan-vr.mov" type="video/quicktime" />
+                     </video>
+                     <div className="absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-[var(--color-ares-charcoal)] via-[var(--color-ares-charcoal)]/90 to-transparent flex flex-col justify-end p-6 group-hover:from-black/90 transition-colors duration-500">
+                        <div className="text-[10px] text-white/70 font-mono tracking-widest uppercase mb-1 drop-shadow-md translate-y-6 group-hover:translate-y-0 transition-transform duration-500">Virtual Reality</div>
+                        <div className="text-white font-bold tracking-tight text-xl drop-shadow-md translate-y-6 group-hover:translate-y-0 transition-transform duration-500">Cognitive Processing</div>
+                        <p className="text-white/80 text-sm mt-3 leading-relaxed opacity-0 group-hover:opacity-100 translate-y-6 group-hover:translate-y-0 transition-all duration-500 delay-75">Immersive game-speed simulations to rewire motor output responses to specific visual cues.</p>
+                     </div>
+                   </div>
+                 </ScrollReveal>
+               </div>
             </section>
 
             {/* Section: Why Generic Drills Are Not Enough */}
