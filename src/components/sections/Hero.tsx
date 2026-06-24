@@ -9,9 +9,10 @@ interface HeroProps {
 }
 
 function HeroDrillWidget() {
-  const [gameState, setGameState] = useState<'idle' | 'countdown' | 'waiting' | 'active' | 'complete' | 'early'>('idle');
+  const [gameState, setGameState] = useState<'idle' | 'countdown' | 'waiting' | 'active' | 'recorded' | 'complete' | 'early'>('idle');
   const [countdown, setCountdown] = useState(3);
-  const [reactionTime, setReactionTime] = useState<number | null>(null);
+  const [trials, setTrials] = useState<number[]>([]);
+  const [currentTrialTime, setCurrentTrialTime] = useState<number | null>(null);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -22,7 +23,8 @@ function HeroDrillWidget() {
     e.stopPropagation();
     setGameState('countdown');
     setCountdown(3);
-    setReactionTime(null);
+    setTrials([]);
+    setCurrentTrialTime(null);
 
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     countdownIntervalRef.current = setInterval(() => {
@@ -45,7 +47,7 @@ function HeroDrillWidget() {
 
   const triggerWaitingState = () => {
     setGameState('waiting');
-    const delay = 1200 + Math.random() * 1800; // 1.2s to 3s random delay
+    const delay = 1000 + Math.random() * 1500; // 1s to 2.5s delay between trials
     timerRef.current = setTimeout(() => {
       setGameState('active');
     }, delay);
@@ -60,8 +62,19 @@ function HeroDrillWidget() {
     } else if (gameState === 'active') {
       const endTime = performance.now();
       const time = Math.round(endTime - startTimeRef.current);
-      setReactionTime(time);
-      setGameState('complete');
+      setCurrentTrialTime(time);
+      
+      const newTrials = [...trials, time];
+      setTrials(newTrials);
+
+      if (newTrials.length >= 5) {
+        setGameState('complete');
+      } else {
+        setGameState('recorded');
+        timerRef.current = setTimeout(() => {
+          triggerWaitingState();
+        }, 1200); // Show trial results for 1.2s
+      }
     }
   };
 
@@ -71,7 +84,8 @@ function HeroDrillWidget() {
     if (timerRef.current) clearTimeout(timerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     setGameState('idle');
-    setReactionTime(null);
+    setTrials([]);
+    setCurrentTrialTime(null);
   };
 
   useEffect(() => {
@@ -82,17 +96,17 @@ function HeroDrillWidget() {
   }, []);
 
   return (
-    <div className="relative p-6 rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)]/95 shadow-glow flex flex-col h-full backdrop-blur-md overflow-hidden min-h-[250px] justify-between transition-all duration-300">
+    <div className="relative p-6 rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)]/95 shadow-glow flex flex-col h-full backdrop-blur-md overflow-hidden min-h-[260px] justify-between transition-all duration-300">
       {/* Ambient gradient highlight */}
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-ares-purple)]/10 to-transparent pointer-events-none" />
       
       {gameState === 'idle' && (
         <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
           <div>
-            <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-2 font-bold">5-Second Teaser Drill</div>
+            <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-2 font-bold animate-pulse">5-Tap Sensory Drill</div>
             <h3 className="font-bold text-[var(--color-ares-white)] text-lg sm:text-xl leading-tight mb-2 uppercase">Is your reaction speed elite?</h3>
             <p className="text-xs text-[var(--color-ares-muted)] max-w-xs leading-relaxed">
-              Standard static eyesight (20/20) doesn't fix a late read. Test your dynamic visual response speed compared to elite baselines.
+              We track 5 consecutive taps to measure your average latency. Click instantly as soon as the target turns solid teal.
             </p>
           </div>
           <button
@@ -125,6 +139,22 @@ function HeroDrillWidget() {
           onTouchStart={handleTap}
           className="relative z-10 flex flex-col items-center justify-center flex-grow py-4 cursor-pointer select-none"
         >
+          {/* Progress dots at the top */}
+          <div className="flex gap-1.5 justify-center mb-6 pointer-events-none">
+            {[0, 1, 2, 3, 4].map((idx) => (
+              <div 
+                key={idx} 
+                className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${
+                  idx < trials.length 
+                    ? 'bg-[var(--color-ares-teal)]' 
+                    : idx === trials.length && gameState === 'active'
+                      ? 'bg-[var(--color-ares-teal)] scale-125 animate-pulse'
+                      : 'bg-white/20'
+                }`}
+              />
+            ))}
+          </div>
+
           {gameState === 'waiting' ? (
             <div className="flex flex-col items-center justify-center h-28 w-28 rounded-full border-2 border-dashed border-[var(--color-ares-border)] animate-pulse bg-white/5">
               <span className="text-[9px] font-mono text-[var(--color-ares-muted)] uppercase tracking-wider text-center px-2">Wait for target...</span>
@@ -142,6 +172,14 @@ function HeroDrillWidget() {
         </div>
       )}
 
+      {gameState === 'recorded' && (
+        <div className="relative z-10 flex flex-col items-center justify-center flex-grow py-4 text-center">
+          <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">Trial {trials.length} of 5 Recorded</div>
+          <div className="text-4xl font-black text-[var(--color-ares-white)] font-mono mb-4">{currentTrialTime}ms</div>
+          <div className="text-[10px] text-[var(--color-ares-muted)] uppercase tracking-wider animate-pulse">Get ready for next target...</div>
+        </div>
+      )}
+
       {gameState === 'early' && (
         <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
           <div>
@@ -152,65 +190,80 @@ function HeroDrillWidget() {
             </p>
           </div>
           <button
-            onClick={startDrill}
+            onClick={() => {
+              triggerWaitingState();
+            }}
             className="mt-6 w-full py-3 px-6 rounded-xl bg-white/10 hover:bg-white/20 border border-[var(--color-ares-border)] text-[var(--color-ares-white)] font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
           >
-            Try Again
+            Continue Trial {trials.length + 1} of 5
           </button>
         </div>
       )}
 
-      {gameState === 'complete' && (
-        <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
-          <div className="w-full">
-            <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">Drill Results</div>
-            <div className="text-3xl sm:text-4xl font-black text-[var(--color-ares-white)] mb-4 font-mono">{reactionTime}ms</div>
-            
-            {/* Visual Benchmark Bar */}
-            <div className="space-y-2 text-left mb-4">
-              <div className="relative h-1.5 w-full bg-[var(--color-ares-border)] rounded-full overflow-hidden">
-                {/* Elite standard mark (220ms) */}
-                <div className="absolute left-[35%] top-0 bottom-0 w-0.5 bg-[var(--color-ares-teal)] z-20" title="Elite: 220ms"></div>
-                {/* User speed mark */}
-                <div 
-                  className={`absolute left-0 top-0 bottom-0 rounded-full z-10 ${
-                    reactionTime && reactionTime <= 240 ? 'bg-[var(--color-ares-teal)]' : 'bg-red-500/80'
-                  }`}
-                  style={{ width: `${Math.min(Math.max((reactionTime || 300) / 600 * 100, 15), 100)}%` }}
-                />
+      {gameState === 'complete' && (() => {
+        const averageTime = trials.length > 0 ? Math.round(trials.reduce((sum, t) => sum + t, 0) / trials.length) : 0;
+        return (
+          <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
+            <div className="w-full">
+              <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">Average reaction speed</div>
+              <div className="text-3xl sm:text-4xl font-black text-[var(--color-ares-white)] mb-4 font-mono">{averageTime}ms</div>
+              
+              {/* Individual Trial Times breakdown */}
+              <div className="flex justify-center gap-2 mb-4">
+                {trials.map((t, idx) => (
+                  <div key={idx} className="flex flex-col items-center">
+                    <span className="text-[8px] font-mono text-[var(--color-ares-muted)]">T{idx+1}</span>
+                    <span className="px-2 py-0.5 rounded bg-white/5 border border-[var(--color-ares-border)] text-[9px] font-mono text-white/80">{t}ms</span>
+                  </div>
+                ))}
               </div>
-              <div className="flex justify-between text-[9px] font-mono text-[var(--color-ares-muted)] tracking-wider">
-                <span>0ms</span>
-                <span className="text-[var(--color-ares-teal)] font-bold">Elite: 220ms</span>
-                <span>Avg: 290ms</span>
-              </div>
-            </div>
 
-            <p className="text-xs text-[var(--color-ares-muted)] leading-relaxed px-2">
-              {reactionTime && reactionTime <= 240 ? (
-                <span>Excellent! You're in the elite tier. Take the full assessment to map your cognitive routing.</span>
-              ) : (
-                <span><strong>Visual Bottleneck Likely.</strong> Your response is {reactionTime && reactionTime > 220 ? `${reactionTime - 220}ms` : '50+ms'} slower than elite athletic standards.</span>
-              )}
-            </p>
+              {/* Visual Benchmark Bar */}
+              <div className="space-y-2 text-left mb-4">
+                <div className="relative h-1.5 w-full bg-[var(--color-ares-border)] rounded-full overflow-hidden">
+                  {/* Elite standard mark (220ms) */}
+                  <div className="absolute left-[35%] top-0 bottom-0 w-0.5 bg-[var(--color-ares-teal)] z-20" title="Elite: 220ms"></div>
+                  {/* User speed mark */}
+                  <div 
+                    className={`absolute left-0 top-0 bottom-0 rounded-full z-10 ${
+                      averageTime <= 240 ? 'bg-[var(--color-ares-teal)]' : 'bg-red-500/80'
+                    }`}
+                    style={{ width: `${Math.min(Math.max(averageTime / 600 * 100, 15), 100)}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-[9px] font-mono text-[var(--color-ares-muted)] tracking-wider">
+                  <span>0ms</span>
+                  <span className="text-[var(--color-ares-teal)] font-bold">Elite: 220ms</span>
+                  <span>Avg: 290ms</span>
+                </div>
+              </div>
+
+              <p className="text-xs text-[var(--color-ares-muted)] leading-relaxed px-2">
+                {averageTime <= 240 ? (
+                  <span>Excellent average! You're in the elite tier. Take the full assessment to map your cognitive routing.</span>
+                ) : (
+                  <span><strong>Visual Gaps Likely.</strong> Your average is {averageTime > 220 ? `${averageTime - 220}ms` : '50+ms'} slower than elite standards.</span>
+                )}
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-2 w-full mt-4">
+              <Link
+                to="/assessment"
+                className="flex-1 py-3 px-4 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold text-xs tracking-wider uppercase text-center shadow-lg transition-all"
+              >
+                Full Test
+              </Link>
+              <button
+                onClick={startDrill}
+                className="flex-1 py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-[var(--color-ares-border)] text-[var(--color-ares-white)] font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
+              >
+                Retest
+              </button>
+            </div>
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-2 w-full mt-4">
-            <Link
-              to="/assessment"
-              className="flex-1 py-3 px-4 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold text-xs tracking-wider uppercase text-center shadow-lg transition-all"
-            >
-              Full Test
-            </Link>
-            <button
-              onClick={startDrill}
-              className="flex-1 py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-[var(--color-ares-border)] text-[var(--color-ares-white)] font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
-            >
-              Retest
-            </button>
-          </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
