@@ -1,5 +1,20 @@
+# API + server routes go to the Render backend (Express server).
+# This MUST be listed before the SPA fallback and use force=true.
 [[redirects]]
-  from = "/*"
-  to = "https://ares-elite-sports-vision-website.onrender.com/:splat"
+  from = "/api/*"
+  to = "https://ares-elite-sports-vision-website.onrender.com/api/:splat"
   status = 200
   force = true
+
+# Stripe webhook endpoint also lives on the backend.
+[[redirects]]
+  from = "/api/webhooks/*"
+  to = "https://ares-elite-sports-vision-website.onrender.com/api/webhooks/:splat"
+  status = 200
+  force = true
+
+# Everything else is the React single-page app.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
