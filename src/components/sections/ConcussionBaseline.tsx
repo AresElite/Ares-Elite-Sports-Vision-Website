@@ -26,7 +26,7 @@ export function ConcussionBaseline() {
               </div>
               <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight text-balance">
                 THE MOST EXTENSIVE <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-white">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-[var(--color-ares-white)]">
                   CONCUSSION BASELINING
                 </span>
               </h2>

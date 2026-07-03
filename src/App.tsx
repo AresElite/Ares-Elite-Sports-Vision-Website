@@ -2,6 +2,7 @@ import { useState, Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { HelmetProvider } from 'react-helmet-async';
 import { Navbar, Footer } from './components/layout';
+import { CartProvider } from './lib/cart';
 import { SystemOverlay } from './components/ui/SystemOverlay';
 import { SocialShare } from './components/ui/SocialShare';
 // import { AthenaChat } from './components/ui/AthenaChat';
@@ -28,6 +29,13 @@ const BlogPostPage = lazy(() => import('./pages/BlogPostPage').then(m => ({ defa
 const ContactPage = lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
+
+// Performance Shop
+const ShopPage = lazy(() => import('./pages/ShopPage'));
+const ProductPage = lazy(() => import('./pages/ProductPage'));
+const ShopSuccessPage = lazy(() => import('./pages/ShopSuccessPage'));
+const CartPage = lazy(() => import('./pages/CartPage'));
+const ReaderPage = lazy(() => import('./pages/ReaderPage'));
 
 // New Service Pages
 const SportsVisionPerformanceEvaluationPage = lazy(() => import('./pages/SportsVisionPerformanceEvaluationPage').then(m => ({ default: m.SportsVisionPerformanceEvaluationPage })));
@@ -106,6 +114,7 @@ export default function App() {
 
   return (
     <HelmetProvider>
+      <CartProvider>
       <Router>
         <ScrollToHash />
         <div className="min-h-dvh bg-[var(--color-ares-bg)] text-[var(--color-ares-white)] selection:bg-[var(--color-ares-teal)] selection:text-white overflow-x-hidden relative">
@@ -160,6 +169,11 @@ export default function App() {
                 <Route path="/book/:type" element={<BookPage />} />
                 <Route path="/booking-hold" element={<BookingHoldPage />} />
                 <Route path="/payment-success" element={<PaymentSuccessPage />} />
+                <Route path="/shop" element={<ShopPage />} />
+                <Route path="/shop/success" element={<ShopSuccessPage />} />
+                <Route path="/cart" element={<CartPage />} />
+                <Route path="/read/acquire" element={<ReaderPage />} />
+                <Route path="/shop/:slug" element={<ProductPage />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/client-portal" element={<Navigate to="/login" replace />} />
@@ -178,6 +192,7 @@ export default function App() {
           </div>
         </div>
       </Router>
+      </CartProvider>
     </HelmetProvider>
   );
 }

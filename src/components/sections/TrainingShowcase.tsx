@@ -30,7 +30,7 @@ export function TrainingShowcase() {
           <div className="max-w-4xl mx-auto">
             <div 
               onClick={() => setIsModalOpen(true)}
-              className="relative group rounded-3xl overflow-hidden border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)] shadow-[0_20px_50px_rgba(0,0,0,0.4)] aspect-[16/9] md:aspect-[21/9] cursor-pointer"
+              className="dark relative group rounded-3xl overflow-hidden border border-white/10 bg-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.4)] aspect-[16/9] md:aspect-[21/9] cursor-pointer"
             >
               {/* Poster Image */}
               <div 
@@ -39,7 +39,7 @@ export function TrainingShowcase() {
               />
               
               {/* Neon Glow Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-ares-charcoal)] via-black/40 to-transparent z-10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-black/40 to-transparent z-10" />
 
               {/* Centered Play Button & Content */}
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center">

@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown, Sun, Moon } from 'lucide-react';
+import { X, ChevronDown, Sun, Moon, ShoppingCart } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/Button';
+import { useCart } from '../lib/cart';
 
 const DotMatrix = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -22,6 +23,7 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [openMobileCategory, setOpenMobileCategory] = useState<string | null>(null);
   const location = useLocation();
+  const { count: cartCount } = useCart();
 
   const [isLightMode, setIsLightMode] = useState(() => {
     return document.documentElement.classList.contains('light');
@@ -59,6 +61,7 @@ export function Navbar() {
         { label: "Teams & Facilities", path: "/teams-and-organizations" },
         { label: "Technology & Data", path: "/technology-and-data" },
         { label: "Purchase Packages", path: "/book/packages" },
+        { label: "Performance Shop", path: "/shop" },
         { label: "A.R.E.S. Certification", path: "/certification" }
       ]
     },
@@ -111,6 +114,11 @@ export function Navbar() {
             <Link to="/book/packages" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5 animate-pulse">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] animate-ping"></span>
               Purchase Packages
+            </Link>
+            <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
+            <Link to="/cart" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5" aria-label="Cart">
+              <ShoppingCart className="w-3.5 h-3.5" />
+              Cart{cartCount > 0 ? ` (${cartCount})` : ''}
             </Link>
           </div>
         </div>

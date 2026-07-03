@@ -112,7 +112,7 @@ export function TechnologyPage() {
                   </p>
                 </div>
                 <div className="relative flex justify-center">
-                  <div className="w-full max-w-lg bg-[#1a1b23] rounded-[2rem] border-[4px] border-[#2b2b36] p-2 sm:p-3 shadow-2xl relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                  <div className="dark w-full max-w-lg bg-[#1a1b23] rounded-[2rem] border-[4px] border-[#2b2b36] p-2 sm:p-3 shadow-2xl relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                     {/* Camera Notch/Bezel detail */}
                     <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#000] rounded-full mt-3"></div>
                     

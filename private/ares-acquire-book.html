@@ -1,0 +1,377 @@
+<style>
+:root{--ar-bg:#0D0A1A;--ar-card:#161130;--ar-accent:#6B4FA0;--ar-purple:#221461;--ar-text:#E8E4F0;--ar-muted:#9B8FBB;--ar-border:#2A2045;--ar-gold:#D4A843;--ar-green:#4CAF50;--ar-blue:#5B8DEF}
+*{box-sizing:border-box;margin:0;padding:0}
+.ar-app{font-family:var(--font-sans);background:var(--ar-bg);color:var(--ar-text);min-height:600px;display:flex;border-radius:var(--border-radius-lg);overflow:hidden}
+.ar-side{width:260px;background:var(--ar-card);border-right:1px solid var(--ar-border);overflow-y:auto;flex-shrink:0;padding:16px 0}
+.ar-side h2{font-size:14px;font-weight:500;color:var(--ar-gold);padding:0 16px;margin-bottom:12px;letter-spacing:0.5px}
+.ar-nav-item{display:block;width:100%;text-align:left;background:none;border:none;color:var(--ar-muted);font-size:12.5px;padding:8px 16px;cursor:pointer;transition:all 0.15s;line-height:1.4}
+.ar-nav-item:hover{background:rgba(107,79,160,0.15);color:var(--ar-text)}
+.ar-nav-item.active{background:rgba(107,79,160,0.25);color:var(--ar-gold);border-left:3px solid var(--ar-gold)}
+.ar-nav-act{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--ar-accent);padding:12px 16px 4px;font-weight:500}
+.ar-main{flex:1;overflow-y:auto;padding:32px 40px;max-height:600px}
+.ar-ch-title{font-size:22px;font-weight:500;color:var(--ar-text);margin-bottom:4px}
+.ar-ch-sub{font-size:14px;color:var(--ar-muted);margin-bottom:24px;font-style:italic}
+.ar-hook{font-size:15px;color:var(--ar-text);line-height:1.7;margin-bottom:24px;padding:16px 20px;background:rgba(107,79,160,0.1);border-left:3px solid var(--ar-accent);border-radius:0 8px 8px 0;font-style:italic}
+.ar-section{margin-bottom:28px}
+.ar-section h3{font-size:16px;font-weight:500;color:var(--ar-gold);margin-bottom:10px}
+.ar-section p{font-size:14px;line-height:1.75;color:var(--ar-text);margin-bottom:12px}
+.ar-section ul{padding-left:20px;margin-bottom:12px}
+.ar-section li{font-size:14px;line-height:1.7;color:var(--ar-text);margin-bottom:6px}
+.ar-callout{padding:16px 20px;border-radius:8px;margin-bottom:20px;font-size:13px;line-height:1.7}
+.ar-callout.principle{background:rgba(212,168,67,0.08);border:1px solid rgba(212,168,67,0.25)}
+.ar-callout.principle .ar-cl-label{color:var(--ar-gold)}
+.ar-callout.field{background:rgba(91,141,239,0.08);border:1px solid rgba(91,141,239,0.2)}
+.ar-callout.field .ar-cl-label{color:var(--ar-blue)}
+.ar-callout.clinical{background:rgba(76,175,80,0.08);border:1px solid rgba(76,175,80,0.2)}
+.ar-callout.clinical .ar-cl-label{color:var(--ar-green)}
+.ar-callout.training{background:rgba(107,79,160,0.12);border:1px solid rgba(107,79,160,0.3)}
+.ar-callout.training .ar-cl-label{color:var(--ar-accent)}
+.ar-cl-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;font-weight:500;margin-bottom:6px}
+.ar-callout p{color:var(--ar-text);margin:0}
+.ar-summary{background:var(--ar-card);border-radius:8px;padding:16px 20px;margin-top:24px}
+.ar-summary h4{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--ar-muted);margin-bottom:10px}
+.ar-summary li{font-size:13px;line-height:1.6;color:var(--ar-text);margin-bottom:6px}
+.ar-quiz{background:var(--ar-card);border-radius:8px;padding:20px;margin-top:24px;border:1px solid var(--ar-border)}
+.ar-quiz h4{font-size:13px;color:var(--ar-gold);margin-bottom:12px}
+.ar-quiz-opt{display:block;width:100%;text-align:left;background:rgba(107,79,160,0.08);border:1px solid var(--ar-border);border-radius:6px;padding:10px 14px;margin-bottom:8px;color:var(--ar-text);font-size:13px;cursor:pointer;transition:all 0.15s}
+.ar-quiz-opt:hover{border-color:var(--ar-accent);background:rgba(107,79,160,0.15)}
+.ar-quiz-opt.correct{background:rgba(76,175,80,0.15);border-color:var(--ar-green);color:var(--ar-green)}
+.ar-quiz-opt.wrong{background:rgba(239,83,80,0.1);border-color:#EF5350;color:#EF5350}
+.ar-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:12px}
+.ar-table th,.ar-table td{padding:8px 10px;border:1px solid var(--ar-border);text-align:left}
+.ar-table th{background:rgba(107,79,160,0.15);color:var(--ar-gold);font-weight:500}
+.ar-table td{color:var(--ar-text)}
+.ar-def{display:inline-block;background:rgba(107,79,160,0.1);border:1px solid var(--ar-border);border-radius:6px;padding:8px 12px;margin:8px 0;font-size:12px}
+.ar-def strong{color:var(--ar-gold)}
+.ar-home{text-align:center;padding:60px 20px}
+.ar-home h1{font-size:28px;font-weight:500;margin-bottom:8px}
+.ar-home .sub{font-size:16px;color:var(--ar-muted);margin-bottom:4px}
+.ar-home .author{font-size:13px;color:var(--ar-accent);margin-top:16px}
+.ar-pipe{display:flex;justify-content:center;gap:4px;margin:30px 0}
+.ar-pipe-node{width:80px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;letter-spacing:0.5px;transition:all 0.2s}
+.ar-pipe-node.active{box-shadow:0 0 12px rgba(212,168,67,0.4)}
+</style>
+<h2 class="sr-only">A.R.E.S. Book 1: ACQUIRE - Interactive digital book prototype with 14 chapters on sports vision neuroscience</h2>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script>
+const e=React.createElement;
+const BOOK={title:"ACQUIRE",subtitle:"Photon to Decision",tagline:"See What Others Miss",author:"Dr. Joe LaPlaca, OD",chapters:[
+{id:"foreword",title:"Foreword",subtitle:"The First Millisecond",act:"PROLOGUE",
+hook:"Everything that follows in this book — every decision made, every movement executed, every millisecond of competitive advantage won or lost — begins with a single photon striking the back of your eye.",
+sections:[
+{title:"The Window",content:"One photon. A quantum of light that has traveled 93 million miles from the sun, bounced off a spinning baseball, an opponent’s shoulder, a puck mid-deflection, and arrived at your retina carrying information about where that object is, how fast it is moving, and what it is about to do. Your brain has approximately 300 milliseconds to do something useful with it."},
+{title:"The Trainable Advantage",content:"Elite athletes win in that window. Not because they have superior eyesight. Not because they are innately faster processors. They win because they have built a visual acquisition system that extracts the highest-value information, from the right places, faster than their opponents. That system is trainable. Every component of it has a neural substrate, a measurable function, and a documented response to targeted practice."},
+{title:"What This Book Is",content:"This book is a field manual for closing that gap. It is not a general survey of sports vision research. It is a mechanism-first, measurement-driven, training-focused examination of the Acquire stage of the A.R.E.S. Performance Loop. It will tell you how light becomes information, how information becomes a percept, and how percepts are shaped into the perceptual habits that determine who sees the game and who doesn’t."}
+],callouts:[{type:"principle",text:"Read it once for understanding. Read it again with a highlighter. Then take it to the training floor."}],
+summary:["The ACQUIRE stage is the entry point of the entire A.R.E.S. Performance Loop","Visual-cognitive performance is trainable, measurable, and undertrained in virtually all athletes","This book covers: how light becomes information, how information becomes a percept, and how percepts drive elite performance"]},
+
+{id:"ch1",title:"Chapter 1: What Elite Athletes Actually See",subtitle:"Dismantling the Myth of Superior Eyesight",act:"ACT I: THE BIOLOGY",
+hook:"Watch a world-class hockey player track a puck through traffic, absorb the position of four defenders, and thread a pass to a teammate who hasn’t opened yet. Then ask yourself: what did they see that you didn’t?",
+sections:[
+{title:"The Real Advantage: Trained Prediction",content:"What elite athletes have developed is a visual system that operates predictively rather than reactively. They do not wait for information to arrive and then process it. They pre-load expectations about where information will appear, position their gaze in advance, and extract what they need in significantly less time than athletes who are waiting for the world to tell them where to look. This is built on three interlocking mechanisms: anticipatory gaze positioning, pattern recognition at speed, and selective filtering."},
+{title:"The Perceptual Bandwidth Model",content:"Think of your visual system as a channel with a maximum bandwidth distributed across three competing channels: foveal processing (the high-resolution central 2°), peripheral monitoring (the wide-field motion-sensitive surround), and predictive pre-loading (forward deployment of attentional resources toward expected locations). Poor performers blow their bandwidth on foveal tracking while elite performers maintain peripheral monitoring and pre-load predictions simultaneously."},
+{title:"What the Research Shows",content:"Experts make fewer fixations per decision — their internal models fill gaps from memory rather than demanding visual confirmation. Experts fixate earlier and longer on postural cues (trunk and hip orientation) worth 80-120ms of advance information. Experts use structured, consistent search patterns optimized over thousands of sport-specific repetitions."}
+],callouts:[
+{type:"field",text:"NCAA D1 Basketball — Point Guard: A sophomore with 20/15 acuity was consistently one action late in pick-and-roll. Eye tracking revealed a foveal tunnel: 78% fixation time on ball handler. Eight weeks of peripheral monitoring drills reduced fixation to 52%. His reads improved substantially within two months. Acuity was never the issue."},
+{type:"principle",text:"Elite visual performance is not about what the eyes can do. It is about where they go, when they go there, and what the brain does with the signal when it arrives."}
+],summary:["Elite visual performance is a trained prediction system, not optical superiority","The Perceptual Bandwidth Model frames visual capacity as finite bandwidth across foveal, peripheral, and predictive channels","Expert athletes make fewer fixations, fix earlier on postural cues, and follow structured scan sequences","These capabilities are trainable, measurable, and the primary target of the ACQUIRE stage"],
+quiz:{q:"What is the primary mechanism behind elite athletes' visual advantage?",opts:["Better optical acuity and faster photoreceptors","Trained predictive processing and strategic gaze allocation","Wider peripheral visual fields","Faster neural conduction velocity"],ans:1}},
+
+{id:"ch2",title:"Chapter 2: The Retina Is Not a Camera",subtitle:"The Biology of Visual Input — and Why It Matters for Training",act:"ACT I: THE BIOLOGY",
+hook:"Before we can train the visual system, we have to understand what it actually is — and the first thing to understand is that it is nothing like the metaphor coaches use to explain it.",
+sections:[
+{title:"Architecture of the Retina",content:"The retina is a thin (~0.5mm) sheet of neural tissue — an outpost of the brain. It contains ~120 million photoreceptors. Cones (~6 million) concentrated in the central 5° provide high-resolution detail. Rods (~120 million) distributed across the periphery are extraordinarily sensitive to motion onset. The fovea covers only about 2° of visual angle — roughly the size of your thumbnail at arm’s length."},
+{title:"The Fovea-Periphery Bandwidth Tradeoff",content:"You cannot simultaneously maximize both foveal acuity and peripheral motion sensitivity. Fixating the fovea suppresses peripheral processing via lateral inhibition. Elite athletes have learned to relax foveal commitment at key moments, allowing peripheral monitoring. This is a trained skill — the opposite of what coaches typically instruct."},
+{title:"The Two Pathways: M and P",content:"The Magnocellular (M) Pathway is fast, responds to motion and spatial location, reaches V1 ~10ms before the P pathway, and feeds the dorsal ‘where/how’ stream. The Parvocellular (P) Pathway handles fine detail, color, and object identity, feeding the ventral ‘what’ stream. For most real-time sport decisions, the M-pathway is the performance-critical system."},
+{title:"The LGN: First Bottleneck",content:"The lateral geniculate nucleus receives more descending cortical input than ascending retinal input. It is modulated by attention and arousal. When attention is directed toward a location, LGN neurons amplify signals by ~20-30%. This is why perceptual performance drops under fatigue even when the eyes function normally."},
+{title:"Binocular Integration",content:"Stereo acuity is trainable. Elite interception athletes often show <20 arc seconds. More clinically relevant is vergence function — convergence insufficiency (prevalence 5-8% in athletes) directly degrades near-distance interception performance and is treatable with vergence therapy."}
+],callouts:[
+{type:"training",text:"Most sport performance failures at the visual acquisition stage are M-pathway and dorsal-stream failures — problems with motion detection, spatial monitoring, and rapid pattern extraction — not P-pathway failures. Training that targets fine detail acuity at the expense of temporal and motion processing is optimizing the wrong system."},
+{type:"field",text:"Professional Baseball Outfielder: Struggled with overhead flyballs despite 20/12 acuity. Eye tracking revealed a 150ms saccade gap during mid-flight. Smooth pursuit calibration reduced the tracking gap to ~40ms. Catch percentage improved markedly."}
+],summary:["The retina actively filters and preprocesses — it is not a passive sensor","Cones provide foveal detail (~2°); rods dominate periphery with motion sensitivity","The M-pathway reaches cortex ~10ms before P-pathway — the primary sport performance pathway","The LGN is the first attentional bottleneck, modulated by attention and training","Convergence insufficiency must be ruled out before performance vision training"],
+quiz:{q:"Why does the M-pathway provide a competitive advantage in sport?",opts:["It processes color information more accurately","It arrives at cortex ~10ms faster and handles motion/spatial data","It provides higher resolution than the P-pathway","It bypasses the LGN entirely"],ans:1}},
+
+{id:"ch3",title:"Chapter 3: The 40-Millisecond Head Start",subtitle:"How the Brain Exploits Its Own Biology for Competitive Advantage",act:"ACT I: THE BIOLOGY",
+hook:"There is a built-in inequality in how your brain processes the two most important streams of visual information for sport. One stream arrives faster. And almost nobody is deliberately training to exploit it.",
+sections:[
+{title:"M-Pathway Priority",content:"The M-pathway signal arrives in cortex approximately 40ms before the parvocellular signal. This compounds from a 10-15ms lead at the LGN to ~40ms by the time signals reach integration networks. In a 90mph fastball scenario, 40ms is roughly one-fifth of total available response time."},
+{title:"Predictive Processing: The Anticipatory Machine",content:"The brain maintains a running model of the world — predictions about what is about to happen. Incoming signals serve primarily as error-correction. When predictions are accurate, processing is fast and efficient. Expert athletes have better predictive models built from structured, sport-specific experience."},
+{title:"Anticipatory vs. Reactive Processing",content:"Reactive: event occurs → gaze shifts (150-200ms) → signal arrives → processing begins. Decision ready at ~t+380ms. Anticipatory: prediction loaded → gaze pre-positioned → event occurs → signal immediately available. Decision ready at ~t+280ms. The anticipatory athlete gains ~100ms. In sport, that gap is not recovered."},
+{title:"Training Anticipatory Processing",content:"Expert anticipation is built through structured experience enabling prediction-template formation and deliberate gaze training building anticipatory fixation habits. What does NOT build it: more game reps alone, generic reaction time training, or equipment-based visual training divorced from sport context."}
+],callouts:[
+{type:"principle",text:"Train the prediction, not the reaction. Every drill that forces an athlete to predict event location before it occurs builds the neural infrastructure of anticipatory processing more effectively than any drill that rewards fast reactions to explicit stimuli."},
+{type:"field",text:"Elite Youth Hockey Defenseman (Age 17): Excellent in half-ice practice but struggled in full-ice games. Eye tracking revealed reactive gaze — waiting for forwards to commit before shifting fixation. Training shifted to ‘reading the pre-play’ — hip-shoulder angles, stick position 400-600ms before commitment. After 10 weeks, reactive delay reduced by ~90ms."}
+],summary:["The M-pathway provides a systematic 40ms biological advantage for motion/spatial processing","The brain operates as a predictive machine using experience-built models","Anticipatory processing provides 80-120ms advantage over reactive processing","Built through sport-specific prediction templates and gaze positioning drills, not generic reaction training"],
+quiz:{q:"What is the approximate time advantage of anticipatory over reactive processing?",opts:["10-20ms","40-60ms","80-120ms","200-300ms"],ans:2}},
+
+{id:"ch4",title:"Chapter 4: The Visual Bottleneck",subtitle:"Signal Gating, Attentional Modulation, and the Thalamic Gate",act:"ACT I: THE BIOLOGY",
+hook:"Not every signal that enters your eye reaches your brain. A substantial proportion of visual information is filtered, attenuated, or blocked entirely at the first cortical relay — and the mechanism responsible is attention.",
+sections:[
+{title:"How Attention Controls the Gate",content:"Attending to a spatial location increases LGN neuron firing rate by ~20-30%. This pre-amplification means an athlete who has pre-allocated attention toward a likely event location processes that event with greater amplitude and priority. Anticipatory gaze is not just positioning optics — it’s pre-allocating attentional resources so the gate is open and amplified."},
+{title:"Top-Down vs. Bottom-Up Attention",content:"Top-down (voluntary, goal-directed): Driven by prefrontal and parietal cortex. Slower (~200ms) but flexible and trainable. Bottom-up (reflexive, stimulus-driven): Captured by salient events via superior colliculus. Fast (~100ms) but indiscriminate. Expert athletes have better top-down control — maintaining goal-directed attention against bottom-up capture."},
+{title:"The Attentional Blink",content:"After detecting a target, the attentional system enters a 200-500ms refractory period where second-target detection is impaired. This matters for sequential reads (QB to second receiver, hockey center receiving pass + locating forward). Research shows intensive attention training reduces blink magnitude."},
+{title:"Peripheral Desensitization Under Pressure",content:"Under elevated arousal, attentional resources shift toward foveal field while peripheral gain is reduced. Athletes under pressure literally see less of the field — not because their eyes changed, but because their attentional system concentrated resources centrally. This is trainable through pressure inoculation and peripheral load training."}
+],callouts:[
+{type:"principle",text:"Attention is not a spotlight you aim. It is a gain system you calibrate. Train the calibration."},
+{type:"training",text:"Any drill requiring detection of two sequential targets within 200-500ms trains attentional blink reduction. Multiple-object tracking forces rapid reallocation between targets, compressing the refractory period."},
+{type:"field",text:"D2 Women’s Soccer Midfielder: Highly effective in practice but ‘going small’ in games. HRV monitoring showed elevated sympathetic activation pre-competition. Peripheral field contracted ~35% under high cognitive load. Eight weeks of pressure exposure + peripheral load drills under stress significantly improved wide distribution and off-ball awareness."}
+],summary:["The LGN is an active attentional gate — attention amplifies signals by 20-30%","Top-down attention is trainable and determines resistance to irrelevant bottom-up capture","The attentional blink (200-500ms refractory) is reducible through training","Peripheral desensitization under pressure is common and treatable through graduated exposure"],
+quiz:{q:"What happens to the functional visual field under high arousal/pressure?",opts:["It expands to take in more threat information","It contracts as resources shift toward foveal field","It remains unchanged but processing slows","Peripheral acuity improves while central degrades"],ans:1}},
+
+{id:"ch5",title:"Chapter 5: From V1 to Action — The Two Streams",subtitle:"How Visual Information Splits Into Perception and Action",act:"ACT I: THE BIOLOGY",
+hook:"When the visual signal arrives in V1, it has not yet become anything you would recognize as a perception. And almost immediately, the signal divides — and the two pathways it creates could not be more different.",
+sections:[
+{title:"The Dorsal Stream: Where and How",content:"The action stream. Fast, M-pathway dominated, motion-sensitive (MT/V5), depth-sensitive, directly linked to motor planning. Most critically: pre-conscious. Elite athletes’ reflexive catches and defensive movements are dorsal-stream mediated, operating below deliberate decision-making. Training the dorsal stream means training automatic, pre-conscious sport response."},
+{title:"MT/V5: The Motion Specialist",content:"Direction-selective neurons encoding motion vectors with high precision. Determines smooth pursuit accuracy, optic flow processing, relative motion detection, and trajectory extrapolation. MT activation increases with practice — a genuine training effect at cortical specialization level."},
+{title:"The Ventral Stream: What",content:"The identity system. Slower, P-pathway dominated, template-driven. Handles pattern recognition, player identification, object classification, and context integration. Built through structured film study and deliberate exposure to tactical scenarios."},
+{title:"Integration Is the Goal",content:"The streams are deeply interconnected. Better ventral templates reduce dorsal tracking load; better dorsal processing aids ventral identification. Elite athletes experience this as ‘seeing the whole play’ — identity and location simultaneously available. Drills requiring both identification AND spatial tracking force cross-stream integration."}
+],callouts:[
+{type:"principle",text:"The dorsal stream acts before you decide. Train it to act correctly."},
+{type:"training",text:"Drills requiring both identification (what is this player about to do?) and spatial tracking (where will they be in 300ms?) simultaneously force cross-stream integration. Sport is an integrated problem. Train it integrated."},
+{type:"field",text:"Professional Rugby Fly-Half: Excellent isolated decision metrics but poor choices in traffic. Strong ventral pattern matching but ~40th percentile dorsal stream dynamic integration. After 14 weeks of MOT + dynamic sport video requiring simultaneous identity and location judgments, in-game choice consistency improved measurably."}
+],summary:["V1 performs basic feature detection — the foundation for downstream processing","Dorsal stream (V1→MT→PPC): faster, pre-conscious, action-linked — the primary sport performance stream","MT/V5 is the motion hub, trainable through sustained engagement with moving stimuli","Ventral stream (V1→V4→IT): object identity and pattern recognition, built through experiential learning","Optimal performance requires cross-stream integration"],
+quiz:{q:"Which stream is primarily responsible for pre-conscious motor responses in sport?",opts:["Ventral stream","Dorsal stream","Both equally","Neither — it’s the prefrontal cortex"],ans:1}},
+
+{id:"ch6",title:"Chapter 6: The Spatial Priority Map",subtitle:"How the Brain Allocates Attention — and Where the Game Is Won",act:"ACT II: THE SYSTEM",
+hook:"Somewhere in the posterior parietal cortex, right now, there is a map of your visual world. It is not a faithful image. It is a priority map — a continuously updated representation of where the most relevant things are.",
+sections:[
+{title:"The PPC Priority Map",content:"The posterior parietal cortex integrates dorsal stream spatial data, ventral stream identity data, frontal executive goals, subcortical orienting signals, and motor system state into a continuously updated spatial representation. Highest-priority locations receive the most attentional resource. When miscalibrated, the athlete is informationally blind to game-relevant events."},
+{title:"LIP and the Decision to Look",content:"The lateral intraparietal area accumulates evidence for saccade destinations — a competitive computation among bottom-up salience, top-down priority, and historical value. Athletes with thousands of sport-specific rewarded trials build stronger LIP weighting for relevant locations. Generic visual training builds maps calibrated to those environments, not sport."},
+{title:"Multisensory Integration",content:"The PPC integrates visual, proprioceptive, auditory, vestibular, and motor efference copy into a unified self-in-world representation. Athletes with degraded parietal integration (common after concussion) show difficulty maintaining spatial representations while moving. Train spatial mapping under dynamic body movement conditions."},
+{title:"Hemispheric Asymmetry",content:"Right PPC has broader spatial coverage. Subclinical attention asymmetries can create blind spots. Assessment should include separate left/right hemifield testing. Asymmetries >20% between hemifields warrant targeted training."}
+],callouts:[
+{type:"principle",text:"The priority map is trained by reward history. Show the brain what locations have produced correct decisions, and it will learn to prioritize them. Show it the wrong locations, and you have trained the wrong map."},
+{type:"clinical",text:"Spatial attention asymmetries are measurable and sport-relevant. Assess both hemifields separately. After concussion or TBI, parietal attention asymmetries are common and may persist beyond symptom resolution."},
+{type:"field",text:"Olympic Volleyball Outside Hitter: Excellent serve-receive but ‘playing behind the play’ in defense-to-attack transitions. Scene grasping time ~180ms slower than national-level peers. After 18 weeks of structured scan pattern learning + high-complexity MOT, scene grasping improved by 110ms."}
+],summary:["The PPC generates a continuous spatial priority map determining what gets processed","LIP drives saccade selection through competitive accumulation — trained by reward history","PPC integrates multisensory signals into unified self-in-world representation","Anticipatory spatial attention is the neural mechanism behind ‘reading the game’","Assess both hemifields for asymmetries"],
+quiz:{q:"What primarily determines the PPC priority map's weighting?",opts:["Genetic predisposition","Reward history from sport-specific experience","General intelligence","Visual acuity level"],ans:1}},
+
+{id:"ch7",title:"Chapter 7: Gaze as a Strategy, Not a Reflex",subtitle:"Voluntary Gaze Control, Saccadic Architecture, and the Quiet Eye",act:"ACT II: THE SYSTEM",
+hook:"The eyes move 3-5 times per second. Most movements are reflexes. But in the highest-stakes moments, the quality of your gaze is determined by strategy. And strategy can be trained.",
+sections:[
+{title:"The Oculomotor System",content:"Superior Colliculus (SC): reflexive orienting, 70-100ms latency. Frontal Eye Fields (FEF): voluntary, goal-directed saccades, trainable. Supplementary Eye Fields (SEF): sequencing multiple saccades. Training the gaze system means training FEF to win more of the competition against reflexive SC orienting."},
+{title:"Types of Eye Movement",content:"Saccades: ballistic jumps, 40-100ms flight, suppressed vision during movement. Latency 150-250ms reactive, 80-120ms anticipatory. Smooth Pursuit: continuous tracking matching eye velocity to target velocity. Gain should be ~1.0; below 0.8 indicates deficits. Degrades with fatigue. Vergence: convergence/divergence for depth. Velocity and recovery are trainable."},
+{title:"Quiet Eye: Correct Interpretation",content:"QE is the final fixation before motor action, associated with expert accuracy. But it is a downstream SIGNAL, not a cause. It reflects motor pre-programming quality and decision confidence. Training athletes to ‘hold gaze longer’ without addressing upstream motor and decision architecture produces surface behavior change without process change. Build better motor programs — QE improves as a consequence."},
+{title:"Designing a Gaze Strategy",content:"Answer four questions: (1) What are the 2-3 highest-value information sources? (2) When does each deliver most actionable information? (3) What is the optimal scan sequence? (4) What are the common distractors? Build sport-specific ‘gaze scripts’ — make the strategy explicit before making it automatic."}
+],callouts:[
+{type:"principle",text:"Quiet Eye is a downstream signal, not a cause. It reflects the quality of motor pre-programming and decision confidence. Train the upstream system, not the surface behavior."},
+{type:"training",text:"Build a ‘gaze script’ for the athlete’s primary high-decision contexts: where to look first, when to shift, where to shift to, and what to look for at each location. Explicit knowledge enables error detection during early training; automaticity is the goal, not the starting point."}
+],summary:["Gaze is controlled by SC (reflexive) vs. FEF (voluntary) competition — training shifts balance toward voluntary","Saccadic latency: 80ms anticipatory to 250ms reactive — maximize anticipatory saccades","Smooth pursuit gain ~1.0 target; declines with fatigue as a monitoring tool","Quiet Eye is a signal of efficient motor programming — train upstream, not the surface","Build sport-specific gaze scripts for primary decision contexts"],
+quiz:{q:"What is the correct interpretation of Quiet Eye duration?",opts:["Longer QE directly causes better accuracy","QE is a downstream signal of motor programming efficiency","Athletes should always try to extend QE as long as possible","QE is unrelated to expertise"],ans:1}},
+
+{id:"ch8",title:"Chapter 8: The Peripheral Dividend",subtitle:"What Elite Athletes Do With the 98% You’re Not Looking At",act:"ACT II: THE SYSTEM",
+hook:"Most of your visual field — roughly 98% by solid angle — is processed outside the fovea. For most high-level tactical decisions in sport, it is more important than the 2% you’re looking at directly.",
+sections:[
+{title:"What Peripheral Vision Excels At",content:"Motion onset detection (80-120ms), biological motion processing (detecting human movement patterns), spatial configuration monitoring (maintaining a ‘spatial census’ of player positions), and threat detection (pre-cortical alarm via superior colliculus)."},
+{title:"Ambient vs. Focal Gaze Modes",content:"Ambient: wide, distributed attention for assessing formations and detecting motion. Focal: concentrated fixation for tracking specific targets. Experts switch strategically between modes. Novices tend toward all-focal (ball-watching) or all-ambient (unfocused scanning). Teaching mode-switching is trainable gaze management."},
+{title:"Peripheral Detection Under Central Load",content:"The sport-relevant skill is NOT isolated peripheral detection — it’s maintaining peripheral monitoring WHILE the central system is occupied. Peripheral light boards without a concurrent central task have limited transfer value. Always add a central task."},
+{title:"Peripheral Vision Under Pressure",content:"Functional visual field contracts under arousal. Athletes show measurable reductions beyond 20-30° eccentricity under pressure. Training must eventually include pressure conditions for transfer to competition."}
+],callouts:[
+{type:"training",text:"Peripheral light boards and reaction devices that require responses without a concurrent central task train peripheral reaction in isolation. Sport does not present peripheral targets in isolation. The training value is limited. Add a central task — always."},
+{type:"field",text:"NBA Development League Guard: Excellent individual offensive metrics but low assists. Peripheral detection under dribbling load dropped significantly beyond 25° — precisely where cutting teammates appear. After 12 weeks of progressive peripheral-load dribbling drills, detection accuracy under load matched static baseline. Assist rate approximately doubled."}
+],summary:["Peripheral vision covers ~98% of visual angle — excels at motion, biological motion, and spatial configuration","Experts switch between ambient (distributed) and focal (concentrated) gaze modes strategically","Peripheral detection UNDER CENTRAL LOAD is the sport-relevant skill — not isolated reaction","Functional visual field contracts under arousal — train periphery under progressive pressure"],
+quiz:{q:"What is the critical difference between effective and ineffective peripheral training?",opts:["Duration of training sessions","Presence of a concurrent central task","Distance of peripheral targets","Brightness of peripheral stimuli"],ans:1}},
+
+{id:"ch9",title:"Chapter 9: Prediction Is the Skill",subtitle:"Pattern Recognition, Chunking, and the Expert’s Cognitive Architecture",act:"ACT II: THE SYSTEM",
+hook:"The defining characteristic of expertise in virtually every skill domain is not raw processing speed. It is the quality of the predictive models the expert carries.",
+sections:[
+{title:"Chunking: Compression of Experience",content:"Experts perceive situations as meaningful patterns, not individual elements. A basketball coach sees ‘2-3 zone cheating strong side’ — a single chunk encoding five players’ positions and behaviors. This reduces working memory load, freeing cognitive capacity for planning and monitoring."},
+{title:"Template Formation",content:"Templates develop through thousands of feedback-rich, varied repetitions. Two critical features: variability of exposure (varied examples produce more robust templates) and outcome feedback (templates form around features that reliably predict outcomes). Without feedback, template formation is less effective."},
+{title:"Anticipatory Cue Utilization",content:"Experts extract predictive information from early-phase movements (trunk, hip) 400-600ms before action completion. Trainable through temporal occlusion paradigms — showing video cut before the event, requiring predictions. The forced early extraction builds templates that wouldn’t develop from reactive viewing."},
+{title:"Scene Gist and Brief Exposure",content:"Experts extract meaningful scene information within 100-150ms. Brief exposure exercises (100-300ms tactical scenarios with categorical judgments) train gist extraction — forcing holistic pattern processing rather than sequential element analysis."},
+{title:"Limits of Pattern Recognition",content:"Expert predictions can be exploited by deceptive opponents. Training should include deliberate deception exposure — scenarios where early cues are decoupled from outcomes, training prediction confidence calibration."}
+],callouts:[
+{type:"principle",text:"The early cue is invisible until experience makes it visible. Training that accelerates this learning builds competitive advantage that cannot be taken away between one season and the next."},
+{type:"training",text:"Brief Exposure Protocol: Present sport video for 100-500ms. Ask for categorical judgment: ‘Attack or transition?’ ‘Zone or man?’ Provide immediate feedback. Gradually reduce exposure duration. This targets gist extraction — the most upstream pattern recognition skill."},
+{type:"field",text:"International Cricket Test Batsman: Elite anticipation for standard deliveries but repeatedly dismissed by left-arm bowlers bowling wide of crease. His templates were calibrated for over-the-wicket right-arm bowling. Focused deception exposure + separate template building for the novel delivery type resolved the vulnerability."}
+],summary:["Chunking compresses experience into meaningful units, reducing cognitive load","Pattern templates require varied, feedback-rich sport-specific exposure","Anticipatory cue utilization is trainable through occlusion paradigms","Scene gist extraction (processing in <150ms) is trainable through brief exposure","Expert predictions can be exploited — train prediction confidence calibration alongside templates"],
+quiz:{q:"What two features are critical for effective pattern template formation?",opts:["Speed and repetition","Variability of exposure and outcome feedback","Visual acuity and reaction time","Motivation and arousal"],ans:1}},
+
+{id:"ch10",title:"Chapter 10: When Acquisition Fails",subtitle:"Ten Failure Modes, Their Signatures, and Their Causes",act:"ACT III: APPLICATION",
+hook:"Every performance system fails in characteristic ways. Understanding the failure modes is the difference between a practitioner who identifies the bottleneck and one who treats symptoms.",
+sections:[
+{title:"The Ten Failure Modes",list:[
+"1. Late Gaze Initialization — reactive, never early. Misattributed as ‘lacking anticipation’",
+"2. Foveal Tunnel — glued to ball/puck. Misattributed as ‘low IQ’ or ‘selfish’",
+"3. Inefficient Scan Patterns — high-cost search. Misattributed as ‘indecisive’",
+"4. Pattern Blindness — element-by-element processing. Misattributed as ‘overthinks’",
+"5. Predictive Failure — no anticipatory pre-positioning. Misattributed as ‘not quick enough’",
+"6. Attentional Capture by Irrelevance — fooled by fakes. Misattributed as ‘bites on everything’",
+"7. Attentional Narrowing Under Pressure — practice>game gap. Misattributed as ‘mental weakness’",
+"8. Binocular Coordination Failure — depth errors. Misattributed as ‘lacks killer instinct’",
+"9. Oculomotor Fatigue — progressive degradation. Misattributed as ‘fitness problem’",
+"10. Sensory Channel Over-Weighting — environment-dependent. Misattributed as ‘inconsistent’"
+]},
+{title:"Key Pattern",content:"Coach misattribution is consistent: most acquisition failures are labeled as mental, motivational, or talent deficits. They are trainable physiological and neural patterns. Binocular coordination failures (Mode 8) require clinical intervention before performance training. Multiple modes frequently coexist — assess systematically."}
+],callouts:[
+{type:"clinical",text:"Failure Mode 8 (Binocular Coordination) requires clinical optometric intervention before performance training. NPC break >7cm, vergence facility <8 cpm, or stereo acuity >40 arc sec are clinical flags. Do not prescribe performance vision training over unresolved convergence insufficiency."},
+{type:"principle",text:"Every failure mode has a distinct sport behavior signature, data signature, and neural mechanism. Coach misattribution follows predictable patterns. The practitioner’s job is to see past the label to the mechanism."}
+],summary:["Ten specific failure modes each with distinct behavior signatures, data patterns, and mechanisms","Coach misattribution is predictable: most failures labeled as mental/motivational deficits","They are trainable physiological and neural patterns","Binocular coordination failures require clinical intervention first","Multiple modes frequently coexist — assess systematically"],
+quiz:{q:"Which failure mode requires clinical intervention BEFORE performance training?",opts:["Late Gaze Initialization","Attentional Narrowing Under Pressure","Binocular Coordination Failure","Pattern Blindness"],ans:2}},
+
+{id:"ch11",title:"Chapter 11: Measuring the Perceptual Bandwidth",subtitle:"The ACQUIRE Stage Evaluation Battery",act:"ACT III: APPLICATION",
+hook:"You cannot train what you have not measured. The gap between ‘I think this athlete has a deficit’ and ‘I know exactly what it is’ is the difference between targeted intervention and high-cost guessing.",
+sections:[
+{title:"Three-Tier Structure",content:"Tier 1: Clinical optometric baseline (acuity, contrast sensitivity, stereo, NPC, color). Tier 2: Oculomotor performance (vergence facility, smooth pursuit gain, saccadic accuracy, dynamic VA). Tier 3: Visual-cognitive performance (UFOV, MOT, anticipatory gaze, occlusion accuracy, peripheral detection, N-back). Complete lower tiers before prescribing upper-tier training."},
+{title:"Key Tier 3 Metrics",list:[
+"UFOV Processing Speed: Adequate <17ms, Elite <12ms",
+"UFOV Divided Attention: Adequate <145ms, Elite <50ms",
+"MOT 4-target Accuracy: Adequate >80%, Elite >92%",
+"MOT Speed Threshold: Adequate 1.2 deg/s, Elite >2.0 deg/s",
+"Anticipatory Gaze %: Adequate >50%, Elite >70%",
+"Occlusion Accuracy (early): Adequate >60%, Elite >80%",
+"Peripheral Detection (dual-task): Adequate >75%, Elite >90%"
+]},
+{title:"Interpreting the Profile",content:"The goal is not a single score but a bottleneck profile. Example: Elite college basketball player with normal Tier 1-2 but UFOV divided attention 190ms (deficit), MOT 71% (below adequate), anticipatory gaze 42% (reactive-dominant). Bottleneck: attentional allocation strategy and predictive gaze positioning. Training target: peripheral monitoring under central load + anticipatory gaze paradigm."}
+],callouts:[
+{type:"principle",text:"Complete Tier 1 before prescribing Tier 2 training. Complete Tier 2 before prescribing Tier 3. A Tier 3 deficit on top of unresolved Tier 1/2 will be partially explained by the lower issue. Fix the foundation first. This sequencing is not optional."},
+{type:"field",text:"Professional Women’s Soccer National Team Midfielder: Coaches cited vague ‘vision issues.’ Full evaluation: Tier 1-2 normal. Tier 3: UFOV divided attention 168ms, MOT 74%, anticipatory gaze 58%, brief-exposure 61%. After 12 weeks of targeted training: UFOV improved to 89ms, MOT to 88%, anticipatory gaze to 74%. The coaching concern was eliminated."}
+],summary:["Three-tier evaluation: clinical baseline → oculomotor → visual-cognitive","Always complete lower tiers before prescribing upper-tier training","Key Tier 3 metrics: UFOV divided attention, MOT, anticipatory gaze, occlusion accuracy","The evaluation produces a bottleneck profile directing training priority"],
+quiz:{q:"What is the correct sequencing for the ACQUIRE evaluation?",opts:["Start with Tier 3 for sport-specific metrics, then check Tier 1 if needed","Complete all tiers simultaneously for efficiency","Tier 1 (clinical) → Tier 2 (oculomotor) → Tier 3 (visual-cognitive)","Only Tier 3 matters for performance athletes"],ans:2}},
+
+{id:"ch12",title:"Chapter 12: Training the Acquisition System",subtitle:"Drills, Progressions, and the Logic of Visual-Cognitive Load",act:"ACT III: APPLICATION",
+hook:"The evaluation tells you where the gap is. Training closes it. But closing it requires more than a collection of drills — it requires a logic of progression that escalates the right variables in the right order.",
+sections:[
+{title:"Four-Phase Progression Framework",content:"Phase 1 — Isolation: Single skill, low demand, full feedback. Establish ≥80% accuracy before advancing. Phase 2 — Load: Add concurrent secondary task while maintaining primary skill. Build operation under reduced attentional resources. Phase 3 — Noise: Add distractors requiring suppression. Train filtering and top-down control. Phase 4 — Transfer: Sport-specific decision context with time pressure and consequence."},
+{title:"Drill Categories",list:[
+"Saccadic Accuracy: Hart Chart → dual-task → distractor saccades → sport video scan sequences",
+"Smooth Pursuit: Pendulum tracking → increasing velocities → target among similar objects → ball through traffic",
+"MOT: 3D-CRT 4 targets → speed increase + verbal task → 5-6 targets + selective tracking → field-based",
+"Anticipatory Gaze: Full clip prediction → temporal occlusion → eye tracking feedback → field application",
+"Peripheral Load: Static detection → central cognitive task added → peripheral distractors → dribbling + peripheral signals"
+]},
+{title:"Session Design",content:"Warm-up (5 min): vergence/pursuit activation. Primary drill block (20-25 min): 2-3 drills at current phase for primary bottleneck. Secondary block (10 min): 1-2 drills for secondary target. Transfer application (10-15 min): sport-specific scenario. Cool-down (3 min): easy pursuit, accommodation rest."},
+{title:"Training Volume",content:"Off-season intensive: 45-60 min/session, 3-4x/week. In-season maintenance: 25-30 min/session, 2-3x/week. Do not schedule immediately before practice requiring maximal decision quality — oculomotor fatigue will degrade both."}
+],callouts:[
+{type:"principle",text:"Do not advance to the next phase until ≥80% accuracy is stabilized. Premature escalation builds performance anxiety and incorrect patterns. Patience at Phase 1-2 compresses total training time, not expands it."},
+{type:"training",text:"Monitor: within-session accuracy trends (declining = overload), between-session retention (≥85% at next session start), smooth pursuit gain start vs. end (>0.1 drop = fatigue), athlete self-report (visual discomfort = excessive load)."}
+],summary:["All training follows: Isolation → Load → Noise → Transfer. Don’t advance before ≥80%","Five drill categories: saccadic, pursuit, MOT, anticipatory gaze, peripheral load","Session: warm-up → primary block → secondary block → transfer → cool-down (45-60 min)","Monitor accuracy trends, retention, pursuit gain, and self-report for load management"],
+quiz:{q:"What accuracy threshold must be maintained before advancing to the next training phase?",opts:["≥60%","≥70%","≥80%","≥90%"],ans:2}},
+
+{id:"ch13",title:"Chapter 13: Technology in the Acquire Stage",subtitle:"What the Tools Can and Cannot Tell You",act:"ACT III: APPLICATION",
+hook:"The technology available has expanded significantly. The question for practitioners is not ‘what exists?’ It is ‘what is worth using, for what purposes, and what should I be skeptical about?’",
+sections:[
+{title:"Eye Tracking",content:"The foundational ACQUIRE technology. Desktop systems (Tobii Pro, EyeLink): highest quality, ideal for video scenario analysis. Mobile systems (Tobii Pro Glasses, Pupil Labs): ecological field data, confirms trained strategies transfer. Limitation: tells you where eyes point, NOT what is perceived. Attention and gaze are dissociable."},
+{title:"NeuroTracker / 3D-CRT",content:"Most widely used sport visual-cognitive tool. Measures attentional capacity for dynamic multi-target tracking. Validated normative data from NHL, NFL, NBA, Premier League. Correlates moderately with team sport decision making. Does NOT measure gaze strategy, anticipatory cue utilization, or sport-specific pattern recognition."},
+{title:"Virtual Reality Platforms",content:"Strengths: structured scenario repetition at scale, gaze data integration, accessibility for off-site training. Limitations: visual fidelity and depth accuracy gaps, biological motion reproduction issues, limited transfer evidence. Demand outcome data before adopting as primary modality."},
+{title:"Technology Hierarchy",content:"High evidence/ROI: Eye tracking for gaze strategy. Good evidence/moderate ROI: NeuroTracker for attentional capacity. Emerging evidence/promising ROI: VR for scenario repetition. Limited evidence/limited ROI: Stroboscopic glasses, light reaction boards, generic visual hardware without sport context."}
+],callouts:[
+{type:"principle",text:"Use technology in proportion to the quality of evidence for its contribution. No single tool addresses the full ACQUIRE stage profile. Match technology to the specific training or assessment question."},
+{type:"clinical",text:"Eye tracking requires skilled interpretation. Raw gaze data without appropriate expertise may lead to incorrect training prescriptions. Gaze on a target does not confirm attention to that target."}
+],summary:["Eye tracking is foundational — use for gaze strategy development and transfer verification","NeuroTracker is validated for attentional tracking capacity, not the full ACQUIRE profile","VR offers scenario repetition but has documented fidelity and transfer limitations","Match technology to the specific question — no single tool covers everything"],
+quiz:{q:"What is the primary limitation of eye tracking data?",opts:["Low sampling rate","Expensive equipment cost","It shows where eyes point, not what is being perceived/attended","It cannot be used in field conditions"],ans:2}},
+
+{id:"ch14",title:"Chapter 14: The Perceptual Bandwidth Model in Practice",subtitle:"From Assessment to Action Plan",act:"ACT III: APPLICATION",
+hook:"The Perceptual Bandwidth Model is not a concept. It is a tool. This chapter is about using it.",
+sections:[
+{title:"Step 1: Define the Performance Problem",content:"Vague inputs produce vague outputs. ‘Vision issues’ is not a performance problem. ‘Consistently late to recognize pick-and-roll situations leading to defensive breakdown’ IS. Establish: specific behavior, contexts where it fails, what coaches attribute it to, and whether video exists."},
+{title:"Step 2: Tier-Sequenced Evaluation",content:"Complete three tiers in sequence. Target time: Tier 1 (30-40 min) + Tier 2 (30-40 min) + Tier 3 (60-90 min). Produce a one-page profile: actual score, adequate threshold, elite threshold, gap."},
+{title:"Step 3: Identify Bottlenecks",content:"If Tier 1/2 deficit → clinical referral. If UFOV + low MOT → central-peripheral dual-task capacity. If anticipatory gaze + low occlusion → predictive gaze/cue utilization. If anticipatory gaze only + adequate UFOV/MOT → gaze strategy. If borderline Tier 3 + pursuit drop → oculomotor fatigue/conditioning."},
+{title:"Step 4: Build Protocol",content:"Select drill category from Ch. 12. Determine current phase level. Define session structure, frequency, volume. Set 4-week minimum re-evaluation checkpoints."},
+{title:"Step 5: Communicate",content:"Template: ‘We found your visual system is strong in isolation but shows weakness in [X]. This explains [specific behavior] because [mechanism]. Training will address this by [drill focus] over [timeline]. We re-measure at [checkpoint]. Here is what you should notice.’"},
+{title:"Team-Level Application",content:"The PBM applies at team level: collectively low anticipatory gaze → structured film with shared prediction templates. High ball-watching rates → team-wide peripheral load warm-ups. Poor opponent-specific early reads in Q1 → increased opponent video with forced early decisions."}
+],callouts:[
+{type:"field",text:"D1 Football Defensive Back: ‘Gets beat on double moves.’ Evaluation: UFOV 172ms (deficit), MOT 69%, anticipatory gaze 41%, occlusion 44% (below chance on deception). Protocol: Weeks 1-4 build standard templates. Weeks 5-8 introduce deception clips + confidence calibration. Weeks 9-12 full deception density + field transfer. Re-evaluate at week 12."},
+{type:"principle",text:"Perception is the first competitive advantage. It is built before the game starts, in the training that loads the predictive models the athlete carries to competition. Everything else is downstream."}
+],summary:["PBM protocol: define problem → tier-sequenced evaluation → bottleneck ID → training prescription → communication","Clinical findings supersede performance training until resolved","Primary bottleneck drives training priority with 4-week re-evaluation cycles","Applicable at team level for collective ACQUIRE patterns","Everything serves one purpose: loading predictive models for efficient first-millisecond perception"],
+quiz:{q:"What is the first step in the PBM practitioner protocol?",opts:["Run the full Tier 3 evaluation battery","Define the specific performance behavior that needs to improve","Prescribe NeuroTracker training","Measure visual acuity"],ans:1}},
+
+{id:"appA",title:"Appendix A: Evaluation Battery",subtitle:"Quick Reference",act:"APPENDICES",
+hook:"The complete ACQUIRE evaluation battery organized by tier for rapid clinical reference.",
+sections:[
+{title:"Tier 1: Clinical Baseline",list:["Distance acuity (best corrected) — target: 20/20 OU","Near acuity — target: 20/20 OU at 40cm","Contrast sensitivity (CSV-1000) — note mid-frequency deficits","Stereo acuity (Randot) — target: <40 arc sec","Near point of convergence — flag: break >7cm","Color vision (Ishihara) — document"]},
+{title:"Tier 2: Oculomotor Performance",list:["Vergence facility (prism flippers, 2 min) — target: >15 cpm","Smooth pursuit gain (H & V, 3 velocities) — target: ≥0.90","Saccadic accuracy (Hart Chart, fixator) — target: >90%","Dynamic visual acuity — target: <1 line drop from static","Pursuit gain under fatigue (start vs. end) — note >0.1 drop"]},
+{title:"Tier 3: Visual-Cognitive",list:["UFOV processing speed — target: <17ms","UFOV divided attention — target: <145ms","UFOV selective attention — target: <500ms","MOT 4-target accuracy — target: >80%","MOT speed threshold — target: >1.5","Anticipatory gaze % — target: >65%","Temporal occlusion accuracy — target: >65%","Peripheral detection under load — target: >80%","N-Back 2-back — target: >80%"]}
+],callouts:[{type:"clinical",text:"Complete Tier 1 → 2 → 3 in sequence. Do not skip. Clinical findings override performance training."}],summary:[]},
+
+{id:"appB",title:"Appendix B: Drill Library",subtitle:"ACQUIRE Stage Quick Reference",act:"APPENDICES",
+hook:"All ACQUIRE stage drill categories with tools, metrics, and progression paths.",
+sections:[
+{title:"Drill Categories",list:[
+"Saccadic Accuracy: Hart Chart / Fixator → accuracy + latency → P1: Isolation → P4: Sport video scan",
+"Smooth Pursuit: Pendulum / screen → gain across velocities → P1: Slow (10°/s) → P4: Moving sport targets",
+"MOT: NeuroTracker / 3D-CRT → accuracy + speed threshold → P1: 4 targets slow → P4: Field-based team",
+"Anticipatory Gaze: Sport video + eye tracking → % aligned at event → P1: Full clip → P4: Occluded early decision",
+"Peripheral Load: Central task + peripheral detect → dual-task accuracy → P1: Static → P4: Dribbling + signals",
+"Brief Exposure: Sport video 100-500ms → gist accuracy + RT → P1: Categorical → P4: Tactical decision",
+"Vergence: Brock string / vectogram → NPC, facility → P1: Push-ups → P4: Vergence during sport",
+"Scan Pattern: Video + gaze feedback → sequence match to expert → P1: Expert review → P4: Gaze monitoring"
+]}
+],callouts:[{type:"training",text:"All progressions follow Isolation → Load → Noise → Transfer. Stabilize ≥80% before advancing each phase."}],summary:[]},
+
+{id:"appC",title:"Appendix C: Glossary",subtitle:"ACQUIRE Stage Key Terms",act:"APPENDICES",
+hook:"Essential terminology for the ACQUIRE stage of the A.R.E.S. Performance Loop.",
+sections:[
+{title:"A-F",list:["Ambient gaze — Distributed, low-fixation-density mode for global scene monitoring","Anticipatory gaze — Pre-positioning fixation toward predicted event location","Attentional blink — 200-500ms refractory period after target detection","Binocular disparity — L/R eye difference used for depth via stereopsis","Chunking — Organizing elements into meaningful units for efficient processing","Contrast sensitivity function — Minimum contrast for detection across spatial frequencies","Convergence insufficiency — Difficulty maintaining binocular alignment on near targets","Dorsal stream — V1→PPC pathway for spatial location, motion, action affordances","Fovea centralis — Central 1° with highest cone density and resolution","Frontal eye fields (FEF) — Voluntary goal-directed saccade control"]},
+{title:"L-P",list:["Lateral geniculate nucleus (LGN) — Thalamic relay with attentionally modulated gain","Magnocellular (M) pathway — Fast pathway for motion, spatial location, temporal changes","Multiple object tracking (MOT) — Simultaneous tracking of multiple moving targets","Occlusion paradigm — Video occluded at timepoints to test/train anticipatory cue usage","Parvocellular (P) pathway — Slower pathway for fine detail, color, object identity","Perceptual Bandwidth Model (PBM) — Finite bandwidth across foveal, peripheral, predictive channels","Posterior parietal cortex (PPC) — Spatial priority map and anticipatory attention","Predictive coding — Brain as hierarchical prediction machine, updating via prediction errors"]},
+{title:"Q-V",list:["Quiet Eye (QE) — Final stable fixation before motor action; signal of programming efficiency","Saccade — Rapid ballistic eye movement redirecting fixation","Scene gist — Global scene impression within first 150ms","Smooth pursuit — Continuous tracking matching eye velocity to target velocity","Superior colliculus (SC) — Midbrain reflexive orienting to salient peripheral stimuli","Useful Field of View (UFOV) — Assessment of processing speed, divided/selective attention","V1 — Primary visual cortex; first cortical stage detecting edges and orientation","Ventral stream — V1→IT pathway for object identity and pattern recognition","Vergence — Convergence/divergence of eyes for binocular fixation at varying distances"]}
+],callouts:[],summary:[]}
+]};
+
+function App(){
+const[ch,setCh]=React.useState(null);
+const[quizState,setQuiz]=React.useState({});
+const acts=[...new Set(BOOK.chapters.map(c=>c.act))];
+if(!ch){return e("div",{className:"ar-app"},
+e("div",{className:"ar-side"},
+e("h2",null,"A\xb7R\xb7E\xb7S BOOK ONE"),
+acts.map(act=>e(React.Fragment,{key:act},
+e("div",{className:"ar-nav-act"},act),
+BOOK.chapters.filter(c=>c.act===act).map(c=>
+e("button",{key:c.id,className:"ar-nav-item",onClick:()=>{setCh(c.id);setQuiz({})}},c.title.replace(/^(Chapter \d+|Appendix [A-C]): /,"")))
+))),
+e("div",{className:"ar-main"},
+e("div",{className:"ar-home"},
+e("div",{className:"ar-pipe"},
+["ACQUIRE","ROUTE","EXECUTE","SYNC"].map((n,i)=>
+e("div",{key:n,className:"ar-pipe-node"+(i===0?" active":""),style:{background:i===0?"rgba(212,168,67,0.2)":"rgba(107,79,160,0.15)",color:i===0?"#D4A843":"#9B8FBB",border:i===0?"1px solid rgba(212,168,67,0.4)":"1px solid transparent"}},n))),
+e("h1",null,"ACQUIRE"),
+e("div",{className:"sub"},"Photon to Decision"),
+e("div",{className:"sub",style:{fontSize:"14px",marginTop:"4px"}},"See What Others Miss"),
+e("div",{className:"author"},"Dr. Joe LaPlaca, OD — Ares Elite Sports Vision"),
+e("div",{style:{marginTop:"30px",fontSize:"13px",color:"var(--ar-muted)"}},
+"14 Chapters • 3 Appendices • 10 Field Reports • 14 Quizzes"),
+e("div",{style:{marginTop:"20px",fontSize:"12px",color:"var(--ar-accent)",maxWidth:"400px",margin:"20px auto",lineHeight:"1.6"}},
+"Select a chapter from the sidebar to begin reading. Each chapter includes interactive quizzes and clinical field reports.")))
+);}
+const chapter=BOOK.chapters.find(c=>c.id===ch);
+return e("div",{className:"ar-app"},
+e("div",{className:"ar-side"},
+e("h2",null,"A\xb7R\xb7E\xb7S BOOK ONE"),
+acts.map(act=>e(React.Fragment,{key:act},
+e("div",{className:"ar-nav-act"},act),
+BOOK.chapters.filter(c=>c.act===act).map(c=>
+e("button",{key:c.id,className:"ar-nav-item"+(c.id===ch?" active":""),onClick:()=>{setCh(c.id);setQuiz({})}},c.title.replace(/^(Chapter \d+|Appendix [A-C]): /,"")))
+))),
+e("div",{className:"ar-main"},
+e("button",{onClick:()=>setCh(null),style:{background:"none",border:"none",color:"var(--ar-accent)",fontSize:"12px",cursor:"pointer",marginBottom:"16px"}},"← Home"),
+e("div",{className:"ar-ch-title"},chapter.title),
+e("div",{className:"ar-ch-sub"},chapter.subtitle),
+chapter.hook&&e("div",{className:"ar-hook"},chapter.hook),
+chapter.sections&&chapter.sections.map((s,i)=>e("div",{key:i,className:"ar-section"},
+s.title&&e("h3",null,s.title),
+s.content&&e("p",null,s.content),
+s.list&&e("ul",null,s.list.map((item,j)=>e("li",{key:j},item)))
+)),
+chapter.callouts&&chapter.callouts.map((c,i)=>e("div",{key:i,className:"ar-callout "+c.type},
+e("div",{className:"ar-cl-label"},c.type==="field"?"Field Report":c.type==="principle"?"Key Principle":c.type==="clinical"?"Clinical Note":"Training Implication"),
+e("p",null,c.text)
+)),
+chapter.summary&&chapter.summary.length>0&&e("div",{className:"ar-summary"},
+e("h4",null,"Chapter Summary"),
+e("ul",null,chapter.summary.map((s,i)=>e("li",{key:i},s)))
+),
+chapter.quiz&&e("div",{className:"ar-quiz"},
+e("h4",null,"Knowledge Check"),
+e("p",{style:{fontSize:"13px",marginBottom:"12px",color:"var(--ar-text)"}},chapter.quiz.q),
+chapter.quiz.opts.map((opt,i)=>e("button",{key:i,
+className:"ar-quiz-opt"+(quizState.answered?(i===chapter.quiz.ans?" correct":(i===quizState.selected?" wrong":"")):""),
+onClick:()=>{if(!quizState.answered)setQuiz({answered:true,selected:i})}
+},opt))
+)
+));
+}
+ReactDOM.render(e(App),document.getElementById("root"));
+</script>

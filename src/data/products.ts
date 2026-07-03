@@ -1,0 +1,310 @@
+// Ares Elite Sports Vision — Performance Shop catalog.
+// This file is the SINGLE SOURCE OF TRUTH for product pricing and is imported by
+// BOTH the client (display) and the server (price authority for Stripe checkout).
+// Never trust a price sent from the browser — the server looks prices up here by id.
+
+export type ProductCategory = 'bundles' | 'supplements' | 'tools' | 'eyewear' | 'digital';
+
+// stripe        -> one-time Stripe Checkout
+// stripe-both   -> one-time OR subscribe & save (recurring)
+// external      -> link out (e.g. Fullscript dispensary / affiliate). No Stripe.
+// free          -> free download (lead magnet)
+export type PurchaseType = 'stripe' | 'stripe-both' | 'external' | 'free';
+
+export interface Product {
+  id: string;
+  slug: string;
+  name: string;
+  category: ProductCategory;
+  tagline: string;
+  description: string;
+  price: number;                 // USD one-time
+  subscribePrice?: number;       // USD recurring (if stripe-both)
+  subscribeInterval?: 'month';   // Stripe recurring interval
+  compareAt?: number;            // shown struck-through
+  features: string[];
+  badges?: string[];             // e.g. "NSF Certified for Sport"
+  purchase: PurchaseType;
+  externalUrl?: string;          // for external products
+  externalLabel?: string;
+  digitalFile?: string;          // path under /downloads for digital/free
+  gated?: boolean;               // served only to verified purchasers (e.g. the book reader)
+  readerPath?: string;           // in-app reader route for gated products
+  inStock?: boolean;
+  note?: string;                 // small print on the product page
+}
+
+// NOTE: replace FULLSCRIPT_URL with your real dispensary link once your account is live.
+export const FULLSCRIPT_URL = 'https://us.fullscript.com/welcome/aresvision';
+
+export const CATEGORY_LABELS: Record<ProductCategory, string> = {
+  bundles: 'Bundles & Kits',
+  supplements: 'Supplements',
+  eyewear: 'Eyewear',
+  tools: 'Vision Training Tools',
+  digital: 'Digital Training',
+};
+
+export const PRODUCTS: Product[] = [
+  // ---------- BUNDLES & KITS ----------
+  {
+    id: 'ares-elite-starter-kit',
+    slug: 'elite-starter-kit',
+    name: 'Ares Elite Starter Kit',
+    category: 'bundles',
+    tagline: 'Supplement, program & tool — the complete starting point',
+    description:
+      'The fastest way to start training your visual system inside and out. Includes a 3-month supply of MacuHealth VisionEdge Pro, the Sports Vision Playbook, and an Ares Reaction Ball — everything an athlete needs to begin. Buy the bundle and save versus buying separately.',
+    price: 109,
+    compareAt: 127,
+    features: [
+      'MacuHealth VisionEdge Pro (3-month supply)',
+      'The Sports Vision Playbook (digital)',
+      'Ares Reaction Ball',
+      'Save $18 vs. buying separately',
+    ],
+    badges: ['Best Seller'],
+    purchase: 'stripe',
+    inStock: true,
+    note: 'Bundle ships the physical items and emails your digital access. Supplement statements not evaluated by the FDA.',
+  },
+  {
+    id: 'home-training-bundle',
+    slug: 'home-training-bundle',
+    name: 'Home Vision Training Bundle',
+    category: 'bundles',
+    tagline: 'Everything to train vision at home — gear + program',
+    description:
+      'The complete at-home training package: the Ares Home Vision Training Kit (reaction ball, juggling balls, Brock string), the Sports Vision Playbook, and the Training Log & Tracker to measure your gains. Save versus buying separately.',
+    price: 79,
+    compareAt: 87,
+    features: [
+      'Ares Home Vision Training Kit',
+      'The Sports Vision Playbook (digital)',
+      'Training Log & Tracker (digital)',
+      'Everything to start and measure progress',
+    ],
+    badges: ['Great Value'],
+    purchase: 'stripe',
+    inStock: true,
+  },
+
+  // ---------- SUPPLEMENTS ----------
+  {
+    id: 'macuhealth-visionedge-pro',
+    slug: 'visionedge-pro',
+    name: 'MacuHealth VisionEdge Pro',
+    category: 'supplements',
+    tagline: 'The vision-performance supplement made for athletes',
+    description:
+      'Train the visual system behind every rep. A practitioner-grade blend of macular carotenoids (lutein, zeaxanthin, meso-zeaxanthin) plus 300 mg DHA/EPA omega-3 in one daily softgel. These nutrients help build macular pigment, which supports contrast sensitivity and recovery from glare. One bottle = a full 3-month training block.',
+    price: 85,
+    subscribePrice: 79,
+    subscribeInterval: 'month',
+    features: [
+      '90 softgels — 3-month supply',
+      'Lutein · Zeaxanthin · Meso-Zeaxanthin (10:10:2) + 300 mg DHA/EPA',
+      'Supports contrast sensitivity & glare recovery',
+      'Recommended & stocked by Ares Elite Sports Vision',
+    ],
+    badges: ['Practitioner Recommended'],
+    purchase: 'stripe-both',
+    inStock: true,
+    note: 'These statements have not been evaluated by the FDA. Not intended to diagnose, treat, cure, or prevent any disease. Consult your eye-care professional before starting any supplement.',
+  },
+  {
+    id: 'nuun-sport-hydration',
+    slug: 'nuun-sport-hydration',
+    name: 'Nuun Sport Hydration',
+    category: 'supplements',
+    tagline: 'NSF Certified for Sport electrolytes',
+    description:
+      'Clean, light-tasting electrolyte tablets to keep athletes hydrated through training and competition. NSF Certified for Sport — safe for drug-tested athletes. Drop one in water; no sugar crash.',
+    price: 8.99,
+    features: [
+      '10 tablets per tube',
+      '300 mg sodium + potassium, magnesium & more',
+      'Flavors: Tri-Berry, Strawberry Lemonade, Lemon Lime',
+      'Light, easy taste — great for everyday hydration',
+    ],
+    badges: ['NSF Certified for Sport'],
+    purchase: 'stripe',
+    inStock: true,
+  },
+  {
+    id: 'fullscript-dispensary',
+    slug: 'athlete-supplement-dispensary',
+    name: 'Athlete Supplement Dispensary',
+    category: 'supplements',
+    tagline: 'NSF-certified protein, creatine, omega-3 & greens',
+    description:
+      'Our curated dispensary of professional-grade, NSF Certified for Sport supplements from brands trusted by elite and Olympic athletes (Thorne, Klean Athlete, and more). Shipped directly to your door at practitioner pricing. Browse our recommended athlete protocols.',
+    price: 0,
+    features: [
+      'NSF Certified for Sport protein & creatine',
+      'Omega-3 fish oil (eye & brain support)',
+      'Foundational greens blends',
+      'Ships direct — curated by Ares Elite Sports Vision',
+    ],
+    badges: ['NSF Certified for Sport'],
+    purchase: 'external',
+    externalUrl: FULLSCRIPT_URL,
+    externalLabel: 'Open Our Dispensary',
+  },
+
+  // ---------- EYEWEAR ----------
+  {
+    id: 'ares-heritage-sunglasses',
+    slug: 'heritage-wood-sunglasses',
+    name: 'Ares Heritage Sunglasses',
+    category: 'eyewear',
+    tagline: 'Hand-finished wood frames, polarized UV400',
+    description:
+      'See sharper and look unforgettable. Hand-finished wood and bamboo frames in shapes you won\'t find anywhere else, with polarized UV400 lenses that cut glare and boost contrast. Laser-engraved with the Ares mark and packed in a branded pouch.',
+    price: 59,
+    features: ['Real wood / bamboo frames', 'Polarized UV400 lenses', 'Laser-engraved Ares logo', 'Branded microfiber pouch included'],
+    badges: ['Polarized · UV400'],
+    purchase: 'stripe',
+    inStock: true,
+  },
+  {
+    id: 'ares-gameday-sunglasses',
+    slug: 'gameday-sport-sunglasses',
+    name: 'Ares Game Day Sport Sunglasses',
+    category: 'eyewear',
+    tagline: 'Built for the play — impact-rated, high-contrast',
+    description:
+      'A lightweight, impact-rated (ANSI Z87.1) wrap with polarized, high-contrast lenses and a no-slip grip that stays put through every sprint, swing, and stride. Engineered to help you track the ball and read the field in any light.',
+    price: 69,
+    features: ['Impact-rated ANSI Z87.1', 'Polarized high-contrast lenses', 'No-slip nose & temple grips', 'Built for baseball, cycling, running'],
+    badges: ['ANSI Z87.1 · Polarized'],
+    purchase: 'stripe',
+    inStock: true,
+  },
+  {
+    id: 'ares-focus-bluelight',
+    slug: 'focus-blue-light-glasses',
+    name: 'Ares Focus Blue-Light Glasses',
+    category: 'eyewear',
+    tagline: 'Recovery for the screen-time athlete',
+    description:
+      'Your eyes work overtime off the field too. Focus glasses filter blue light from screens and stadium panels so your visual system can recover between sessions. Lightweight, all-day comfortable, Ares-branded.',
+    price: 35,
+    features: ['Blue-light filtering lenses', 'Lightweight all-day comfort', 'Clear / light-tint options', 'Ares-branded'],
+    purchase: 'stripe',
+    inStock: true,
+  },
+
+  // ---------- VISION TRAINING TOOLS ----------
+  {
+    id: 'ares-vision-training-kit',
+    slug: 'home-vision-training-kit',
+    name: 'Ares Home Vision Training Kit',
+    category: 'tools',
+    tagline: 'The physical companion to the Sports Vision Playbook',
+    description:
+      'Everything an athlete needs to train their visual system at home: a reaction ball, a juggling/vision ball set, a Brock string for convergence, and a printed drill card that links to our full program. Train hand-eye coordination, tracking, and reaction time anywhere.',
+    price: 49,
+    features: ['Reaction ball + juggling/vision ball set', 'Brock string for convergence', 'Printed drill card', 'Pairs with the Sports Vision Playbook'],
+    badges: ['Best Value'],
+    purchase: 'stripe',
+    inStock: true,
+  },
+  {
+    id: 'ares-reaction-ball',
+    slug: 'reaction-ball',
+    name: 'Ares Reaction Ball',
+    category: 'tools',
+    tagline: 'Unpredictable bounce. Faster reactions.',
+    description:
+      'A six-sided reaction ball that bounces unpredictably to train reaction time and hand-eye coordination. Toss it against a wall solo or drill with a partner. Ares-branded.',
+    price: 18,
+    features: ['Trains reaction time & hand-eye', 'Solo or partner drills', 'Durable rubber', 'Ares-branded'],
+    purchase: 'stripe',
+    inStock: true,
+  },
+  {
+    id: 'ares-juggling-set',
+    slug: 'juggling-vision-ball-set',
+    name: 'Ares Juggling / Vision Ball Set (3)',
+    category: 'tools',
+    tagline: 'The classic, proven tracking trainer',
+    description:
+      'A set of three weighted juggling balls — one of the most proven tools for building dynamic tracking and hand-eye coordination. Includes a quick-start drill guide.',
+    price: 24,
+    features: ['Set of 3 weighted balls', 'Builds tracking & hand-eye', 'Quick-start drill guide', 'Ares-branded'],
+    purchase: 'stripe',
+    inStock: true,
+  },
+
+  // ---------- DIGITAL ----------
+  {
+    id: 'acquire-book',
+    slug: 'acquire-book',
+    name: 'ACQUIRE — The A.R.E.S. Performance Loop, Book 1',
+    category: 'digital',
+    tagline: 'Photon to decision: how elite athletes acquire what matters',
+    description:
+      'The first book in the A.R.E.S. Performance Loop series — a multimodal digital book on ACQUIRE, the visual-acquisition stage where raw light becomes an actionable read. Learn the science of how elite athletes capture and route visual information faster than their opponents, with interactive chapters you read on any device. Instant access after purchase.',
+    price: 39,
+    features: [
+      'Multimodal digital book (read on any device)',
+      'The complete ACQUIRE stage of the A.R.E.S. Loop',
+      'From "photon to decision" — the science made practical',
+      'Instant access after purchase',
+    ],
+    badges: ['Flagship Book'],
+    purchase: 'stripe',
+    gated: true,
+    readerPath: '/read/acquire',
+    inStock: true,
+    note: 'Delivered as a private, purchase-protected in-browser reader — your access link arrives by email after checkout.',
+  },
+  {
+    id: 'sports-vision-playbook',
+    slug: 'sports-vision-playbook',
+    name: 'The Sports Vision Playbook (eBook)',
+    category: 'digital',
+    tagline: 'Train your eyes like you train your body',
+    description:
+      'The complete at-home program: the 6 visual skills that win games, how to assess your baseline, a full drill library, and a done-for-you 6-week program. Instant PDF download after purchase.',
+    price: 24,
+    features: ['8-page designed PDF', '6-week starter program', 'Drill library + baseline tests', 'Instant download'],
+    purchase: 'stripe',
+    digitalFile: '/downloads/sports-vision-playbook.pdf',
+    inStock: true,
+  },
+  {
+    id: 'sports-vision-tracker',
+    slug: 'training-log-and-tracker',
+    name: 'Sports Vision Training Log & Tracker',
+    category: 'digital',
+    tagline: 'Log every session, measure every gain',
+    description:
+      'A printable pack: baseline assessment, daily training log, weekly progress tracker, reaction-score chart, drill checklist, and season goal sheet. Instant PDF download.',
+    price: 14,
+    features: ['7-page printable PDF', 'Baseline + weekly trackers', 'Drill checklist & goal sheet', 'Instant download'],
+    purchase: 'stripe',
+    digitalFile: '/downloads/sports-vision-training-log-and-tracker.pdf',
+    inStock: true,
+  },
+  {
+    id: 'free-drills-guide',
+    slug: 'free-7-drills',
+    name: '7 Sports Vision Drills (Free)',
+    category: 'digital',
+    tagline: 'Sharpen reaction time, tracking & focus — free',
+    description:
+      'A free guide to 7 sports-vision drills you can do at home with little or no equipment. The perfect place to start — and a taste of the full Playbook.',
+    price: 0,
+    features: ['7 at-home drills', 'No special equipment', 'Instant free download'],
+    purchase: 'free',
+    digitalFile: '/downloads/7-sports-vision-drills.pdf',
+  },
+];
+
+export const getProduct = (idOrSlug: string): Product | undefined =>
+  PRODUCTS.find((p) => p.id === idOrSlug || p.slug === idOrSlug);
+
+export const productsByCategory = (cat: ProductCategory): Product[] =>
+  PRODUCTS.filter((p) => p.category === cat);

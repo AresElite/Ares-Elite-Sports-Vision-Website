@@ -315,7 +315,7 @@ export function Hero({ isReady = true }: HeroProps) {
               }}
             >
               MILLISECONDS<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-white mt-1 sm:mt-2 block drop-shadow-none">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-[var(--color-ares-white)] mt-1 sm:mt-2 block drop-shadow-none">
                 MATTER™
               </span>
             </motion.h1>

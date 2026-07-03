@@ -276,7 +276,19 @@
   color: rgba(11, 15, 42, 0.3) !important;
 }
 
+.light .text-white\/20 {
+  color: rgba(11, 15, 42, 0.2) !important;
+}
+
+.light .text-white\/10 {
+  color: rgba(11, 15, 42, 0.1) !important;
+}
+
 /* Light Mode Border Overrides */
+.light .border-white\/5 {
+  border-color: rgba(11, 15, 42, 0.06) !important;
+}
+
 .light .border-white\/10 {
   border-color: rgba(11, 15, 42, 0.1) !important;
 }
@@ -295,6 +307,23 @@
 
 /* Restore actual white text for elements with solid dark/accent backgrounds (like buttons, badges, highlights) */
 .light button .text-white,
+.light button.bg-\[var\(--color-ares-teal\)\] ,
+.light button.bg-\[var\(--color-ares-purple\)\] ,
+.light button.bg-ares-teal ,
+.light button.bg-ares-purple ,
+.light a.bg-\[var\(--color-ares-teal\)\] ,
+.light a.bg-\[var\(--color-ares-purple\)\] ,
+.light a.bg-ares-teal ,
+.light a.bg-ares-purple ,
+.light .bg-\[var\(--color-ares-teal\)\] ,
+.light .bg-\[var\(--color-ares-purple\)\] ,
+.light .bg-ares-teal ,
+.light .bg-ares-purple ,
+.light .bg-gradient-orbital ,
+.light .bg-slate-950 ,
+.light .bg-black\/80 ,
+.light .bg-black\/40 ,
+.light .bg-black ,
 .light a.bg-\[var\(--color-ares-teal\)\] *,
 .light a.bg-\[var\(--color-ares-purple\)\] *,
 .light a.bg-ares-teal *,
@@ -333,6 +362,22 @@
   background-color: rgba(11, 15, 42, 0.08) !important;
 }
 
+.light .bg-white\/20 {
+  background-color: rgba(11, 15, 42, 0.15) !important;
+}
+
+.light .bg-white\/30 {
+  background-color: rgba(11, 15, 42, 0.25) !important;
+}
+
+.light .bg-white\/40 {
+  background-color: rgba(11, 15, 42, 0.35) !important;
+}
+
+.light .bg-white\/50 {
+  background-color: rgba(11, 15, 42, 0.45) !important;
+}
+
 .bg-logo-ambient {
   opacity: 0.08;
 }
@@ -340,3 +385,85 @@
 .light .bg-logo-ambient {
   opacity: 0.035 !important;
 }
+
+/* Accessibility overrides for alert texts */
+.light .text-emerald-400 {
+  color: #059669 !important;
+}
+
+.light .text-red-500 {
+  color: #DC2626 !important;
+}
+
+/* Global Light Mode overrides for form elements (inputs, selects, textareas) */
+.light input,
+.light select,
+.light textarea {
+  background-color: #FFFFFF !important;
+  color: var(--color-ares-white) !important;
+  border-color: rgba(11, 15, 42, 0.2) !important;
+}
+
+.light input::placeholder,
+.light textarea::placeholder {
+  color: rgba(11, 15, 42, 0.4) !important;
+}
+
+.light option {
+  background-color: #FFFFFF !important;
+  color: var(--color-ares-white) !important;
+}
+
+.light input:focus,
+.light select:focus,
+.light textarea:focus {
+  border-color: var(--color-ares-teal) !important;
+  box-shadow: 0 0 0 1px var(--color-ares-teal) !important;
+}
+
+/* Subtree Dark Mode Support */
+.light .dark {
+  --color-ares-bg: #0B0F2A;
+  --color-ares-purple: #8B5CF6;
+  --color-ares-dark-purple: #2D234F;
+  --color-ares-teal: #2998AA;
+  --color-ares-charcoal: #111428;
+  --color-ares-white: #EAF0FF;
+  --color-ares-muted: #9AA3C7;
+  --color-ares-border: rgba(45, 35, 79, 0.5);
+}
+
+.light .dark,
+.light .dark * {
+  color: var(--color-ares-white);
+}
+
+/* Restore exact dark colors for dark sections */
+.light .dark .text-white { color: #FFFFFF !important; }
+.light .dark .text-white\/90 { color: rgba(255, 255, 255, 0.9) !important; }
+.light .dark .text-white\/80 { color: rgba(255, 255, 255, 0.8) !important; }
+.light .dark .text-white\/70 { color: rgba(255, 255, 255, 0.7) !important; }
+.light .dark .text-white\/60 { color: rgba(255, 255, 255, 0.6) !important; }
+.light .dark .text-white\/50 { color: rgba(255, 255, 255, 0.5) !important; }
+.light .dark .text-white\/40 { color: rgba(255, 255, 255, 0.4) !important; }
+.light .dark .text-white\/30 { color: rgba(255, 255, 255, 0.3) !important; }
+.light .dark .text-white\/20 { color: rgba(255, 255, 255, 0.2) !important; }
+.light .dark .text-white\/10 { color: rgba(255, 255, 255, 0.1) !important; }
+
+.light .dark .border-white\/5 { border-color: rgba(255, 255, 255, 0.05) !important; }
+.light .dark .border-white\/10 { border-color: rgba(255, 255, 255, 0.1) !important; }
+.light .dark .border-white\/20 { border-color: rgba(255, 255, 255, 0.2) !important; }
+.light .dark .border-white\/30 { border-color: rgba(255, 255, 255, 0.3) !important; }
+.light .dark .border-white\/40 { border-color: rgba(255, 255, 255, 0.4) !important; }
+
+.light .dark .bg-white\/5 { background-color: rgba(255, 255, 255, 0.05) !important; }
+.light .dark .bg-white\/10 { background-color: rgba(255, 255, 255, 0.1) !important; }
+.light .dark .bg-white\/20 { background-color: rgba(255, 255, 255, 0.2) !important; }
+.light .dark .bg-white\/30 { background-color: rgba(255, 255, 255, 0.3) !important; }
+.light .dark .bg-white\/40 { background-color: rgba(255, 255, 255, 0.4) !important; }
+.light .dark .bg-white\/50 { background-color: rgba(255, 255, 255, 0.5) !important; }
+
+.light .dark .bg-black\/40 { background-color: rgba(0, 0, 0, 0.4) !important; }
+.light .dark .bg-black\/80 { background-color: rgba(0, 0, 0, 0.8) !important; }
+.light .dark .bg-slate-950 { background-color: #020617 !important; }
+

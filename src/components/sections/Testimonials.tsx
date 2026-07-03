@@ -124,7 +124,7 @@ export function TestimonialsSection() {
               Athlete Success
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8 tracking-tight text-balance">
-              PROVEN AT THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-white">HIGHEST LEVEL</span>
+              PROVEN AT THE <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-[var(--color-ares-white)]">HIGHEST LEVEL</span>
             </h2>
             <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto leading-relaxed text-balance">
               Hear from the athletes who have transformed their performance, reaction time, and cognitive processing with the A.R.E.S. System.

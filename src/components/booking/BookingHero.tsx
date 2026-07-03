@@ -27,7 +27,7 @@ export function BookingHero({ onSelectOffice }: BookingHeroProps) {
           
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] mb-6 text-balance">
             BOOK YOUR <br className="hidden sm:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-white">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-[var(--color-ares-white)]">
               PERFORMANCE TRAINING
             </span>
           </h1>

@@ -60,13 +60,13 @@ export function CertificationSection() {
 
             <ScrollReveal direction="left" distance={40} speed={1.1} rotate={1} className="flex justify-center">
               <div className="relative w-full max-w-sm sm:max-w-md">
-                <div className="aspect-square rounded-2xl bg-gradient-to-b from-[#13152a] to-[var(--color-ares-bg)] border border-[var(--color-ares-border)] p-8 sm:p-12 flex items-center justify-center shadow-2xl relative overflow-hidden group">
+                <div className="aspect-square rounded-2xl bg-gradient-to-b from-[var(--color-ares-charcoal)] to-[var(--color-ares-bg)] border border-[var(--color-ares-border)] p-8 sm:p-12 flex items-center justify-center shadow-2xl relative overflow-hidden group">
                   
                   {/* Internal Glow Effect */}
                   <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[var(--color-ares-purple)]/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                   <div className="text-center relative z-10 scale-95 group-hover:scale-100 transition-transform duration-700">
-                    <div className="text-5xl sm:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-white to-white/70 mb-2">ARES</div>
+                    <div className="text-5xl sm:text-7xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-ares-white)] to-[var(--color-ares-white)]/70 mb-2">ARES</div>
                     <div className="text-[var(--color-ares-purple)] text-[10px] sm:text-xs tracking-[0.4em] uppercase font-mono font-bold">Certified Partner</div>
                     <div className="mt-12 w-20 h-20 sm:w-28 sm:h-28 mx-auto border border-[var(--color-ares-purple)]/50 bg-[var(--color-ares-purple)]/10 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(139,92,246,0.2)] group-hover:shadow-[0_0_50px_rgba(139,92,246,0.4)] transition-shadow duration-700">
                       <Award className="h-10 w-10 sm:h-14 sm:w-14 text-[var(--color-ares-purple)] drop-shadow-[0_0_10px_rgba(139,92,246,0.8)]" />
