@@ -1,1 +1,6 @@
-/*    /index.html   200
+# API calls must go to the Render backend (Express server), NOT the SPA.
+# This rule MUST come before the /* SPA fallback below.
+/api/*  https://ares-elite-sports-vision-website.onrender.com/api/:splat  200
+
+# Single-page-app fallback: everything else serves the React app.
+/*      /index.html   200
