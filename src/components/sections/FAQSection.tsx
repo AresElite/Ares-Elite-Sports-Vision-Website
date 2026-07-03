@@ -73,7 +73,7 @@ export function FAQSection() {
             Clarity & Context
           </div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter uppercase drop-shadow-lg mb-6">
-            Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-white">Questions</span>
+            Frequently Asked <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-[var(--color-ares-white)]">Questions</span>
           </h2>
         </div>
 

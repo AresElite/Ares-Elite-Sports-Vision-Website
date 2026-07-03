@@ -24,7 +24,7 @@ const problems = [
 
 export function ProblemSection() {
   return (
-    <SectionReveal id="problem" className="pt-24 pb-24 md:pt-32 md:pb-32 relative bg-[#10132b]" style={{ clipPath: 'polygon(0 4vw, 100% 0, 100% 100%, 0 100%)' }}>
+    <SectionReveal id="problem" className="pt-24 pb-24 md:pt-32 md:pb-32 relative bg-[var(--color-ares-dark-purple)]" style={{ clipPath: 'polygon(0 4vw, 100% 0, 100% 100%, 0 100%)' }}>
       {/* Parallax Background Elements */}
       <ScrollReveal direction="down" distance={150} speed={0.5} className="absolute inset-0 z-0 pointer-events-none opacity-20">
         <div className="absolute top-1/4 left-1/4 w-64 sm:w-96 h-64 sm:h-96 bg-[var(--color-ares-purple)] rounded-full mix-blend-screen filter blur-[60px] sm:blur-[100px]" />

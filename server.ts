@@ -8,6 +8,7 @@ import { Resend } from "resend";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import fs from "fs";
+import { getProduct } from "./src/data/products";
 
 dotenv.config();
 
@@ -299,7 +300,7 @@ try {
 }
 const SENDER_EMAIL = "Dr. Joe LaPlaca <onboarding@areselitesportsvision.com>"; // In a real app, this needs to be a verified domain in Resend
 
-const APP_URL = process.env.APP_URL || 'https://aresvision.com';
+const APP_URL = process.env.APP_URL || 'https://areselitesports.vision';
 
 let stripeClient: Stripe | null = null;
 function getStripe(): Stripe {
@@ -1468,14 +1469,185 @@ app.get("/api/checkout-session/:id", async (req, res) => {
 
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.retrieve(id);
-    res.json({ 
+    res.json({
       status: session.payment_status,
       serviceId: session.metadata?.serviceId,
-      officeId: session.metadata?.officeId
+      officeId: session.metadata?.officeId,
+      productId: session.metadata?.product_id,
+      productIds: session.metadata?.product_ids,
+      productName: session.metadata?.product_name,
+      shop: session.metadata?.shop,
+      cart: session.metadata?.cart
     });
   } catch (error) {
     console.error("Error retrieving session:", error);
     res.status(500).json({ error: "Failed to verify payment" });
+  }
+});
+
+// Performance Shop checkout. Price is looked up SERVER-SIDE from the product
+// catalog (src/data/products.ts) so the browser can never set its own price.
+app.post("/api/create-shop-checkout-session", async (req, res) => {
+  try {
+    const { productId, mode: requestedMode } = req.body || {};
+    const product = productId ? getProduct(productId) : undefined;
+
+    if (!product) {
+      return res.status(400).json({ error: "Unknown product." });
+    }
+    if (product.purchase !== "stripe" && product.purchase !== "stripe-both") {
+      return res.status(400).json({ error: "This product is not purchasable via checkout." });
+    }
+    if (product.inStock === false) {
+      return res.status(400).json({ error: "This product is currently out of stock." });
+    }
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(500).json({ error: "Stripe is not configured. Add STRIPE_SECRET_KEY to enable payments." });
+    }
+
+    const wantsSubscription =
+      requestedMode === "subscription" &&
+      product.purchase === "stripe-both" &&
+      typeof product.subscribePrice === "number";
+
+    const mode: "payment" | "subscription" = wantsSubscription ? "subscription" : "payment";
+    const unitPrice = wantsSubscription ? (product.subscribePrice as number) : product.price;
+
+    const priceData: any = {
+      currency: "usd",
+      product_data: {
+        name: product.name,
+        description: product.tagline,
+      },
+      unit_amount: Math.round(unitPrice * 100),
+    };
+    if (wantsSubscription) {
+      priceData.recurring = { interval: product.subscribeInterval || "month" };
+    }
+
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: [{ price_data: priceData, quantity: 1 }],
+      mode,
+      allow_promotion_codes: true,
+      success_url: `${APP_URL}/shop/success?product=${product.slug}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${APP_URL}/shop/${product.slug}`,
+      metadata: {
+        shop: "true",
+        product_id: product.id,
+        product_name: product.name,
+        category: product.category,
+        is_digital: product.digitalFile ? "true" : "false",
+      },
+    });
+
+    res.json({ id: session.id, url: session.url });
+  } catch (error) {
+    console.error("Error creating shop checkout session:", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : "Internal server error" });
+  }
+});
+
+// Multi-item cart checkout (one-time payment items only; subscriptions use the single-item flow).
+app.post("/api/create-cart-checkout-session", async (req, res) => {
+  try {
+    const { items } = req.body || {};
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "Cart is empty." });
+    }
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(500).json({ error: "Stripe is not configured. Add STRIPE_SECRET_KEY to enable payments." });
+    }
+
+    const line_items: any[] = [];
+    const names: string[] = [];
+    const ids: string[] = [];
+    let anyDigital = false;
+
+    for (const item of items) {
+      const product = item?.productId ? getProduct(item.productId) : undefined;
+      const qty = Math.max(1, Math.min(99, parseInt(item?.qty, 10) || 1));
+      if (!product) {
+        return res.status(400).json({ error: `Unknown product: ${item?.productId}` });
+      }
+      if (product.purchase !== "stripe" && product.purchase !== "stripe-both") {
+        return res.status(400).json({ error: `${product.name} can't be added to the cart.` });
+      }
+      if (product.inStock === false) {
+        return res.status(400).json({ error: `${product.name} is out of stock.` });
+      }
+      if (product.digitalFile || product.gated) anyDigital = true;
+      ids.push(product.id);
+      names.push(`${product.name}${qty > 1 ? ` x${qty}` : ""}`);
+      line_items.push({
+        price_data: {
+          currency: "usd",
+          product_data: { name: product.name, description: product.tagline },
+          unit_amount: Math.round(product.price * 100),
+        },
+        quantity: qty,
+      });
+    }
+
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items,
+      mode: "payment",
+      allow_promotion_codes: true,
+      success_url: `${APP_URL}/shop/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${APP_URL}/cart`,
+      metadata: {
+        shop: "true",
+        cart: "true",
+        product_name: names.join(", ").slice(0, 480),
+        product_ids: ids.join(",").slice(0, 480),
+        is_digital: anyDigital ? "mixed" : "false",
+      },
+    });
+
+    res.json({ id: session.id, url: session.url });
+  } catch (error) {
+    console.error("Error creating cart checkout session:", error);
+    res.status(500).json({ error: error instanceof Error ? error.message : "Internal server error" });
+  }
+});
+
+// Gated reader: streams the ACQUIRE book ONLY to verified purchasers.
+// The book lives in /private (never served statically); access requires a paid Stripe session.
+app.get("/api/read/acquire", async (req, res) => {
+  try {
+    const sessionId = String(req.query.session_id || "");
+    if (!sessionId) return res.status(400).send("Missing session.");
+    if (!process.env.STRIPE_SECRET_KEY) return res.status(500).send("Payments not configured.");
+
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const paid = session.payment_status === "paid";
+    const single = session.metadata?.product_id === "acquire-book";
+    const inCart =
+      session.metadata?.cart === "true" &&
+      (session.metadata?.product_ids || "").split(",").includes("acquire-book");
+
+    if (!paid || !(single || inCart)) {
+      return res.status(403).send("Access denied. Please purchase ACQUIRE to read it.");
+    }
+
+    const candidates = [
+      path.join(process.cwd(), "private", "ares-acquire-book.html"),
+      path.join(process.cwd(), "ares-elite-sports-vision-website", "private", "ares-acquire-book.html"),
+      "private/ares-acquire-book.html",
+    ];
+    const filePath = candidates.find((p) => fs.existsSync(p));
+    if (!filePath) return res.status(404).send("Book file not found.");
+
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "private, no-store");
+    res.send(fs.readFileSync(filePath, "utf-8"));
+  } catch (error) {
+    console.error("Error serving gated reader:", error);
+    res.status(500).send("Could not load the book.");
   }
 });
 
@@ -1617,7 +1789,49 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
           }
         }
 
-        if (resend && clientEmail) {
+        // Performance Shop: order confirmation + automatic digital delivery (single or cart)
+        if (resend && clientEmail && session.metadata?.shop === 'true') {
+          try {
+            const idList = session.metadata?.cart === 'true'
+              ? (session.metadata?.product_ids || '').split(',').filter(Boolean)
+              : (session.metadata?.product_id ? [session.metadata.product_id] : []);
+            const btn = 'background:#2998AA;color:#0B0F2A;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;';
+            const deliveries: string[] = [];
+            let hasPhysical = false;
+            for (const pid of idList) {
+              const sp = getProduct(pid);
+              if (!sp) continue;
+              if (sp.gated && sp.readerPath) {
+                const url = `${APP_URL}${sp.readerPath}?session_id=${session.id}`;
+                deliveries.push(`<p><a href="${url}" style="${btn}">Read ${sp.name}</a></p><p style="font-size:12px;color:#888;">Access link: ${url}</p>`);
+              } else if (sp.digitalFile) {
+                const url = `${APP_URL}${sp.digitalFile}`;
+                deliveries.push(`<p><a href="${url}" style="${btn}">Download ${sp.name}</a></p><p style="font-size:12px;color:#888;">Or paste this link: ${url}</p>`);
+              } else {
+                hasPhysical = true;
+              }
+            }
+            const deliveryBlock =
+              (deliveries.length ? `<p>Your digital items are ready:</p>${deliveries.join('')}` : '') +
+              (hasPhysical ? `<p>We're preparing the rest of your order and will follow up with shipping or pickup details shortly.</p>` : '');
+            await resend.emails.send({
+              from: SENDER_EMAIL,
+              to: clientEmail,
+              subject: `Order Confirmed | Ares Elite Sports Vision`,
+              html: `
+                <h2>Thank you for your order!</h2>
+                <p>We've received your purchase of <strong>${productName}</strong>.</p>
+                ${deliveryBlock || `<p>We'll be in touch shortly.</p>`}
+                <p>Questions? Just reply to this email.</p>
+                <p>— Ares Elite Sports Vision</p>
+              `,
+            });
+          } catch (e) {
+            console.error("Failed to send shop confirmation email:", e);
+          }
+        }
+
+        if (resend && clientEmail && session.metadata?.shop !== 'true') {
           try {
             await resend.emails.send({
               from: SENDER_EMAIL,

@@ -670,7 +670,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   const strokePath = `M ` + curvePoints.join(' L ');
 
   return (
-    <div className={`relative w-full ${isEmbedded ? 'max-w-4xl p-6 md:p-10 bg-[#0e111a]/85 border border-[var(--color-ares-border)] rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.5)]' : 'h-full flex flex-col justify-center'}`}>
+    <div className={`relative w-full ${isEmbedded ? 'max-w-4xl p-6 md:p-10 bg-[var(--color-ares-charcoal)]/90 backdrop-blur-xl border border-[var(--color-ares-border)] rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.5)]' : 'h-full flex flex-col justify-center'}`}>
       
       {/* Visual progress bar for drills */}
       {(step === 'drill_raw' || step === 'drill_choice' || step === 'drill_recognition') && (

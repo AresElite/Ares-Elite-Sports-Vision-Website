@@ -142,7 +142,7 @@ export function BlogPage() {
               RESEARCH & INSIGHTS
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-[1.1] text-balance">
-              The A.R.E.S. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-white">Library</span>
+              The A.R.E.S. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-[var(--color-ares-white)]">Library</span>
             </h1>
             <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto font-light leading-relaxed text-balance mb-12">
               Explore the science of human performance, neuro-cognitive training, and the future of sports vision.
