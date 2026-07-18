@@ -165,7 +165,7 @@ export function ContactPage() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10 pb-10 border-b border-[var(--color-ares-border)]">
             <div>
               <h3 className="text-[var(--color-ares-teal)] font-bold mb-2">Email</h3>
-              <a href="mailto:drl@areselitesportsvision.com" className="text-white/80 hover:text-white transition-colors text-sm">drl@areselitesportsvision.com</a>
+              <a href="mailto:info@areselitesportsvision.com" className="text-white/80 hover:text-white transition-colors text-sm">info@areselitesportsvision.com</a>
             </div>
             <div>
               <h3 className="text-[var(--color-ares-teal)] font-bold mb-2">Phone</h3>
