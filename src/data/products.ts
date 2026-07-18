@@ -306,5 +306,20 @@ export const PRODUCTS: Product[] = [
 export const getProduct = (idOrSlug: string): Product | undefined =>
   PRODUCTS.find((p) => p.id === idOrSlug || p.slug === idOrSlug);
 
+// ---------------------------------------------------------------------------
+// WHAT IS ACTUALLY FOR SALE RIGHT NOW.
+// Only digital products are live — they need no inventory and deliver instantly.
+// When physical stock arrives, just add that product's id to this set and the
+// item appears in the shop and becomes purchasable. Nothing else to change.
+// ---------------------------------------------------------------------------
+export const LIVE_PRODUCT_IDS = new Set<string>([
+  'acquire-book',
+  'sports-vision-playbook',
+  'sports-vision-tracker',
+  'free-drills-guide',
+]);
+
+export const isLive = (p: Product): boolean => LIVE_PRODUCT_IDS.has(p.id);
+
 export const productsByCategory = (cat: ProductCategory): Product[] =>
-  PRODUCTS.filter((p) => p.category === cat);
+  PRODUCTS.filter((p) => p.category === cat && isLive(p));

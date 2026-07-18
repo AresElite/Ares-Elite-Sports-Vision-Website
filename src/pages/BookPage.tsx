@@ -348,10 +348,10 @@ export function BookPage() {
              For teams, facilities, organizations, and coaches. Discuss integrating the A.R.E.S. framework into your existing environment. Custom pricing and scheduling apply.
            </p>
            <a
-             href="mailto:drl@areselitesportsvision.com?subject=Team/Facility Consultation Request"
+             href="mailto:info@areselitesportsvision.com?subject=Team/Facility Consultation Request"
              className="inline-flex py-4 px-8 rounded-xl bg-white text-black hover:bg-white/90 font-bold text-lg transition-all items-center justify-center gap-2 shadow-glow w-full sm:w-auto"
            >
-             Email Dr. Joe LaPlaca Directly
+             Email A.R.E.S. Directly
              <ExternalLink className="w-5 h-5 mx-1" />
            </a>
         </div>

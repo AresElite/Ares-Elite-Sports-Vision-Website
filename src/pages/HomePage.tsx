@@ -51,7 +51,7 @@ export function HomePage() {
       "addressCountry": "US"
     },
     "telephone": "+1 (773) 981-1447",
-    "email": "drl@areselitesportsvision.com",
+    "email": "info@areselitesportsvision.com",
     "areaServed": [
       {
         "@type": "AdministrativeArea",

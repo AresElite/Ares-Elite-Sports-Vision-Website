@@ -31,8 +31,8 @@ export function CertificationApplicationPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real implementation this would post to a server to send the email to drl@areselitesportsvision.com
-    console.log('Sending email to drl@areselitesportsvision.com:', {
+    // In a real implementation this would post to a server to send the email to info@areselitesportsvision.com
+    console.log('Sending email to info@areselitesportsvision.com:', {
       requestedCertification: levelName,
       status: 'pending_review',
       ...formData
