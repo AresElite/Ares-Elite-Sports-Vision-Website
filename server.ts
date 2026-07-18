@@ -8,7 +8,7 @@ import { Resend } from "resend";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import fs from "fs";
-import { getProduct } from "./src/data/products";
+import { getProduct, LIVE_PRODUCT_IDS } from "./src/data/products";
 
 dotenv.config();
 
@@ -1498,6 +1498,9 @@ app.post("/api/create-shop-checkout-session", async (req, res) => {
     if (product.purchase !== "stripe" && product.purchase !== "stripe-both") {
       return res.status(400).json({ error: "This product is not purchasable via checkout." });
     }
+    if (!LIVE_PRODUCT_IDS.has(product.id)) {
+      return res.status(400).json({ error: "This product isn't available yet — coming soon." });
+    }
     if (product.inStock === false) {
       return res.status(400).json({ error: "This product is currently out of stock." });
     }
@@ -1573,6 +1576,9 @@ app.post("/api/create-cart-checkout-session", async (req, res) => {
       }
       if (product.purchase !== "stripe" && product.purchase !== "stripe-both") {
         return res.status(400).json({ error: `${product.name} can't be added to the cart.` });
+      }
+      if (!LIVE_PRODUCT_IDS.has(product.id)) {
+        return res.status(400).json({ error: `${product.name} isn't available yet — coming soon.` });
       }
       if (product.inStock === false) {
         return res.status(400).json({ error: `${product.name} is out of stock.` });
@@ -2104,7 +2110,7 @@ app.post("/api/contact", async (req, res) => {
     // Send notification to A.R.E.S. team
     if (resend) {
       try {
-        const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
+        const emailTo = ['info@areselitesportsvision.com'];
         await resend.emails.send({
           from: 'A.R.E.S. Website <onboarding@areselitesportsvision.com>',
           to: emailTo,
