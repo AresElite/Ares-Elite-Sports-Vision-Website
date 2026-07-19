@@ -1,37 +1,51 @@
 import { SEO } from '../components/SEO';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Loader2, Lock, ArrowLeft } from 'lucide-react';
+import { GATED_BOOKS, getProduct } from '../data/products';
 
 export default function ReaderPage() {
+  const { bookId = '' } = useParams<{ bookId: string }>();
   const [params] = useSearchParams();
   const sessionId = params.get('session_id') || '';
-  const [state, setState] = useState<'loading' | 'granted' | 'denied'>(sessionId ? 'loading' : 'denied');
+
+  const book = GATED_BOOKS[bookId.toLowerCase()];
+  const product = book ? getProduct(book.productId) : undefined;
+  const title = product ? product.name.split('—')[0].trim() : 'this book';
+
+  const [state, setState] = useState<'loading' | 'granted' | 'denied'>(
+    book && sessionId ? 'loading' : 'denied'
+  );
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!book || !sessionId) return;
     fetch(`/api/checkout-session/${sessionId}`)
       .then((r) => r.json())
       .then((d) => {
         const ids = (d.productIds || '').split(',');
-        const ok = d.status === 'paid' && (d.productId === 'acquire-book' || ids.includes('acquire-book'));
+        const ok =
+          d.status === 'paid' &&
+          (d.productId === book.productId || ids.includes(book.productId));
         setState(ok ? 'granted' : 'denied');
       })
       .catch(() => setState('denied'));
-  }, [sessionId]);
+  }, [book, sessionId]);
 
   if (state === 'granted') {
     return (
       <div className="bg-[var(--color-ares-bg)] min-h-screen">
         <div className="max-w-5xl mx-auto px-4 pt-24 pb-4 flex items-center justify-between">
-          <Link to="/shop" className="inline-flex items-center gap-2 text-sm text-[var(--color-ares-muted)] hover:text-white transition-colors">
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-2 text-sm text-[var(--color-ares-muted)] hover:text-white transition-colors"
+          >
             <ArrowLeft className="w-4 h-4" /> Shop
           </Link>
-          <span className="text-sm text-[var(--color-ares-muted)]">ACQUIRE — A.R.E.S. Loop, Book 1</span>
+          <span className="text-sm text-[var(--color-ares-muted)]">{product?.name}</span>
         </div>
         <iframe
-          title="ACQUIRE — The A.R.E.S. Performance Loop"
-          src={`/api/read/acquire?session_id=${encodeURIComponent(sessionId)}`}
+          title={product?.name || 'A.R.E.S. Book'}
+          src={`/api/read/${encodeURIComponent(bookId)}?session_id=${encodeURIComponent(sessionId)}`}
           className="w-full"
           style={{ height: 'calc(100vh - 120px)', border: 0, background: '#fff' }}
         />
@@ -41,7 +55,11 @@ export default function ReaderPage() {
 
   return (
     <>
-      <SEO title="Read ACQUIRE | Ares Elite Sports Vision" description="Your purchase-protected ACQUIRE reader." path="/read/acquire" />
+      <SEO
+        title={`Read ${title} | Ares Elite Sports Vision`}
+        description="Your purchase-protected A.R.E.S. book reader."
+        path={`/read/${bookId}`}
+      />
       <div className="bg-[var(--color-ares-bg)] min-h-screen flex items-center justify-center px-4 py-28">
         <div className="max-w-md w-full text-center rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)] p-10">
           {state === 'loading' ? (
@@ -55,16 +73,16 @@ export default function ReaderPage() {
           <p className="text-[var(--color-ares-muted)] mt-3">
             {state === 'loading'
               ? 'One moment while we verify your access.'
-              : 'ACQUIRE is a purchase-protected reader. Buy it to unlock instant in-browser access.'}
+              : !book
+              ? "We couldn't find that book."
+              : `${title} is a purchase-protected reader. Buy it to unlock instant in-browser access.`}
           </p>
-          {state === 'denied' && (
-            <Link
-              to="/shop/acquire-book"
-              className="inline-block mt-6 bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity"
-            >
-              Get ACQUIRE
-            </Link>
-          )}
+          <Link
+            to={product ? `/shop/${product.slug}` : '/shop'}
+            className="inline-block mt-6 bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] font-bold px-6 py-2.5 rounded-xl hover:opacity-90 transition-opacity"
+          >
+            {product ? `Get ${title}` : 'Browse the shop'}
+          </Link>
         </div>
       </div>
     </>
