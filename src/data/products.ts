@@ -30,6 +30,7 @@ export interface Product {
   digitalFile?: string;          // path under /downloads for digital/free
   gated?: boolean;               // served only to verified purchasers (e.g. the book reader)
   readerPath?: string;           // in-app reader route for gated products
+  includes?: string[];           // bundle: product ids this purchase also unlocks
   inStock?: boolean;
   note?: string;                 // small print on the product page
 }
@@ -47,6 +48,29 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
 
 export const PRODUCTS: Product[] = [
   // ---------- BUNDLES & KITS ----------
+  {
+    id: 'ares-series-bundle',
+    slug: 'complete-ares-series',
+    name: 'The Complete A.R.E.S. Series — All 4 Books',
+    category: 'bundles',
+    tagline: 'The entire performance loop: Acquire, Route, Execute, Synchronize',
+    description:
+      'All four books of the A.R.E.S. Performance Loop in one purchase — the complete architecture of athletic vision from the first photon to integrated, repeatable performance. ACQUIRE (seeing), ROUTE (deciding), EXECUTE (moving), and SYNCHRONIZE (holding it together under pressure). Each opens in its own interactive reader, unlocked instantly.',
+    price: 129,
+    compareAt: 156,
+    features: [
+      'ACQUIRE — Book 1: First Light, photon to optic chiasm',
+      'ROUTE — Book 2: The Decision Architecture',
+      'EXECUTE — Book 3: The Motor Output Architecture',
+      'SYNCHRONIZE — Book 4: The Integration Architecture',
+      'Save $27 versus buying individually',
+    ],
+    badges: ['Best Value'],
+    purchase: 'stripe',
+    includes: ['acquire-book', 'route-book', 'execute-book', 'synchronize-book'],
+    inStock: true,
+    note: 'All four books are delivered as private, purchase-protected in-browser readers — your access links arrive by email after checkout.',
+  },
   {
     id: 'ares-elite-starter-kit',
     slug: 'elite-starter-kit',
@@ -261,6 +285,72 @@ export const PRODUCTS: Product[] = [
     note: 'Delivered as a private, purchase-protected in-browser reader — your access link arrives by email after checkout.',
   },
   {
+    id: 'route-book',
+    slug: 'route-book',
+    name: 'ROUTE — The A.R.E.S. Performance Loop, Book 2',
+    category: 'digital',
+    tagline: 'The decision architecture: why athletes who see correctly still decide too late',
+    description:
+      'Book 2 of the A.R.E.S. Performance Loop. ROUTE is the decision stage — everything that happens between seeing and acting. Inside: the decision pipeline stage by stage, the speed-accuracy tradeoff, Hick\'s Law, the basal ganglia go/stop pathways, working memory under cognitive load, and how elite athletes route what they see into the right decision faster. A multimodal, interactive digital book.',
+    price: 39,
+    features: [
+      'Multimodal interactive book (read on any device)',
+      'The complete ROUTE stage of the A.R.E.S. Loop',
+      'Decision speed, Hick\'s Law & working memory under load',
+      'Instant access after purchase',
+    ],
+    badges: ['Book 2'],
+    purchase: 'stripe',
+    gated: true,
+    readerPath: '/read/route',
+    inStock: true,
+    note: 'Delivered as a private, purchase-protected in-browser reader — your access link arrives by email after checkout.',
+  },
+  {
+    id: 'execute-book',
+    slug: 'execute-book',
+    name: 'EXECUTE — The A.R.E.S. Performance Loop, Book 3',
+    category: 'digital',
+    tagline: 'The motor output architecture: decision release to muscle contraction',
+    description:
+      'Book 3 of the A.R.E.S. Performance Loop. EXECUTE is where the decision becomes movement — motor planning, corticospinal drive, timing, and the mechanics that turn a correct read into precise, repeatable action. This is the stage where great decisions either show up on the field or die on the way to the muscle. A multimodal, interactive digital book.',
+    price: 39,
+    features: [
+      'Multimodal interactive book (read on any device)',
+      'The complete EXECUTE stage of the A.R.E.S. Loop',
+      'Motor planning, drive, timing & movement precision',
+      'Instant access after purchase',
+    ],
+    badges: ['Book 3'],
+    purchase: 'stripe',
+    gated: true,
+    readerPath: '/read/execute',
+    inStock: true,
+    note: 'Delivered as a private, purchase-protected in-browser reader — your access link arrives by email after checkout.',
+  },
+  {
+    id: 'synchronize-book',
+    slug: 'synchronize-book',
+    name: 'SYNCHRONIZE — The A.R.E.S. Performance Loop, Book 4',
+    category: 'digital',
+    tagline: 'The integration architecture: why optimized athletes still fall apart',
+    description:
+      'Book 4 of the A.R.E.S. Performance Loop. SYNCHRONIZE is where it all has to work together — acquisition, decision, and execution integrated into one loop that holds up under fatigue, pressure, and game speed. This is why athletes with elite individual pieces still break down in competition, and how to fix it. A multimodal, interactive digital book.',
+    price: 39,
+    features: [
+      'Multimodal interactive book (read on any device)',
+      'The complete SYNCHRONIZE stage of the A.R.E.S. Loop',
+      'Integration under fatigue, pressure & game speed',
+      'Instant access after purchase',
+    ],
+    badges: ['Book 4'],
+    purchase: 'stripe',
+    gated: true,
+    readerPath: '/read/synchronize',
+    inStock: true,
+    note: 'Delivered as a private, purchase-protected in-browser reader — your access link arrives by email after checkout.',
+  },
+  {
     id: 'sports-vision-playbook',
     slug: 'sports-vision-playbook',
     name: 'The Sports Vision Playbook (eBook)',
@@ -306,6 +396,14 @@ export const PRODUCTS: Product[] = [
 export const getProduct = (idOrSlug: string): Product | undefined =>
   PRODUCTS.find((p) => p.id === idOrSlug || p.slug === idOrSlug);
 
+// Does a purchased product unlock the target product? True for a direct purchase,
+// or when the purchase was a bundle that includes it.
+export const grantsAccess = (purchasedId: string, targetProductId: string): boolean => {
+  if (purchasedId === targetProductId) return true;
+  const p = getProduct(purchasedId);
+  return !!(p && p.includes && p.includes.includes(targetProductId));
+};
+
 // ---------------------------------------------------------------------------
 // WHAT IS ACTUALLY FOR SALE RIGHT NOW.
 // Only digital products are live — they need no inventory and deliver instantly.
@@ -313,11 +411,24 @@ export const getProduct = (idOrSlug: string): Product | undefined =>
 // item appears in the shop and becomes purchasable. Nothing else to change.
 // ---------------------------------------------------------------------------
 export const LIVE_PRODUCT_IDS = new Set<string>([
+  'ares-series-bundle',
   'acquire-book',
+  'route-book',
+  'execute-book',
+  'synchronize-book',
   'sports-vision-playbook',
   'sports-vision-tracker',
   'free-drills-guide',
 ]);
+
+// Gated books: reader slug -> { product that unlocks it, private file on the server }.
+// To add Book 3/4/5 later: drop the HTML in /private, add a product above, add a line here.
+export const GATED_BOOKS: Record<string, { productId: string; file: string }> = {
+  acquire: { productId: 'acquire-book', file: 'ares-acquire-book.html' },
+  route: { productId: 'route-book', file: 'ares-route-book.html' },
+  execute: { productId: 'execute-book', file: 'ares-execute-book.html' },
+  synchronize: { productId: 'synchronize-book', file: 'ares-synchronize-book.html' },
+};
 
 export const isLive = (p: Product): boolean => LIVE_PRODUCT_IDS.has(p.id);
 

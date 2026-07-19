@@ -52,6 +52,25 @@ export default function ShopSuccessPage() {
             </Link>
           )}
 
+          {/* Bundle: one reader link per included book */}
+          {product?.includes && status === 'paid' && sessionId && (
+            <div className="mt-6 space-y-2">
+              {product.includes.map((pid) => {
+                const b = getProduct(pid);
+                if (!b || !b.readerPath) return null;
+                return (
+                  <Link
+                    key={pid}
+                    to={`${b.readerPath}?session_id=${encodeURIComponent(sessionId)}`}
+                    className="w-full inline-flex items-center justify-center gap-2 bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] font-bold py-3 rounded-xl hover:opacity-90 transition-opacity"
+                  >
+                    <Download className="w-5 h-5" /> Read {b.name.split('—')[0].trim()}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
           {/* Digital download */}
           {product?.digitalFile && status !== 'loading' && (
             <a

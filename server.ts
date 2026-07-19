@@ -8,7 +8,7 @@ import { Resend } from "resend";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import fs from "fs";
-import { getProduct, LIVE_PRODUCT_IDS } from "./src/data/products";
+import { getProduct, LIVE_PRODUCT_IDS, GATED_BOOKS, grantsAccess } from "./src/data/products";
 
 dotenv.config();
 
@@ -1622,8 +1622,12 @@ app.post("/api/create-cart-checkout-session", async (req, res) => {
 
 // Gated reader: streams the ACQUIRE book ONLY to verified purchasers.
 // The book lives in /private (never served statically); access requires a paid Stripe session.
-app.get("/api/read/acquire", async (req, res) => {
+app.get("/api/read/:bookId", async (req, res) => {
   try {
+    const bookId = String(req.params.bookId || "").toLowerCase();
+    const book = GATED_BOOKS[bookId];
+    if (!book) return res.status(404).send("Unknown book.");
+
     const sessionId = String(req.query.session_id || "");
     if (!sessionId) return res.status(400).send("Missing session.");
     if (!process.env.STRIPE_SECRET_KEY) return res.status(500).send("Payments not configured.");
@@ -1631,19 +1635,24 @@ app.get("/api/read/acquire", async (req, res) => {
     const stripe = getStripe();
     const session = await stripe.checkout.sessions.retrieve(sessionId);
     const paid = session.payment_status === "paid";
-    const single = session.metadata?.product_id === "acquire-book";
-    const inCart =
-      session.metadata?.cart === "true" &&
-      (session.metadata?.product_ids || "").split(",").includes("acquire-book");
+    // Everything bought in this session (single purchase or cart).
+    const purchasedIds =
+      session.metadata?.cart === "true"
+        ? (session.metadata?.product_ids || "").split(",").filter(Boolean)
+        : session.metadata?.product_id
+        ? [session.metadata.product_id]
+        : [];
+    // Access if any purchased item IS this book, or is a bundle containing it.
+    const allowed = purchasedIds.some((pid) => grantsAccess(pid, book.productId));
 
-    if (!paid || !(single || inCart)) {
-      return res.status(403).send("Access denied. Please purchase ACQUIRE to read it.");
+    if (!paid || !allowed) {
+      return res.status(403).send("Access denied. Please purchase this book to read it.");
     }
 
     const candidates = [
-      path.join(process.cwd(), "private", "ares-acquire-book.html"),
-      path.join(process.cwd(), "ares-elite-sports-vision-website", "private", "ares-acquire-book.html"),
-      "private/ares-acquire-book.html",
+      path.join(process.cwd(), "private", book.file),
+      path.join(process.cwd(), "ares-elite-sports-vision-website", "private", book.file),
+      "private/" + book.file,
     ];
     const filePath = candidates.find((p) => fs.existsSync(p));
     if (!filePath) return res.status(404).send("Book file not found.");
@@ -1804,7 +1813,14 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
             const btn = 'background:#2998AA;color:#0B0F2A;padding:12px 22px;border-radius:8px;text-decoration:none;font-weight:bold;display:inline-block;';
             const deliveries: string[] = [];
             let hasPhysical = false;
+            // Expand bundles into the products they unlock, so buyers get every link.
+            const expandedIds: string[] = [];
             for (const pid of idList) {
+              const bp = getProduct(pid);
+              if (bp && bp.includes && bp.includes.length) expandedIds.push(...bp.includes);
+              else expandedIds.push(pid);
+            }
+            for (const pid of expandedIds) {
               const sp = getProduct(pid);
               if (!sp) continue;
               if (sp.gated && sp.readerPath) {
