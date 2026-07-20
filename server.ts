@@ -1541,7 +1541,7 @@ app.post("/api/create-shop-checkout-session", async (req, res) => {
         product_id: product.id,
         product_name: product.name,
         category: product.category,
-        is_digital: product.digitalFile ? "true" : "false",
+        is_digital: product.digitalFile || product.gated ? "true" : "false",
       },
     });
 
@@ -1663,6 +1663,36 @@ app.get("/api/read/:bookId", async (req, res) => {
   } catch (error) {
     console.error("Error serving gated reader:", error);
     res.status(500).send("Could not load the book.");
+  }
+});
+
+// Free Week lead magnet — gated behind email capture (not purchase).
+// The /free-week page posts to /api/resource-download first (which creates the
+// lead and starts the nurture sequence), then loads this with the same email.
+app.get("/api/free-week", (req, res) => {
+  try {
+    const email = String(req.query.email || "").trim().toLowerCase();
+    if (!email || !email.includes("@")) {
+      return res.status(400).send("Missing email.");
+    }
+    const lead = db.prepare("SELECT id FROM leads WHERE lower(email) = ?").get(email);
+    if (!lead) {
+      return res.status(403).send("Please sign up on the Free Week page to unlock this.");
+    }
+    const file = "ares-free-week.html";
+    const candidates = [
+      path.join(process.cwd(), "private", file),
+      path.join(process.cwd(), "ares-elite-sports-vision-website", "private", file),
+      "private/" + file,
+    ];
+    const filePath = candidates.find((p) => fs.existsSync(p));
+    if (!filePath) return res.status(404).send("Free week not found.");
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.setHeader("Cache-Control", "private, no-store");
+    res.send(fs.readFileSync(filePath, "utf-8"));
+  } catch (error) {
+    console.error("Error serving free week:", error);
+    res.status(500).send("Could not load the free week.");
   }
 });
 

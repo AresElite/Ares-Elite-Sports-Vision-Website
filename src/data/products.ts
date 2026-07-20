@@ -72,6 +72,28 @@ export const PRODUCTS: Product[] = [
     note: 'All four books are delivered as private, purchase-protected in-browser readers — your access links arrive by email after checkout.',
   },
   {
+    id: 'drills-bundle',
+    slug: 'complete-drill-program',
+    name: 'The Complete Drill Program — Both 4-Week Programs',
+    category: 'bundles',
+    tagline: 'Eight weeks of training: vision first, then eye-hand',
+    description:
+      'Both drill programs in one purchase, in the order they are meant to be trained. Start with Beginner Sports Performance Drills to build the visual foundation over four weeks, then move into Eye-Hand Coordination Drills — eleven drill families with level progressions — for four weeks more. Each opens in its own private in-browser program with a tap-to-complete tracker.',
+    price: 24,
+    compareAt: 28,
+    features: [
+      'Beginner Sports Performance Drills — 8 drills, 28 days',
+      'Eye-Hand Coordination Drills — 11 families, 35+ levels, 28 days',
+      'Eight weeks of programming in the right order',
+      'Both trackers save your progress as you go',
+    ],
+    badges: ['Best Value'],
+    purchase: 'stripe',
+    includes: ['beginner-drills', 'eye-hand-drills'],
+    inStock: true,
+    note: 'Both programs are delivered as private, purchase-protected in-browser readers — your access links arrive by email after checkout.',
+  },
+  {
     id: 'ares-elite-starter-kit',
     slug: 'elite-starter-kit',
     name: 'Ares Elite Starter Kit',
@@ -379,17 +401,48 @@ export const PRODUCTS: Product[] = [
     inStock: true,
   },
   {
-    id: 'free-drills-guide',
-    slug: 'free-7-drills',
-    name: '7 Sports Vision Drills (Free)',
+    id: 'eye-hand-drills',
+    slug: 'eye-hand-coordination-drills',
+    name: 'Eye-Hand Coordination Drills — 4-Week Program',
     category: 'digital',
-    tagline: 'Sharpen reaction time, tracking & focus — free',
+    tagline: '11 drill families · 35+ level progressions · all you need is 1-2 balls',
     description:
-      'A free guide to 7 sports-vision drills you can do at home with little or no equipment. The perfect place to start — and a taste of the full Playbook.',
-    price: 0,
-    features: ['7 at-home drills', 'No special equipment', 'Instant free download'],
-    purchase: 'free',
-    digitalFile: '/downloads/7-sports-vision-drills.pdf',
+      'A complete 4-week progressive program for eye-hand coordination, reaction time, and visuospatial awareness. Eleven drill families — Hermes, Helios, Harpies, Hephaestus, Horme, Hypnos, Horkos, Homados, Hecate, Hercules and Harmonia — each with full level progressions from beginner to advanced. Two drills a day, randomized across 28 days, with the level climbing every week. Includes a catch-rate tracker so you can score every session. All you need is one or two balls.',
+    price: 19,
+    features: [
+      '11 drill families with 35+ level progressions',
+      '28-day schedule — 2 drills/day, level climbs weekly',
+      'Catch/drop tracker to score every session',
+      'Equipment: 1 or 2 balls',
+    ],
+    badges: ['New'],
+    purchase: 'stripe',
+    gated: true,
+    readerPath: '/read/eyehand',
+    inStock: true,
+    note: 'Delivered as a private, purchase-protected in-browser program with a built-in 28-day tracker — your access link arrives by email after checkout.',
+  },
+  {
+    id: 'beginner-drills',
+    slug: 'beginner-sports-performance-drills',
+    name: 'Beginner Sports Performance Drills — 4-Week Program',
+    category: 'digital',
+    tagline: 'Eight core drills · two a day · four weeks',
+    description:
+      'A complete 4-week starter program built on eight core vision drills — Near-Far Jumps, Eye Circles, Figure 8s, ABCs, Eye Contractions, Superior Oblique, Pencil Push-Ups, and Eye Massage. Two drills a day for 28 days, cycled and randomized so every drill is trained evenly. Opens in a private in-browser program with the full drill library, a day-by-day schedule you tap to check off, and a baseline/re-test tracker. All you need is a pencil and a window.',
+    price: 9,
+    features: [
+      '8 core drills with full instructions',
+      '28-day schedule — 2 drills per day, cycled & randomized',
+      'Tap-to-complete tracker that saves your progress',
+      'Equipment: a pencil and a window',
+    ],
+    badges: ['Start Here'],
+    purchase: 'stripe',
+    gated: true,
+    readerPath: '/read/beginner',
+    inStock: true,
+    note: 'Delivered as a private, purchase-protected in-browser program with a built-in 28-day tracker — your access link arrives by email after checkout.',
   },
 ];
 
@@ -418,16 +471,20 @@ export const LIVE_PRODUCT_IDS = new Set<string>([
   'synchronize-book',
   'sports-vision-playbook',
   'sports-vision-tracker',
-  'free-drills-guide',
+  'drills-bundle',
+  'eye-hand-drills',
+  'beginner-drills',
 ]);
 
-// Gated books: reader slug -> { product that unlocks it, private file on the server }.
-// To add Book 3/4/5 later: drop the HTML in /private, add a product above, add a line here.
+// Gated readers: reader slug -> { product that unlocks it, private file on the server }.
+// To add another later: drop the HTML in /private, add a product above, add a line here.
 export const GATED_BOOKS: Record<string, { productId: string; file: string }> = {
   acquire: { productId: 'acquire-book', file: 'ares-acquire-book.html' },
   route: { productId: 'route-book', file: 'ares-route-book.html' },
   execute: { productId: 'execute-book', file: 'ares-execute-book.html' },
   synchronize: { productId: 'synchronize-book', file: 'ares-synchronize-book.html' },
+  beginner: { productId: 'beginner-drills', file: 'ares-beginner-drills.html' },
+  eyehand: { productId: 'eye-hand-drills', file: 'ares-eyehand-drills.html' },
 };
 
 export const isLive = (p: Product): boolean => LIVE_PRODUCT_IDS.has(p.id);
