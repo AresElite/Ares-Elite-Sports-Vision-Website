@@ -145,18 +145,19 @@ export const PRODUCTS: Product[] = [
     description:
       'Train the visual system behind every rep. A practitioner-grade blend of macular carotenoids (lutein, zeaxanthin, meso-zeaxanthin) plus 300 mg DHA/EPA omega-3 in one daily softgel. These nutrients help build macular pigment, which supports contrast sensitivity and recovery from glare. One bottle = a full 3-month training block.',
     price: 85,
-    subscribePrice: 79,
-    subscribeInterval: 'month',
     features: [
       '90 softgels — 3-month supply',
       'Lutein · Zeaxanthin · Meso-Zeaxanthin (10:10:2) + 300 mg DHA/EPA',
       'Supports contrast sensitivity & glare recovery',
-      'Recommended & stocked by Ares Elite Sports Vision',
+      'Save 10% with practice code 12129 at checkout on MacuHealth.com',
     ],
-    badges: ['Practitioner Recommended'],
-    purchase: 'stripe-both',
+    badges: ['Practitioner Recommended', 'Code 12129 · 10% Off'],
+    purchase: 'external',
+    externalUrl:
+      'https://www.macuhealth.com/product/macuhealth-vision-edge-pro-supplement-for-eye-support/',
+    externalLabel: 'Buy at MacuHealth.com — 10% off with Code 12129',
     inStock: true,
-    note: 'These statements have not been evaluated by the FDA. Not intended to diagnose, treat, cure, or prevent any disease. Consult your eye-care professional before starting any supplement.',
+    note: 'Ordering direct from MacuHealth with our practice code 12129 saves you 10% and links your purchase to Ares Elite Sports Vision. These statements have not been evaluated by the FDA. Not intended to diagnose, treat, cure, or prevent any disease. Consult your eye-care professional before starting any supplement.',
   },
   {
     id: 'nuun-sport-hydration',
@@ -474,6 +475,7 @@ export const LIVE_PRODUCT_IDS = new Set<string>([
   'drills-bundle',
   'eye-hand-drills',
   'beginner-drills',
+  'macuhealth-visionedge-pro',
 ]);
 
 // Gated readers: reader slug -> { product that unlocks it, private file on the server }.
