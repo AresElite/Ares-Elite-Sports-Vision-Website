@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { SEO } from '../components/SEO';
 import { Link } from 'react-router-dom';
-import { Pill, Glasses, Target, BookOpen, ArrowRight, Check, Package } from 'lucide-react';
+import { Pill, Glasses, Target, BookOpen, ArrowRight, Check, Package, Shirt } from 'lucide-react';
 import {
   PRODUCTS,
   CATEGORY_LABELS,
@@ -16,13 +16,14 @@ const CATEGORY_ICON: Record<ProductCategory, ReactNode> = {
   eyewear: <Glasses className="w-5 h-5" />,
   tools: <Target className="w-5 h-5" />,
   digital: <BookOpen className="w-5 h-5" />,
+  merch: <Shirt className="w-5 h-5" />,
 };
 
-const CATEGORY_ORDER: ProductCategory[] = ['bundles', 'supplements', 'eyewear', 'tools', 'digital'];
+const CATEGORY_ORDER: ProductCategory[] = ['bundles', 'supplements', 'eyewear', 'tools', 'digital', 'merch'];
 
 function priceLabel(p: Product) {
   if (p.purchase === 'free') return 'Free';
-  if (p.purchase === 'external') return 'Shop Dispensary';
+  if (p.purchase === 'external') return p.price > 0 ? `$${p.price}` : 'Shop Now';
   if (p.subscribePrice) return `$${p.price}`;
   return `$${p.price.toFixed(p.price % 1 ? 2 : 0)}`;
 }
