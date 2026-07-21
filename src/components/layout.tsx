@@ -46,6 +46,7 @@ export function Navbar() {
     {
       title: "PERFORMANCE",
       links: [
+        { label: "Free 7-Day Protocol", path: "/free-week" },
         { label: "Elite Athletes", path: "/athletes" },
         { label: "Parents & Youth", path: "/parents" },
         { label: "Pro & Motorsports", path: "/pro-sports" },
@@ -56,12 +57,14 @@ export function Navbar() {
     {
       title: "PLATFORMS & TECH",
       links: [
+        { label: "Free 7-Day Protocol", path: "/free-week" },
         { label: "The A.R.E.S. System", path: "/ares-performance-system" },
         { label: "Coaches Protocol", path: "/coaches" },
         { label: "Teams & Facilities", path: "/teams-and-organizations" },
         { label: "Technology & Data", path: "/technology-and-data" },
         { label: "Purchase Packages", path: "/book/packages" },
         { label: "Performance Shop", path: "/shop" },
+        { label: "7-Day Vision Challenge", path: "/vision-challenge" },
         { label: "A.R.E.S. Certification", path: "/certification" }
       ]
     },
@@ -111,9 +114,9 @@ export function Navbar() {
               Book Tele-Training
             </Link>
             <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
-            <Link to="/book/packages" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5 animate-pulse">
+            <Link to="/free-week" className="text-[var(--color-ares-teal)] hover:text-white transition-colors inline-flex items-center gap-1.5 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] animate-ping"></span>
-              Purchase Packages
+              Free 7-Day Protocol
             </Link>
             <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
             <Link to="/cart" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5" aria-label="Cart">
@@ -130,11 +133,11 @@ export function Navbar() {
             <Link to="/" className="flex items-center gap-2 sm:gap-3 transition-colors">
               <img 
                 src="/logo.png" 
-                alt="A.R.E.S. Logo" 
+                alt="Ares Logo" 
                 className="h-10 sm:h-12 w-auto object-contain" 
               />
               <span className="text-sm sm:text-base font-bold tracking-tight text-white hidden md:block">
-                A.R.E.S. Elite Sports Vision
+                Ares Elite Sports Vision
               </span>
             </Link>
           </div>
@@ -416,11 +419,11 @@ export function Footer() {
             <Link to="/" className="flex items-center gap-3">
               <img 
                 src="/logo.png" 
-                alt="A.R.E.S. Logo" 
+                alt="Ares Logo" 
                 className="h-10 sm:h-12 w-auto object-contain" 
               />
               <span className="text-xl sm:text-2xl font-bold tracking-tighter text-white">
-                A.R.E.S. Elite Sports Vision
+                Ares Elite Sports Vision
               </span>
             </Link>
             <p className="mt-4 text-[var(--color-ares-muted)] max-w-sm leading-relaxed text-sm sm:text-base">
@@ -441,6 +444,7 @@ export function Footer() {
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase mb-4 sm:mb-6">Platform</h3>
             <ul className="space-y-3 sm:space-y-4">
+              <li><Link to="/free-week" className="text-sm sm:text-base text-[var(--color-ares-teal)] font-bold hover:text-white transition-colors">Free 7-Day Protocol</Link></li>
               <li><Link to="/ares-performance-system" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">The A.R.E.S. System</Link></li>
               <li><Link to="/athletes" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Elite Athletes</Link></li>
               <li><Link to="/parents" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Parents & Youth</Link></li>

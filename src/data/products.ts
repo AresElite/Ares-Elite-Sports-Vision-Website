@@ -81,7 +81,7 @@ export const PRODUCTS: Product[] = [
     category: 'bundles',
     tagline: 'Eight weeks of training: vision first, then eye-hand',
     description:
-      'Both drill programs in one purchase, in the order they are meant to be trained. Start with Beginner Sports Performance Drills to build the visual foundation over four weeks, then move into Eye-Hand Coordination Drills — eleven drill families with level progressions — for four weeks more. Each opens in its own private in-browser program with a tap-to-complete tracker.',
+      'The complete 8-week visual training progression for developing athletes. Start with Beginner Drills to build solid tracking, focus, and eye control over four weeks. Then step up to Eye-Hand Coordination Drills to sharpen reaction speed and quick decision making under pressure.',
     price: 24,
     compareAt: 28,
     features: [
@@ -103,7 +103,7 @@ export const PRODUCTS: Product[] = [
     category: 'bundles',
     tagline: 'Supplement, program & tool — the complete starting point',
     description:
-      'The fastest way to start training your visual system inside and out. Includes a 3-month supply of MacuHealth VisionEdge Pro, the Sports Vision Playbook, and an Ares Reaction Ball — everything an athlete needs to begin. Buy the bundle and save versus buying separately.',
+      'The fastest way to start training your visual system inside and out. Includes a 3-month supply of MacuHealth VisionEdge Pro, the Sports Vision Playbook, and an Ares Reaction Ball — everything an athlete needs to begin.',
     price: 109,
     compareAt: 127,
     features: [
@@ -115,7 +115,7 @@ export const PRODUCTS: Product[] = [
     badges: ['Best Seller'],
     purchase: 'stripe',
     inStock: true,
-    note: 'Bundle ships the physical items and emails your digital access. Supplement statements not evaluated by the FDA.',
+    note: 'Bundle ships physical items and emails digital access.',
   },
   {
     id: 'home-training-bundle',
@@ -124,7 +124,7 @@ export const PRODUCTS: Product[] = [
     category: 'bundles',
     tagline: 'Everything to train vision at home — gear + program',
     description:
-      'The complete at-home training package: the Ares Home Vision Training Kit (reaction ball, juggling balls, Brock string), the Sports Vision Playbook, and the Training Log & Tracker to measure your gains. Save versus buying separately.',
+      'The complete at-home training package: the Ares Home Vision Training Kit, the Sports Vision Playbook, and the Training Log & Tracker.',
     price: 79,
     compareAt: 87,
     features: [
@@ -146,7 +146,7 @@ export const PRODUCTS: Product[] = [
     category: 'supplements',
     tagline: 'The vision-performance supplement made for athletes',
     description:
-      'Train the visual system behind every rep. A practitioner-grade blend of macular carotenoids (lutein, zeaxanthin, meso-zeaxanthin) plus 300 mg DHA/EPA omega-3 in one daily softgel. These nutrients help build macular pigment, which supports contrast sensitivity and recovery from glare. One bottle = a full 3-month training block.',
+      'Targeted daily eye and brain nutrition built for athletes. Packed with natural plant pigments and pure omega-3 fish oil, this daily softgel helps your eyes adapt to glare, read low-contrast targets faster, and recover quickly between intense sessions. 90 softgels = a full 3-month training block.',
     price: 85,
     features: [
       '90 softgels — 3-month supply',
@@ -160,7 +160,7 @@ export const PRODUCTS: Product[] = [
       'https://www.macuhealth.com/product/macuhealth-vision-edge-pro-supplement-for-eye-support/',
     externalLabel: 'Buy at MacuHealth.com — 10% off with Code 12129',
     inStock: true,
-    note: 'Ordering direct from MacuHealth with our practice code 12129 saves you 10% and links your purchase to Ares Elite Sports Vision. These statements have not been evaluated by the FDA. Not intended to diagnose, treat, cure, or prevent any disease. Consult your eye-care professional before starting any supplement.',
+    note: 'Ordering direct from MacuHealth with our practice code 12129 saves you 10% and links your purchase to Ares Elite Sports Vision. These statements have not been evaluated by the FDA.',
   },
   {
     id: 'nuun-sport-hydration',
@@ -169,7 +169,7 @@ export const PRODUCTS: Product[] = [
     category: 'supplements',
     tagline: 'NSF Certified for Sport electrolytes',
     description:
-      'Clean, light-tasting electrolyte tablets to keep athletes hydrated through training and competition. NSF Certified for Sport — safe for drug-tested athletes. Drop one in water; no sugar crash.',
+      'Clean, light-tasting electrolyte tablets to keep athletes hydrated through training and competition. NSF Certified for Sport — safe for drug-tested athletes.',
     price: 8.99,
     features: [
       '10 tablets per tube',
@@ -188,7 +188,7 @@ export const PRODUCTS: Product[] = [
     category: 'supplements',
     tagline: 'NSF-certified protein, creatine, omega-3 & greens',
     description:
-      'Our curated dispensary of professional-grade, NSF Certified for Sport supplements from brands trusted by elite and Olympic athletes (Thorne, Klean Athlete, and more). Shipped directly to your door at practitioner pricing. Browse our recommended athlete protocols.',
+      'Our practitioner-curated store for clean, athlete-tested supplements like protein, creatine, and omega-3s. Every product is NSF Certified for Sport so you get pure performance without banned ingredients.',
     price: 0,
     features: [
       'NSF Certified for Sport protein & creatine',
@@ -411,12 +411,13 @@ export const PRODUCTS: Product[] = [
     category: 'digital',
     tagline: '11 drill families · 35+ level progressions · all you need is 1-2 balls',
     description:
-      'A complete 4-week progressive program for eye-hand coordination, reaction time, and visuospatial awareness. Eleven drill families — Hermes, Helios, Harpies, Hephaestus, Horme, Hypnos, Horkos, Homados, Hecate, Hercules and Harmonia — each with full level progressions from beginner to advanced. Two drills a day, randomized across 28 days, with the level climbing every week. Includes a catch-rate tracker so you can score every session. All you need is one or two balls.',
+      'A complete 4-week progressive program to train fast eyes and quick hands. Eleven drill families teach your eyes to lock onto targets early and your hands to react without hesitation. Features 35+ level progressions that climb every week, plus a built-in catch-rate tracker to score your gains. All you need is one or two tennis balls.',
     price: 19,
     features: [
       '11 drill families with 35+ level progressions',
       '28-day schedule — 2 drills/day, level climbs weekly',
       'Catch/drop tracker to score every session',
+      'Interactive in-browser program + downloadable PDF',
       'Equipment: 1 or 2 balls',
     ],
     badges: ['New'],
@@ -433,12 +434,13 @@ export const PRODUCTS: Product[] = [
     category: 'digital',
     tagline: 'Eight core drills · two a day · four weeks',
     description:
-      'A complete 4-week starter program built on eight core vision drills — Near-Far Jumps, Eye Circles, Figure 8s, ABCs, Eye Contractions, Superior Oblique, Pencil Push-Ups, and Eye Massage. Two drills a day for 28 days, cycled and randomized so every drill is trained evenly. Opens in a private in-browser program with the full drill library, a day-by-day schedule you tap to check off, and a baseline/re-test tracker. All you need is a pencil and a window.',
+      'The ultimate 4-week starting point for young and developing athletes. Eight core visual drills build tracking speed, focus switching, and eye alignment in just 10 to 15 minutes a day. Tap to check off each day in your private online training portal. All you need is a pencil and a window.',
     price: 9,
     features: [
       '8 core drills with full instructions',
       '28-day schedule — 2 drills per day, cycled & randomized',
       'Tap-to-complete tracker that saves your progress',
+      'Interactive in-browser program + downloadable PDF',
       'Equipment: a pencil and a window',
     ],
     badges: ['Start Here'],
@@ -457,13 +459,13 @@ export const PRODUCTS: Product[] = [
     category: 'merch',
     tagline: 'Eye-Hand Coordination statement tee, armored owl, retro sunset & more',
     description:
-      'Premium tees in the full Ares design line — the "It\'s pronounced EYE-HAND Coordination" statement tee with "The eyes lead. The hands follow." on the back, the armored owl badge, the retro sunset owl, and the classic wordmark. Printed on demand and shipped direct from our merch store.',
+      'Premium tees in the full Ares design line — featuring the "It\'s pronounced EYE-HAND Coordination" statement tee with "The eyes lead. The hands follow." on the back. Printed on demand by our fulfillment partner.',
     price: 28,
     features: [
       'Multiple designs: statement, badge, retro, classic',
       'Premium soft unisex fit — navy, black & cream',
-      'Printed & shipped by our merch partner',
-      'Returns handled by the store',
+      'Printed on demand by our fulfillment partner',
+      'Returns handled at the store',
     ],
     badges: ['New'],
     purchase: 'external',
@@ -478,13 +480,13 @@ export const PRODUCTS: Product[] = [
     category: 'merch',
     tagline: 'Armored owl badge & Milliseconds Matter back print',
     description:
-      'Heavyweight pullover hoodies carrying the armored owl badge and the full MILLISECONDS MATTER™ back print. Built for early practices and late sessions. Printed on demand and shipped direct from our merch store.',
+      'Heavyweight pullover hoodies carrying the armored owl badge and the full MILLISECONDS MATTER™ back print. Built for early practices and late sessions.',
     price: 52,
     features: [
       'Heavyweight pullover — navy & black',
       'Armored badge front / wordmark back options',
-      'Printed & shipped by our merch partner',
-      'Returns handled by the store',
+      'Printed on demand by our fulfillment partner',
+      'Returns handled at the store',
     ],
     purchase: 'external',
     externalUrl: MERCH_STORE_URL,
@@ -498,13 +500,13 @@ export const PRODUCTS: Product[] = [
     category: 'merch',
     tagline: 'Embroidered owl — Milliseconds Matter on the back',
     description:
-      'Classic embroidered caps with the Ares owl up front and MILLISECONDS MATTER™ stitched on the back. Printed on demand and shipped direct from our merch store.',
+      'Classic embroidered caps with the Ares owl up front and MILLISECONDS MATTER™ stitched on the back.',
     price: 30,
     features: [
       'Embroidered owl logo',
       'MILLISECONDS MATTER™ back embroidery',
       'Classic dad-cap & snapback styles',
-      'Shipped by our merch partner',
+      'Printed on demand by our fulfillment partner',
     ],
     purchase: 'external',
     externalUrl: MERCH_STORE_URL,
@@ -554,6 +556,19 @@ export const GATED_BOOKS: Record<string, { productId: string; file: string }> = 
   synchronize: { productId: 'synchronize-book', file: 'ares-synchronize-book.html' },
   beginner: { productId: 'beginner-drills', file: 'ares-beginner-drills.html' },
   eyehand: { productId: 'eye-hand-drills', file: 'ares-eyehand-drills.html' },
+};
+
+// Purchase-gated file downloads: productId -> file in /private served by
+// /api/download/:productId?session_id=... after Stripe verification.
+export const GATED_DOWNLOADS: Record<string, { file: string; label: string }> = {
+  'beginner-drills': {
+    file: 'ares-beginner-sports-performance-drills.pdf',
+    label: 'Beginner Sports Performance Drills (PDF)',
+  },
+  'eye-hand-drills': {
+    file: 'ares-eye-hand-coordination-drills.pdf',
+    label: 'Eye-Hand Coordination Drills (PDF)',
+  },
 };
 
 export const isLive = (p: Product): boolean => LIVE_PRODUCT_IDS.has(p.id);

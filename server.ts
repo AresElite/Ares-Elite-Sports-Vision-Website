@@ -8,7 +8,7 @@ import { Resend } from "resend";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import fs from "fs";
-import { getProduct, LIVE_PRODUCT_IDS, GATED_BOOKS, grantsAccess } from "./src/data/products";
+import { getProduct, LIVE_PRODUCT_IDS, GATED_BOOKS, GATED_DOWNLOADS, grantsAccess } from "./src/data/products";
 
 dotenv.config();
 
@@ -318,32 +318,23 @@ function getStripe(): Stripe {
 const athleteParentSequence = [
   {
     day: 0,
-    subject: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => 
-      bottleneck 
-        ? `Next steps for your ${bottleneck.toLowerCase()}, ${firstName}`
-        : `Next steps for your sensory performance, ${firstName}`,
-    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
+    subject: (firstName: string) => `Welcome to the A.R.E.S. 7-Day Protocol, ${firstName}`,
+    body: (firstName: string, sport: string, bottleneck?: string | null) => {
       const bottleneckIntro = bottleneck 
-        ? `Based on your assessment, your eyes show signs of a ${bottleneck}. This means your visual system is lagging when trying to process dynamic play.` 
-        : `While your initial metrics give us a snapshot, the next step is mapping your complete visual engine.`;
+        ? `Based on your assessment, your visual system shows signs of a ${bottleneck}.` 
+        : `Your visual system is the primary operating system controlling every split-second movement in ${sport || 'sports'}.`;
       
-      const concernDetail = concern 
-        ? `Specifically, your concern with "${concern.toLowerCase()}" is a classic indicator of visual-cognitive latency.`
-        : `High-speed coordination, peripheral accuracy, and focus under physical fatigue cannot be fully diagnosed online.`;
-
       return `Hi ${firstName},
 
-Great job completing the A.R.E.S. sensory assessment.
+Great job starting your visual-performance journey with Ares Elite Sports Vision.
 
 ${bottleneckIntro}
 
-${concernDetail}
+Your free 7-Day Vision Protocol is unlocked and ready in your portal. Over the next 7 days, you will run two drills a day designed to sharpen target acquisition, tracking accuracy, and focus.
 
-That is why we begin with the Sports Vision Performance Evaluation. This is a 75-minute, in-depth diagnostic session at our Carmel HQ where we run you through our specialized tactile boards, eye-tracking systems, and strobe-occlusion diagnostics.
+Access Your Free 7-Day Protocol: ${APP_URL}/free-week
 
-Delaying this evaluation means training with blind spots. Let's lock in your baseline.
-
-Book Your Evaluation: ${APP_URL}/book/evaluation
+Start your daily drills today, and look for Day 1 tomorrow.
 
 Best regards,
 
@@ -353,40 +344,38 @@ Milliseconds Matter™`;
     }
   },
   {
-    day: 2,
-    subject: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => 
-      bottleneck 
-        ? `The 200ms ${bottleneck.toLowerCase()} in ${sport || 'sports'}`
-        : `The 200-millisecond bottleneck in ${sport || 'sports'}`,
-    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
-      const bottleneckP = bottleneck === 'Acquire Bottleneck'
-        ? `Your assessment indicated an Acquire Bottleneck. This means your eyes are taking too long to capture and track high-speed movements, leaving you reacting late.`
-        : bottleneck === 'Route Bottleneck'
-        ? `Your assessment indicated a Route Bottleneck. Your eyes capture the play, but there is a delay in routing that coordinate data through the optic nerve to your brain.`
-        : bottleneck === 'Execute Bottleneck'
-        ? `Your assessment indicated an Execute Bottleneck. Your brain processes the play, but your motor cortex has a latency delay commanding your hands and feet to move.`
-        : bottleneck === 'Synchronize Bottleneck'
-        ? `Your assessment indicated a Synchronize Bottleneck. Under fatigue or pressure, your visual and physical motor systems fall out of sync, leading to late-game errors.`
-        : `In ${sport || 'elite sports'}, the physical game moves fast, but the cognitive game moves faster.`;
-
-      const concernP = concern 
-        ? `This explains why you've been noticing issues like: ${concern.toLowerCase()}. By training your visual pathways, we can shave off those latency delays.`
-        : `A 90mph fastball, an opponent's sudden change of direction, or a high-speed corner all require visual processing in under 200 milliseconds.`;
-
+    day: 1,
+    subject: (firstName: string) => `Step 1 on the ladder: The 4-Week Beginner Program ($9)`,
+    body: (firstName: string) => {
       return `Hi ${firstName},
 
-In ${sport || 'elite sports'}, the physical game moves fast, but the cognitive game moves faster.
+Now that you've started the 7-Day Protocol, the next step on your training ladder is our 4-Week Beginner Sports Performance Drills ($9).
 
-${bottleneckP}
+Built on 8 core visual drills — including Near-Far Jumps, Eye Circles, and Pencil Push-Ups — this program requires only a pencil and a window. You get a tap-to-complete daily tracker that saves your progress directly in your browser.
 
-${concernP}
+Start the 4-Week Beginner Program ($9): ${APP_URL}/shop/beginner-sports-performance-drills
 
-Most athletes spend thousands of dollars on strength and skills coaching, yet ignore the neural visual engine that controls those physical movements.
+Build your visual baseline at home today.
 
-Our in-office evaluation exposes the exact bottleneck where you are giving away precious milliseconds.
+Best,
 
-Review our schedule and book your diagnostic slot this week:
-Book Your Evaluation: ${APP_URL}/book/evaluation
+Dr. Joe LaPlaca
+Ares Elite Sports Vision`;
+    }
+  },
+  {
+    day: 3,
+    subject: (firstName: string) => `Step 2: Eye-Hand Coordination Drills & Complete Bundle ($24)`,
+    body: (firstName: string) => {
+      return `Hi ${firstName},
+
+Once your eyes learn to track, the next requirement in sports is Eye-Hand Coordination — teaching your hands to react instantly to what your eyes see.
+
+Our Eye-Hand Coordination Drills program ($19) features 11 drill families and 35+ level progressions. Or get both 4-week programs in The Complete Drill Program Bundle for just $24 (Save $4).
+
+Get The Complete 8-Week Drill Bundle ($24): ${APP_URL}/shop/complete-drill-program
+
+Train fast eyes and quick hands from home.
 
 Best,
 
@@ -396,25 +385,19 @@ Ares Elite Sports Vision`;
   },
   {
     day: 5,
-    subject: (firstName: string, sport: string) => `Why 20/20 vision isn't enough in ${sport || 'sports'}`,
-    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
-      const concernText = concern 
-        ? `Even if you have perfect eyesight, cognitive latency in areas like "${concern.toLowerCase()}" is completely separate from how clear your static vision is.`
-        : `Having 20/20 vision simply means you can read a stationary letter chart from 20 feet away.`;
-
+    subject: (firstName: string) => `Step 3: The A.R.E.S. Performance Loop Book Series`,
+    body: (firstName: string) => {
       return `Hi ${firstName},
 
-A common misconception we hear from ${sport || 'elite'} athletes: "I don't need sports vision training, I have 20/20 vision."
+Why do athletes who see correctly still decide too late?
 
-${concernText} Static vision tells us nothing about:
-- How fast your eyes track a spinning ball or high-speed target.
-- Your depth perception under stadium glare.
-- Your peripheral awareness when moving at speed.
+It comes down to decision architecture — how visual input is routed through the optic nerve to your motor cortex under stress.
 
-Sports vision training takes healthy eyes and tunes them for athletic dominance. But we cannot write your protocol until we run the baseline evaluation.
+Our 4-Book A.R.E.S. Series unpacks the complete athletic loop: ACQUIRE (seeing), ROUTE (deciding), EXECUTE (moving), and SYNCHRONIZE (staying locked in under fatigue). Each book comes with an interactive in-browser reader.
 
-Book your Carmel diagnostic spot here:
-Reserve Evaluation Spot ($449): ${APP_URL}/book/evaluation
+Explore The Complete A.R.E.S. 4-Book Series ($129 Bundle / $39 Each): ${APP_URL}/shop/complete-ares-series
+
+Master the neural framework behind elite decision speed.
 
 Best,
 
@@ -423,148 +406,45 @@ Ares Elite Sports Vision`;
     }
   },
   {
-    day: 9,
-    subject: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => 
-      bottleneck 
-        ? `Eliminating your ${bottleneck.toLowerCase()} with A.R.E.S.`
-        : `How the A.R.E.S. framework builds elite athletes`,
-    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
-      const intro = bottleneck 
-        ? `We have mapped your initial results to our A.R.E.S. framework and identified a primary target: your ${bottleneck.toLowerCase()}.`
-        : `We build elite vision using a proprietary cognitive training loop: A.R.E.S.`;
-
-      const targetFocus = bottleneck === 'Acquire Bottleneck'
-        ? `For your Acquire Bottleneck, we focus on training your saccades, smooth pursuit tracking, and visual search speed so you can lock onto targets faster.`
-        : bottleneck === 'Route Bottleneck'
-        ? `For your Route Bottleneck, we focus on optic nerve processing, visual memory recognition, and spatial processing so your brain receives coordinates instantly.`
-        : bottleneck === 'Execute Bottleneck'
-        ? `For your Execute Bottleneck, we focus on choice reaction speed, motor reaction triggers, and hand-eye coordination to decrease motor reaction lag.`
-        : bottleneck === 'Synchronize Bottleneck'
-        ? `For your Synchronize Bottleneck, we focus on dynamic visual fatigue endurance, peripheral decision accuracy, and play-calling under load.`
-        : `The A.R.E.S. framework breaks visual performance down into four pillars.`;
-
+    day: 7,
+    subject: (firstName: string) => `Step 4: Targeted Eye & Brain Nutrition (MacuHealth)`,
+    body: (firstName: string) => {
       return `Hi ${firstName},
 
-${intro}
+Physical training builds muscles, but what nourishes your visual operating system?
 
-The A.R.E.S. framework breaks visual performance down into four pillars:
-- Acquire: How fast and accurately do your eyes capture high-speed targets?
-- Route: How efficiently does your optic nerve send spatial coordinates to your brain?
-- Execute: How quickly does your motor cortex command physical muscle reactions?
-- Synchronize: How consistently do these systems align under fatigue and pressure?
+MacuHealth VisionEdge Pro is the practitioner-grade supplement built specifically for athletes. Packed with macular carotenoids and pure DHA/EPA omega-3s, it helps your eyes adapt to glare, read low-contrast targets faster, and recover from stadium lights.
 
-${targetFocus}
+Save 10% on MacuHealth with our Practice Code 12129 at checkout:
+Buy MacuHealth VisionEdge Pro ($85): ${APP_URL}/shop/visionedge-pro
 
-Standard eye exams only check static 20/20 vision. The A.R.E.S. Evaluation is the only way to measure all four pillars under athletic load.
+Fuel your visual engine for your next training block.
 
-Don't let visual latency limit your training gains.
-
-Find Your Gaps: Schedule Evaluation: ${APP_URL}/book/evaluation
-
-Sincerely,
+Best,
 
 Dr. Joe LaPlaca
 Ares Elite Sports Vision`;
     }
   },
   {
-    day: 14,
-    subject: (firstName: string, sport: string) => `What coaches, parents, and scouts look for in ${sport || 'sports'}`,
-    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
-      const concernDetail = concern 
-        ? `They look for players who don't suffer from things like: ${concern.toLowerCase()}.`
-        : `These aren't abstract traits — they are directly tied to your visual-cognitive stamina.`;
-
+    day: 10,
+    subject: (firstName: string) => `Step 5: Your 90-Minute Sports Vision Evaluation ($449)`,
+    body: (firstName: string, sport: string) => {
       return `Hi ${firstName},
 
-When scouts and coaches evaluate an athlete in ${sport || 'sports'}, they look for "decision-making speed" and "high-pressure composure."
+At-home drills and supplements build your foundation, but the pinnacle of the ladder is your 90-Minute Sports Vision Evaluation at our Carmel, IN facility.
 
-${concernDetail}
+We run you through 75 minutes of high-frequency diagnostic testing on eye-tracking systems, strobe occlusion, and tactile reaction boards. You leave with an empirical telemetry breakdown comparing your latency to elite benchmarks in ${sport || 'your sport'}.
 
-- Coaches love athletes who read plays half a second before they happen.
-- Parents value the safety margin: faster tracking means fewer blind-spot hits and lower injury risk.
-- Scouts look for neurological efficiency: the athlete who stays cool and accurate in the final minutes of a game.
+Book Your 90-Minute Evaluation in Carmel ($449): ${APP_URL}/book/evaluation
 
-An A.R.E.S. Evaluation gives you the empirical telemetry data to show them you have that elite cognitive edge.
-
-Book Your Performance Evaluation: ${APP_URL}/book/evaluation
+Let's find your exact visual bottlenecks and eliminate them.
 
 Best regards,
 
 Dr. Joe LaPlaca
-Ares Elite Sports Vision`;
-    }
-  },
-  {
-    day: 20,
-    subject: (firstName: string, sport: string) => `Missing baseline data alert for ${firstName}`,
-    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
-      const focusText = bottleneck 
-        ? `We cannot prescribe target drills, peripheral response training, or dynamic focus work for your ${bottleneck.toLowerCase()} without these primary benchmarks.`
-        : `Without a scheduled A.R.E.S. Evaluation, your cognitive profile remains incomplete.`;
-
-      return `Hi ${firstName},
-
-We noticed that we are still missing your baseline visual-performance telemetry.
-
-${focusText}
-
-Let's get your calibration scheduled before the season moves forward.
-
-Schedule Evaluation Spot ($449): ${APP_URL}/book/evaluation
-
-Best,
-
-Dr. Joe LaPlaca
-Ares Elite Sports Vision`;
-    }
-  },
-  {
-    day: 25,
-    subject: (firstName: string, sport: string) => `Take control of your reaction times in ${sport || 'sports'}`,
-    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
-      const concernP = concern 
-        ? `Latency in visual capture and specific concerns like "${concern.toLowerCase()}" are trained patterns that require targeted training.`
-        : `If you are waiting for performance gaps to resolve on their own, they won't.`;
-
-      return `Hi ${firstName},
-
-${concernP}
-
-The A.R.E.S. Evaluation is the first step toward reclaiming those crucial milliseconds.
-
-Book Your Performance Evaluation: ${APP_URL}/book/evaluation
-
-Sincerely,
-
-Dr. Joe LaPlaca
-Ares Elite Sports Vision`;
-    }
-  },
-  {
-    day: 30,
-    subject: (firstName: string, sport: string) => `Leaving the door open (A.R.E.S. Evaluation)`,
-    body: (firstName: string, sport: string, bottleneck?: string | null, concern?: string | null) => {
-      const bottleneckP = bottleneck 
-        ? `Visual bottlenecks like your ${bottleneck.toLowerCase()} do not go away on their own. They manifest as split-second hesitations, late reactions, and performance drop-offs during physical fatigue.`
-        : `Visual bottlenecks do not go away on their own. They manifest as split-second hesitations, late reactions, and performance drop-offs during physical fatigue.`;
-
-      return `Hi ${firstName},
-
-I have checked in a few times and haven't heard back, which is completely fine. Timing is everything in sports and training, and if this isn't the right window for you, I understand.
-
-${bottleneckP}
-
-Whenever you are ready to proactively build your processing speed and claim those crucial milliseconds, the door is open.
-
-You can book your diagnostic evaluation below or reply directly to this email to coordinate.
-
-Book Evaluation When Ready: ${APP_URL}/book/evaluation
-
-Wishing you a healthy and successful season.
-
-Dr. Joe LaPlaca
-Ares Elite Sports Vision`;
+Ares Elite Sports Vision
+Milliseconds Matter™`;
     }
   }
 ];
@@ -1442,6 +1322,7 @@ app.post("/api/create-checkout-session", async (req, res) => {
         },
       ],
       mode: mode,
+      allow_promotion_codes: true,
       success_url: `${APP_URL}/book/${serviceId}?office=${officeId}&success=true&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${APP_URL}/book/${serviceId}?office=${officeId}&canceled=true`,
       metadata: {
@@ -1666,10 +1547,11 @@ app.get("/api/read/:bookId", async (req, res) => {
   }
 });
 
-// Free Week lead magnet — gated behind email capture (not purchase).
-// The /free-week page posts to /api/resource-download first (which creates the
-// lead and starts the nurture sequence), then loads this with the same email.
-app.get("/api/free-week", (req, res) => {
+// 7-Day Vision Challenge lead magnet — gated behind email capture (not purchase).
+// The /vision-challenge page posts to /api/resource-download first (which creates
+// the lead and starts the nurture sequence), then loads this with the same email.
+// Completing all 7 days unlocks a 10%-off evaluation code (VISION10) in-page.
+const serveChallenge = (req: any, res: any) => {
   try {
     const email = String(req.query.email || "").trim().toLowerCase();
     if (!email || !email.includes("@")) {
@@ -1677,22 +1559,68 @@ app.get("/api/free-week", (req, res) => {
     }
     const lead = db.prepare("SELECT id FROM leads WHERE lower(email) = ?").get(email);
     if (!lead) {
-      return res.status(403).send("Please sign up on the Free Week page to unlock this.");
+      return res.status(403).send("Please sign up on the Vision Challenge page to unlock this.");
     }
-    const file = "ares-free-week.html";
+    const file = "ares-vision-challenge.html";
     const candidates = [
       path.join(process.cwd(), "private", file),
       path.join(process.cwd(), "ares-elite-sports-vision-website", "private", file),
       "private/" + file,
     ];
     const filePath = candidates.find((p) => fs.existsSync(p));
-    if (!filePath) return res.status(404).send("Free week not found.");
+    if (!filePath) return res.status(404).send("Challenge not found.");
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.setHeader("Cache-Control", "private, no-store");
     res.send(fs.readFileSync(filePath, "utf-8"));
   } catch (error) {
-    console.error("Error serving free week:", error);
-    res.status(500).send("Could not load the free week.");
+    console.error("Error serving challenge:", error);
+    res.status(500).send("Could not load the challenge.");
+  }
+};
+app.get("/api/vision-challenge", serveChallenge);
+app.get("/api/free-week", serveChallenge); // legacy path
+
+// Purchase-gated PDF downloads. Same verification as the readers:
+// any purchased item that IS the product, or a bundle containing it, unlocks the file.
+app.get("/api/download/:productId", async (req, res) => {
+  try {
+    const productId = String(req.params.productId || "");
+    const dl = GATED_DOWNLOADS[productId];
+    if (!dl) return res.status(404).send("Unknown download.");
+
+    const sessionId = String(req.query.session_id || "");
+    if (!sessionId) return res.status(400).send("Missing session.");
+    if (!process.env.STRIPE_SECRET_KEY) return res.status(500).send("Payments not configured.");
+
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const paid = session.payment_status === "paid";
+    const purchasedIds =
+      session.metadata?.cart === "true"
+        ? (session.metadata?.product_ids || "").split(",").filter(Boolean)
+        : session.metadata?.product_id
+        ? [session.metadata.product_id]
+        : [];
+    const allowed = purchasedIds.some((pid) => grantsAccess(pid, productId));
+    if (!paid || !allowed) {
+      return res.status(403).send("Access denied. Please purchase this program to download it.");
+    }
+
+    const candidates = [
+      path.join(process.cwd(), "private", dl.file),
+      path.join(process.cwd(), "ares-elite-sports-vision-website", "private", dl.file),
+      "private/" + dl.file,
+    ];
+    const filePath = candidates.find((p) => fs.existsSync(p));
+    if (!filePath) return res.status(404).send("File not found.");
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${dl.file}"`);
+    res.setHeader("Cache-Control", "private, no-store");
+    fs.createReadStream(filePath).pipe(res);
+  } catch (error) {
+    console.error("Error serving gated download:", error);
+    res.status(500).send("Could not load the download.");
   }
 });
 
@@ -1856,6 +1784,10 @@ app.post("/api/webhooks/stripe", express.raw({ type: 'application/json' }), asyn
               if (sp.gated && sp.readerPath) {
                 const url = `${APP_URL}${sp.readerPath}?session_id=${session.id}`;
                 deliveries.push(`<p><a href="${url}" style="${btn}">Read ${sp.name}</a></p><p style="font-size:12px;color:#888;">Access link: ${url}</p>`);
+                if (GATED_DOWNLOADS[sp.id]) {
+                  const dlUrl = `${APP_URL}/api/download/${sp.id}?session_id=${session.id}`;
+                  deliveries.push(`<p style="font-size:13px;">Prefer a file? <a href="${dlUrl}">Download the PDF version</a></p>`);
+                }
               } else if (sp.digitalFile) {
                 const url = `${APP_URL}${sp.digitalFile}`;
                 deliveries.push(`<p><a href="${url}" style="${btn}">Download ${sp.name}</a></p><p style="font-size:12px;color:#888;">Or paste this link: ${url}</p>`);
