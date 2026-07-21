@@ -456,12 +456,12 @@ export function Hero({ isReady = true }: HeroProps) {
                 to="/assessment" 
                 className="flex-1 inline-flex items-center justify-center px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-2xl transition-all font-bold tracking-wider uppercase text-sm backdrop-blur-md cursor-pointer"
               >
-                ONLINE DIAGNOSTIC
+                FREE 5-MINUTE ASSESSMENT
               </Link>
             </div>
 
             <p className="text-white/40 text-xs mt-3 font-mono">
-              ★ 80-90 Minute In-Person Evaluation at Carmel Clinic | Gated Online Latency Diagnostic
+              ★ 80-90 Minute In-Person Evaluation at Carmel Clinic | Free 5-Minute Performance Assessment
             </p>
           </motion.div>
 

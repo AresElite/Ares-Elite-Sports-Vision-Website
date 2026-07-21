@@ -16,7 +16,7 @@ export function LeadMagnets() {
             <div className="relative grid md:grid-cols-2 gap-10 items-center">
               <div>
                 <div className="inline-flex items-center px-3 py-1 bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] text-xs font-bold tracking-widest rounded-full uppercase mb-5">
-                  Neuro-Cognitive Latency Diagnostic
+                  Free 5-Minute Performance Assessment
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">
                   Map Your Visual Processing Speed
