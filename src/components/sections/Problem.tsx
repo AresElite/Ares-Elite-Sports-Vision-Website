@@ -42,7 +42,7 @@ export function ProblemSection() {
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 md:perspective-1000">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 md:perspective-1000 mb-12">
           {problems.map((problem, index) => (
             <ScrollReveal 
               key={index}
@@ -67,6 +67,23 @@ export function ProblemSection() {
             </ScrollReveal>
           ))}
         </div>
+
+        {/* Parent & Athlete Plain-Language Callout */}
+        <ScrollReveal direction="up" distance={30}>
+          <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-teal)]/30 rounded-2xl p-6 sm:p-8 text-center max-w-3xl mx-auto shadow-2xl">
+            <div className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] font-bold mb-2">
+              The Plain-Language Guarantee
+            </div>
+            <h4 className="text-xl sm:text-2xl font-bold text-white mb-3">
+              What Does This Mean For Your Performance?
+            </h4>
+            <p className="text-sm sm:text-base text-white/80 leading-relaxed">
+              "In a 75-minute Performance Evaluation, we answer two simple questions for parents and athletes:<br />
+              <strong className="text-[var(--color-ares-teal)] font-bold">1. Where are you losing milliseconds on the field?</strong><br />
+              <strong className="text-white font-bold">2. Exactly how do we train your visual processing system to get them back?</strong>"
+            </p>
+          </div>
+        </ScrollReveal>
       </div>
     </SectionReveal>
   );

@@ -536,8 +536,6 @@ export const LIVE_PRODUCT_IDS = new Set<string>([
   'route-book',
   'execute-book',
   'synchronize-book',
-  'sports-vision-playbook',
-  'sports-vision-tracker',
   'drills-bundle',
   'eye-hand-drills',
   'beginner-drills',

@@ -95,8 +95,37 @@ function HeroDrillWidget() {
     };
   }, []);
 
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadData, setLeadData] = useState({ sport: 'Baseball', level: 'High School', email: '', phone: '' });
+  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
+
+  const handleLeadSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!leadData.email) return;
+    setIsSubmittingLead(true);
+    try {
+      // Fire-and-forget server contact lead
+      await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: `Reaction Lead (${leadData.sport})`,
+          email: leadData.email,
+          phone: leadData.phone,
+          notes: `Homepage 5-Tap Reaction Lead - Sport: ${leadData.sport}, Level: ${leadData.level}, Phone: ${leadData.phone || 'N/A'}`
+        })
+      }).catch(err => console.error("Lead API error:", err));
+      setLeadSubmitted(true);
+    } catch (err) {
+      console.error("Lead submission error:", err);
+      setLeadSubmitted(true);
+    } finally {
+      setIsSubmittingLead(false);
+    }
+  };
+
   return (
-    <div className="relative p-6 rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)]/95 shadow-glow flex flex-col h-full backdrop-blur-md overflow-hidden min-h-[260px] justify-between transition-all duration-300">
+    <div className="relative p-6 rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)]/95 shadow-glow flex flex-col h-full backdrop-blur-md overflow-hidden min-h-[300px] justify-between transition-all duration-300">
       {/* Ambient gradient highlight */}
       <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-ares-purple)]/10 to-transparent pointer-events-none" />
       
@@ -202,18 +231,104 @@ function HeroDrillWidget() {
 
       {gameState === 'complete' && (() => {
         const averageTime = trials.length > 0 ? Math.round(trials.reduce((sum, t) => sum + t, 0) / trials.length) : 0;
+        
+        if (!leadSubmitted) {
+          return (
+            <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
+              <div className="w-full">
+                <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">5-Tap Test Complete!</div>
+                <div className="text-2xl font-black text-[var(--color-ares-white)] font-mono mb-1">{averageTime}ms Avg Latency</div>
+                <p className="text-xs text-white/70 mb-4">
+                  Unlock your sport-specific AQ™ benchmark report comparing your speed to elite athletes.
+                </p>
+
+                <form onSubmit={handleLeadSubmit} className="space-y-2 text-left">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] font-mono text-white/60 uppercase">Sport</label>
+                      <select
+                        value={leadData.sport}
+                        onChange={(e) => setLeadData({ ...leadData, sport: e.target.value })}
+                        className="w-full bg-black/40 border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white"
+                      >
+                        <option value="Baseball">Baseball</option>
+                        <option value="Softball">Softball</option>
+                        <option value="Soccer">Soccer</option>
+                        <option value="Basketball">Basketball</option>
+                        <option value="Motorsport">Motorsport</option>
+                        <option value="Hockey">Hockey</option>
+                        <option value="Football">Football</option>
+                        <option value="Golf">Golf</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-mono text-white/60 uppercase">Level</label>
+                      <select
+                        value={leadData.level}
+                        onChange={(e) => setLeadData({ ...leadData, level: e.target.value })}
+                        className="w-full bg-black/40 border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white"
+                      >
+                        <option value="Youth">Youth</option>
+                        <option value="High School">High School</option>
+                        <option value="Collegiate">Collegiate</option>
+                        <option value="Pro">Pro / Elite</option>
+                        <option value="Master">Master</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-mono text-white/60 uppercase">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="athlete@example.com"
+                      value={leadData.email}
+                      onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
+                      className="w-full bg-black/40 border border-white/20 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-white/30"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-mono text-white/60 uppercase">Phone Number (Optional)</label>
+                    <input
+                      type="tel"
+                      placeholder="(317) 555-0199"
+                      value={leadData.phone}
+                      onChange={(e) => setLeadData({ ...leadData, phone: e.target.value })}
+                      className="w-full bg-black/40 border border-white/20 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-white/30"
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isSubmittingLead}
+                    className="w-full py-2.5 px-4 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold text-xs tracking-wider uppercase transition-all shadow-md mt-2 disabled:opacity-50"
+                  >
+                    {isSubmittingLead ? 'Generating Report...' : 'Unlock Full AQ™ Report'}
+                  </button>
+                </form>
+              </div>
+            </div>
+          );
+        }
+
         return (
           <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
             <div className="w-full">
-              <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">Average reaction speed</div>
-              <div className="text-3xl sm:text-4xl font-black text-[var(--color-ares-white)] mb-4 font-mono">{averageTime}ms</div>
+              <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">
+                AQ™ Benchmark Unlocked ({leadData.sport} - {leadData.level})
+              </div>
+              <div className="text-3xl sm:text-4xl font-black text-[var(--color-ares-white)] mb-3 font-mono">{averageTime}ms</div>
               
               {/* Individual Trial Times breakdown */}
-              <div className="flex justify-center gap-2 mb-4">
+              <div className="flex justify-center gap-1.5 mb-3">
                 {trials.map((t, idx) => (
                   <div key={idx} className="flex flex-col items-center">
                     <span className="text-[8px] font-mono text-[var(--color-ares-muted)]">T{idx+1}</span>
-                    <span className="px-2 py-0.5 rounded bg-white/5 border border-[var(--color-ares-border)] text-[9px] font-mono text-white/80">{t}ms</span>
+                    <span className="px-1.5 py-0.5 rounded bg-white/5 border border-[var(--color-ares-border)] text-[9px] font-mono text-white/80">{t}ms</span>
                   </div>
                 ))}
               </div>
@@ -221,9 +336,7 @@ function HeroDrillWidget() {
               {/* Visual Benchmark Bar */}
               <div className="space-y-2 text-left mb-4">
                 <div className="relative h-1.5 w-full bg-[var(--color-ares-border)] rounded-full overflow-hidden">
-                  {/* Elite standard mark (220ms) */}
                   <div className="absolute left-[35%] top-0 bottom-0 w-0.5 bg-[var(--color-ares-teal)] z-20" title="Elite: 220ms"></div>
-                  {/* User speed mark */}
                   <div 
                     className={`absolute left-0 top-0 bottom-0 rounded-full z-10 ${
                       averageTime <= 240 ? 'bg-[var(--color-ares-teal)]' : 'bg-red-500/80'
@@ -238,25 +351,25 @@ function HeroDrillWidget() {
                 </div>
               </div>
 
-              <p className="text-xs text-[var(--color-ares-muted)] leading-relaxed px-2">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-3 mb-4 text-xs text-white/80 text-left">
                 {averageTime <= 240 ? (
-                  <span>Excellent average! You're in the elite tier. Take the full assessment to map your cognitive routing.</span>
+                  <span><strong>Elite Status:</strong> Your reaction latency is in the top tier for {leadData.sport}. Book a 90-minute evaluation to map choice routing under G-force.</span>
                 ) : (
-                  <span><strong>Visual Gaps Likely.</strong> Your average is {averageTime > 220 ? `${averageTime - 220}ms` : '50+ms'} slower than elite standards.</span>
+                  <span><strong>Visual Gaps Detected:</strong> Your reaction is {averageTime > 220 ? `${averageTime - 220}ms` : '50+ms'} slower than elite {leadData.sport} standards.</span>
                 )}
-              </p>
+              </div>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-2 w-full mt-4">
+            <div className="flex flex-col sm:flex-row gap-2 w-full mt-2">
               <Link
-                to="/assessment"
+                to="/book/evaluation"
                 className="flex-1 py-3 px-4 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold text-xs tracking-wider uppercase text-center shadow-lg transition-all"
               >
-                Full Test
+                Book 90-Min Evaluation ($449)
               </Link>
               <button
                 onClick={startDrill}
-                className="flex-1 py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-[var(--color-ares-border)] text-[var(--color-ares-white)] font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
+                className="py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-[var(--color-ares-border)] text-[var(--color-ares-white)] font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
               >
                 Retest
               </button>

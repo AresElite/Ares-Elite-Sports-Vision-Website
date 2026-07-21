@@ -111,10 +111,52 @@ export function BookPage() {
           <ChevronRight className="w-4 h-4 rotate-180" /> Back to options
         </button>
 
+        {/* Hero Headline */}
         <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-3xl p-8 sm:p-12 shadow-xl mb-12">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 text-[var(--color-ares-teal)] text-xs font-mono uppercase tracking-widest mb-6 font-bold">
+            Book Your 90-Minute Evaluation
+          </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-white uppercase tracking-tight leading-tight">
             A 75-minute A.R.E.S. Performance Evaluation that maps where your athlete is losing milliseconds and gives a clear training plan.
           </h2>
+
+          {/* 3-Step Visual Roadmap: What To Expect */}
+          <div className="my-10 pt-8 border-t border-white/10">
+            <h3 className="text-xs font-bold font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.3em] mb-6 text-center sm:text-left">
+              Evaluation Roadmap: What to Expect
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 relative">
+                <div className="w-10 h-10 rounded-xl bg-[var(--color-ares-teal)]/20 border border-[var(--color-ares-teal)]/40 flex items-center justify-center text-[var(--color-ares-teal)] font-bold text-lg mb-4">
+                  1
+                </div>
+                <h4 className="text-lg font-bold text-white mb-2">Baseline Testing (75 Mins)</h4>
+                <p className="text-xs text-white/70 leading-relaxed">
+                  High-frequency diagnostic testing across dynamic acuity, choice latency, contrast sensitivity, & gaze tracking under stress.
+                </p>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 relative">
+                <div className="w-10 h-10 rounded-xl bg-[var(--color-ares-purple)]/20 border border-[var(--color-ares-purple)]/40 flex items-center justify-center text-[var(--color-ares-purple)] font-bold text-lg mb-4">
+                  2
+                </div>
+                <h4 className="text-lg font-bold text-white mb-2">Data & AQ™ Score Review</h4>
+                <p className="text-xs text-white/70 leading-relaxed">
+                  Comprehensive empirical breakdown comparing your athlete's latency profile against elite benchmarks in their specific sport.
+                </p>
+              </div>
+
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6 relative">
+                <div className="w-10 h-10 rounded-xl bg-[var(--color-ares-teal)]/20 border border-[var(--color-ares-teal)]/40 flex items-center justify-center text-[var(--color-ares-teal)] font-bold text-lg mb-4">
+                  3
+                </div>
+                <h4 className="text-lg font-bold text-white mb-2">Custom Training Blueprint</h4>
+                <p className="text-xs text-white/70 leading-relaxed">
+                  A tailored neuro-performance protocol designed to shore up identified visual bottlenecks and accelerate on-field execution.
+                </p>
+              </div>
+            </div>
+          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 pb-8 border-b border-white/10">
             <div>
@@ -139,15 +181,55 @@ export function BookPage() {
               </ul>
             </div>
             
+            {/* Value Stack & Insurance Transparency */}
+            <div className="space-y-6">
+              <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+                <h3 className="text-base font-bold text-white uppercase mb-3 flex items-center justify-between">
+                  <span>Evaluation Value Stack</span>
+                  <span className="text-[var(--color-ares-teal)] text-xl font-black">$449</span>
+                </h3>
+                <div className="space-y-2 text-xs text-white/70">
+                  <div className="flex justify-between">
+                    <span>75-Min Neuro Diagnostic & Testing</span>
+                    <span className="line-through opacity-50">$350 value</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>AQ™ Latency & Baseline Telemetry</span>
+                    <span className="line-through opacity-50">$150 value</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Custom Training Blueprint & Protocol</span>
+                    <span className="line-through opacity-50">$200 value</span>
+                  </div>
+                  <div className="border-t border-white/10 pt-2 flex justify-between font-bold text-white text-sm">
+                    <span>Total Retail Value</span>
+                    <span className="text-[var(--color-ares-teal)]">$700+ | Investment: $449</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Superbill / Insurance Badge */}
+              <div className="bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 rounded-2xl p-5 text-xs leading-relaxed text-white/80">
+                <div className="font-bold text-[var(--color-ares-teal)] uppercase mb-1 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4" /> Out-of-Network Superbill Provided
+                </div>
+                We operate on a direct self-pay model to deliver uncompromised 1-on-1 care. Upon request, we provide an itemized Superbill with standard CPT diagnostic codes for insurance submission.
+              </div>
+            </div>
+          </div>
+
+          {/* Location & Arrival Guidance */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h3 className="text-lg font-bold text-[var(--color-ares-purple)] uppercase mb-4">How it Differs From Static Eye Exams</h3>
-              <p className="text-sm text-white/70 leading-relaxed mb-4">
-                A standard 20/20 eye exam checks static optical clarity while sitting in a dark room. It misses 80% of sports vision requirements. We check your visual operating system under G-force, stress, and physical fatigue to find real athletic latency gaps.
+              <div className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-wider font-bold mb-1">Location Context</div>
+              <h4 className="text-base font-bold text-white">Carmel Headquarters (Carmel, IN)</h4>
+              <p className="text-xs text-white/70 mt-1">
+                510 W. Carmel Dr., 2nd Floor (Inside Elemental Fitness), Carmel, IN 46032.<br />
+                <span className="text-white/50">Arrival Note: Located on the 2nd Floor of Elemental Fitness. Free parking in front.</span>
               </p>
-              <h3 className="text-base font-bold text-white uppercase mb-2">What You Leave With</h3>
-              <p className="text-sm text-white/70 leading-relaxed">
-                An empirical neuro-performance telemetry dashboard detailing your latency metrics, plus a custom 12-week progression plan to shave off critical visual bottlenecks.
-              </p>
+            </div>
+            <div className="text-xs font-mono text-white/40 uppercase tracking-wider shrink-0 sm:text-right">
+              Main Suite & Suite 2
             </div>
           </div>
           
@@ -157,13 +239,13 @@ export function BookPage() {
                 onClick={() => embedRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                 className="py-4 px-8 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold text-sm tracking-widest uppercase transition-all shadow-glow text-center cursor-pointer"
               >
-                Book Baseline Evaluation ($449)
+                Select Schedule Below ($449)
               </button>
               <Link 
                 to="/assessment"
                 className="py-4 px-8 rounded-xl border border-[var(--color-ares-purple)] text-white hover:bg-[var(--color-ares-purple)]/10 font-bold text-sm tracking-widest uppercase transition-all text-center"
               >
-                Start Assessment
+                Start Free Assessment
               </Link>
               <Link 
                 to="/contact"
@@ -173,7 +255,7 @@ export function BookPage() {
               </Link>
             </div>
             <div className="text-right mt-4 lg:mt-0 font-mono text-xs text-white/40 uppercase tracking-wider shrink-0">
-              * Carmel HQ Location Only
+              * Carmel HQ Location
             </div>
           </div>
         </div>

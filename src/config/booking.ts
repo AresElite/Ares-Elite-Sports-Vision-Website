@@ -55,9 +55,9 @@ export const BOOKING_CONFIG = {
   offices: [
     {
       id: "office1",
-      name: "Carmel HQ 1",
-      description: "Our primary performance facility equipped with the complete A.R.E.S. technology stack.",
-      address: "510 W. Carmel Dr. Carmel, IN 46032",
+      name: "Carmel Headquarters (Main Evaluation Suite)",
+      description: "Our primary flagship evaluation suite located on the 2nd Floor inside Elemental Fitness, equipped with the complete A.R.E.S. technology stack.",
+      address: "510 W. Carmel Dr., 2nd Floor (Inside Elemental Fitness), Carmel, IN 46032",
       servicesOffered: ["evaluation", "training", "re-evaluation", "consultation"],
       // References the URL above
       bookingUrl: "https://outlook.office.com/book/AresOffice1@areselitesportsvision.com/",
@@ -65,9 +65,9 @@ export const BOOKING_CONFIG = {
     },
     {
       id: "office2",
-      name: "Carmel HQ 2",
-      description: "Our secondary performance suite located within the Carmel HQ facility.",
-      address: "510 W. Carmel Dr. Carmel, IN 46032",
+      name: "Carmel Headquarters (Performance Suite 2)",
+      description: "Our secondary performance suite located within the Carmel HQ facility on the 2nd Floor of Elemental Fitness.",
+      address: "510 W. Carmel Dr., 2nd Floor (Inside Elemental Fitness), Carmel, IN 46032",
       servicesOffered: ["evaluation", "training", "consultation"],
       // References the URL above
       bookingUrl: "https://outlook.office.com/book/AresOffice2@areselitesportsvision.com/"
@@ -76,7 +76,7 @@ export const BOOKING_CONFIG = {
       id: "ganassi",
       name: "Ganassi Performance Center",
       description: "Exclusive facility dedicated to motorsport athletes and high-speed cognitive conditioning.",
-      address: "",
+      address: "Carmel, IN",
       servicesOffered: ["evaluation", "training"],
       // References the URL above
       bookingUrl: "https://outlook.office.com/book/GanassiTrainingFacility@areselitesportsvision.com/",
@@ -87,23 +87,23 @@ export const BOOKING_CONFIG = {
   faq: [
     {
       question: "Do you accept insurance?",
-      answer: "Ares Elite Sports Vision operates as an out-of-network provider. We do not directly bill insurance companies. However, upon request, we can provide you with a superbill containing the necessary diagnostic and procedure codes, which you may submit to your insurance provider for potential out-of-network reimbursement. Please note that coverage varies significantly by provider and plan, and we cannot guarantee reimbursement."
+      answer: "Ares Elite Sports Vision operates on a direct self-pay model to deliver uncompromised 1-on-1 visual-neurocognitive care. While we are an out-of-network provider and do not bill insurance directly, we provide an itemized Superbill upon request. This document contains all standard diagnostic (CPT) and procedure codes for you to submit to your insurance carrier for potential out-of-network reimbursement."
     },
     {
       question: "How do I pay for my session?",
-      answer: "Ares Elite Sports Vision requires pre-payment to secure your reservation on our calendar. After selecting your location and service type, you will be redirected to a secure Stripe checkout. Once payment is confirmed, the scheduling calendar will unlock for you to select your time slot."
+      answer: "Payment is completed securely online via credit card or Stripe when scheduling your evaluation or training package. Your reservation is immediately confirmed on our calendar."
     },
     {
       question: "How much does an evaluation or training session cost?",
-      answer: "Our initial Performance Evaluation is a comprehensive 75-minute assessment ($449). Ongoing neuro-performance training is available in specialized packages and monthly memberships exclusively for active clients."
+      answer: "Our initial Performance Evaluation is a comprehensive 75-minute diagnostic baseline ($449), which includes full telemetry reporting, visual latency profiling, and your personalized training protocol. Follow-up re-evaluations are $299, and ongoing training is available via active client packages."
     },
     {
-      question: "Which office should I book at?",
-      answer: "Choose the location most convenient for you. Our Carmel HQ offers our complete suite of services, while Ganassi is specialized for motorsport athletes."
+      question: "Which suite or office should I book at?",
+      answer: "Both the Main Evaluation Suite and Performance Suite 2 are located inside our primary Carmel HQ facility (510 W. Carmel Dr., 2nd Floor inside Elemental Fitness). Both suites feature identical A.R.E.S. diagnostic stack technology—choose whichever open time slot fits your schedule."
     },
     {
-      question: "What is the difference between evaluation and training?",
-      answer: "An evaluation is a comprehensive 75-minute baseline assessment required for all new clients. Training sessions are for active clients executing their custom protocols."
+      question: "What is the difference between an evaluation and training?",
+      answer: "An evaluation is a 75-minute baseline diagnostic required for all new clients to identify visual latency bottlenecks. Training sessions are ongoing 45-minute protocols for active clients executing custom progressions."
     },
     {
       question: "Can I reschedule my appointment?",
@@ -111,7 +111,7 @@ export const BOOKING_CONFIG = {
     },
     {
       question: "What if I am not sure which service I need?",
-      answer: "If you are a new client, always start with a Performance Evaluation or a Consultation. If you are an active client, select Training Session."
+      answer: "If you are a new client, always start with a Performance Evaluation or a Consultation. If you are an active client, select Training Session or Re-Evaluation."
     }
   ],
 
