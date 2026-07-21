@@ -25,76 +25,52 @@ interface Question {
 }
 
 const QUESTIONS: Question[] = [
-  { id: 1, text: "Do you experience eye strain, dryness, or headaches after looking at screens?", category: 'fatigue' },
-  { id: 2, text: "How often do you average more than 4 hours of digital screen time daily?", category: 'fatigue' },
-  { id: 3, text: "Do you find yourself squinting or tilting your head to see distant objects clearly?", category: 'fatigue' },
-  { id: 4, text: "How often do you lose track of the ball/puck in high-speed plays?", category: 'tracking' },
-  { id: 5, text: "Do you struggle to maintain focus in your peripheral field?", category: 'tracking' },
-  { id: 6, text: "Do you feel like you react late to sudden movements or changes of direction?", category: 'tracking' },
-  { id: 7, text: "Do you experience double vision or blurriness under physical fatigue?", category: 'fatigue' },
-  { id: 8, text: "How often do you misjudge distance or the speed of an incoming object?", category: 'tracking' },
-  { id: 9, text: "Do you hesitate before making a critical pass, shot, or split-second decision?", category: 'cognitive' },
-  { id: 10, text: "Do you make more cognitive mistakes in the final minutes of a game?", category: 'cognitive' },
-  { id: 11, text: "How often do you feel mentally drained or overwhelmed during high-pressure plays?", category: 'cognitive' },
-  { id: 12, text: "Do you struggle to transition focus quickly between near and far distances?", category: 'fatigue' },
-  { id: 13, text: "How often do you find yourself reacting physically before your brain has fully processed the play?", category: 'cognitive' },
-  { id: 14, text: "Do you experience poor timing or coordination when executing fast movements?", category: 'coordination' },
-  { id: 15, text: "Do you find it difficult to track multiple moving targets at the same time?", category: 'tracking' },
-  { id: 16, text: "How often do you get caught off guard by plays coming from your blind spots?", category: 'tracking' },
-  { id: 17, text: "Does bright glare or poor stadium lighting significantly affect your performance?", category: 'fatigue' },
-  { id: 18, text: "Do you experience slow visual recovery or sluggish focus after high impact?", category: 'cognitive' },
-  { id: 19, text: "Do you feel your eye movements are sluggish when tracking rapid motion?", category: 'coordination' },
-  { id: 20, text: "Do you experience mild motion sickness or coordination drop during fast-paced drills?", category: 'coordination' }
+  { id: 1, text: "Do you experience eye strain, dryness, or headaches after intense screen time or training?", category: 'fatigue' },
+  { id: 2, text: "Do you struggle to transition focus quickly between near and far distances?", category: 'fatigue' },
+  { id: 3, text: "Do you experience double vision or blurriness under physical fatigue?", category: 'fatigue' },
+  { id: 4, text: "How often do you lose track of the ball or target in high-speed plays?", category: 'tracking' },
+  { id: 5, text: "Do you struggle to maintain focus and reaction speed in your peripheral field?", category: 'tracking' },
+  { id: 6, text: "Do you misjudge distance or the speed of an incoming object or opponent?", category: 'tracking' },
+  { id: 7, text: "Do you hesitate before making a critical pass, shot, or split-second decision?", category: 'cognitive' },
+  { id: 8, text: "Do you make more mental or tactical mistakes in the final minutes of a game?", category: 'cognitive' },
+  { id: 9, text: "Do you feel your brain processes plays faster than your hands or feet can execute?", category: 'cognitive' },
+  { id: 10, text: "Do you feel you react late to sudden changes of direction or blind-spot movements?", category: 'coordination' },
+  { id: 11, text: "Do you experience poor timing or coordination when executing fast physical movements?", category: 'coordination' },
+  { id: 12, text: "Do you find it difficult to track multiple moving targets under pressure?", category: 'coordination' }
 ];
 
-const ARROWS = ['←', '↑', '→', '↓'];
-
-function generateRandomSequence(length: number): string[] {
-  const seq: string[] = [];
-  for (let i = 0; i < length; i++) {
-    seq.push(ARROWS[Math.floor(Math.random() * ARROWS.length)]);
-  }
-  return seq;
+interface MOTBall {
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  isTarget: boolean;
+  isSelected: boolean;
 }
 
-function generateOptions(correctSeq: string[], length: number): string[][] {
-  const optionsSet = new Set<string>();
-  optionsSet.add(correctSeq.join(''));
-
-  while (optionsSet.size < 4) {
-    const distractor: string[] = [];
-    for (let i = 0; i < length; i++) {
-      distractor.push(ARROWS[Math.floor(Math.random() * ARROWS.length)]);
-    }
-    optionsSet.add(distractor.join(''));
-  }
-
-  const options = Array.from(optionsSet).map(s => Array.from(s));
-
-  // Fisher-Yates shuffle
-  for (let i = options.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    const temp = options[i];
-    options[i] = options[j];
-    options[j] = temp;
-  }
-
-  return options;
-}
-
-function calculatePercentile(rawAvg: number, choiceAcc: number, recAcc: number): number {
+function calculatePercentile(rawAvg: number, choiceAcc: number, motAcc: number, motLatency: number): number {
   let rawPct = 50;
-  if (rawAvg <= 220) {
-    rawPct = 95 + Math.max(0, 220 - rawAvg) * 0.1;
-  } else if (rawAvg <= 350) {
-    rawPct = 95 - ((rawAvg - 220) / (350 - 220)) * 45;
+  if (rawAvg <= 210) {
+    rawPct = 96 + Math.max(0, 210 - rawAvg) * 0.1;
+  } else if (rawAvg <= 320) {
+    rawPct = 95 - ((rawAvg - 210) / (320 - 210)) * 45;
   } else {
-    rawPct = 50 - ((rawAvg - 350) / (500 - 350)) * 45;
+    rawPct = 50 - ((rawAvg - 320) / (480 - 320)) * 45;
   }
   
-  const avgAcc = (choiceAcc + recAcc) / 2;
-  const finalPct = Math.round((rawPct * 0.6) + (avgAcc * 0.4));
-  return Math.max(5, Math.min(99, finalPct));
+  let motLatencyScore = 50;
+  if (motLatency <= 900) {
+    motLatencyScore = 95;
+  } else if (motLatency <= 2000) {
+    motLatencyScore = 95 - ((motLatency - 900) / 1100) * 45;
+  } else {
+    motLatencyScore = Math.max(10, 50 - ((motLatency - 2000) / 2000) * 40);
+  }
+
+  const physicalScore = (rawPct * 0.35) + (choiceAcc * 0.30) + ((motAcc * 0.7 + motLatencyScore * 0.3) * 0.35);
+  return Math.max(5, Math.min(99, Math.round(physicalScore)));
 }
 
 interface AssessmentWizardProps {
@@ -104,17 +80,12 @@ interface AssessmentWizardProps {
 
 export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWizardProps) {
   const [step, setStep] = useState<WizardStep>('welcome');
-  
-  // Questionnaire States
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [surveyAnswers, setSurveyAnswers] = useState<(number | null)[]>(new Array(20).fill(null));
+  const [surveyAnswers, setSurveyAnswers] = useState<(number | null)[]>(new Array(12).fill(null));
   
-  // Single click lock refs
   const rawHasClickedRef = useRef(false);
   const choiceHasClickedRef = useRef(false);
-  const recHasClickedRef = useRef(false);
   
-  // Drill 1: Raw RT States
   const [rawTrial, setRawTrial] = useState(0);
   const [rawState, setRawState] = useState<'idle' | 'waiting' | 'flash' | 'feedback'>('idle');
   const [rawTimes, setRawTimes] = useState<number[]>([]);
@@ -123,7 +94,6 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   const rawFlashTimeRef = useRef<number>(0);
   const rawWaitingStateStartRef = useRef<number>(0);
 
-  // Drill 2: Choice RT States
   const [choiceTrial, setChoiceTrial] = useState(0);
   const [choiceState, setChoiceState] = useState<'idle' | 'waiting' | 'target' | 'feedback'>('idle');
   const [choiceTargetColor, setChoiceTargetColor] = useState<'purple' | 'teal' | null>(null);
@@ -132,56 +102,29 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   const choiceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const choiceFlashTimeRef = useRef<number>(0);
 
-  // Drill 3: Recognition Speed States
-  const [recTrial, setRecTrial] = useState(0);
-  const [recState, setRecState] = useState<'idle' | 'countdown' | 'flash' | 'select' | 'feedback'>('idle');
-  const [recTimes, setRecTimes] = useState<{ time: number; correct: boolean }[]>([]);
-  const [recCountdown, setRecCountdown] = useState(3);
-  const recTimerRef = useRef<NodeJS.Timeout | null>(null);
-  const recStartTimeRef = useRef<number>(0);
-  const [currentRecPattern, setCurrentRecPattern] = useState<string[]>([]);
-  const [currentRecOptions, setCurrentRecOptions] = useState<string[][]>([]);
+  const [motTrial, setMotTrial] = useState(0);
+  const [motState, setMotState] = useState<'idle' | 'highlight' | 'motion' | 'select' | 'feedback'>('idle');
+  const [motResults, setMotResults] = useState<{ trial: number; correct: number; totalTargets: number; latency: number }[]>([]);
+  const [motSelectedCount, setMotSelectedCount] = useState(0);
 
-  // Lead Capture States
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const motBallsRef = useRef<MOTBall[]>([]);
+  const animFrameRef = useRef<number | null>(null);
+  const motSelectStartTimeRef = useRef<number>(0);
+
   const [leadForm, setLeadForm] = useState({ 
-    firstName: '', 
-    lastName: '', 
-    email: '', 
-    phone: '', 
-    age: '', 
-    athleteName: '', 
-    parentGuardianName: '', 
-    sport: '',
-    role: '',
-    competitiveLevel: '',
-    location: '',
-    primaryConcern: '',
-    primaryConcernOther: '',
-    urgency: '',
-    desiredNextStep: '',
-    consent: true,
-    isParentOrCoach: false,
-    howHeard: '',
-    howHeardOther: '',
-    referralCode: sessionStorage.getItem('referral_code') || ''
+    firstName: '', lastName: '', email: '', phone: '', sport: '', role: '', competitiveLevel: '', location: '', consent: true
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [bottleneckResult, setBottleneckResult] = useState<string | null>(null);
 
-  const nextStep = (next: WizardStep) => {
-    setStep(next);
-  };
+  const nextStep = (next: WizardStep) => setStep(next);
 
   const handleAnswerSurvey = (value: number) => {
     const newAnswers = [...surveyAnswers];
     newAnswers[currentQuestionIndex] = value;
     setSurveyAnswers(newAnswers);
-
-    if (document.activeElement instanceof HTMLElement) {
-      document.activeElement.blur();
-    }
-
     if (currentQuestionIndex < QUESTIONS.length - 1) {
       setCurrentQuestionIndex(prev => prev + 1);
     } else {
@@ -190,12 +133,9 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   };
 
   const handlePrevQuestion = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(prev => prev - 1);
-    }
+    if (currentQuestionIndex > 0) setCurrentQuestionIndex(prev => prev - 1);
   };
 
-  // DRILL 1: RAW REACTION TIME LOGIC
   const startRawDrill = () => {
     setRawTrial(0);
     setRawTimes([]);
@@ -209,48 +149,32 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     rawHasClickedRef.current = false;
     const delay = 1500 + Math.random() * 2500;
     if (rawTimerRef.current) clearTimeout(rawTimerRef.current);
-    
     rawTimerRef.current = setTimeout(() => {
       setRawState('flash');
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          rawFlashTimeRef.current = performance.now();
-        });
-      });
+      rawFlashTimeRef.current = performance.now();
     }, delay);
   };
 
   const handleRawClick = () => {
     if (rawState === 'waiting') {
-      const now = performance.now();
-      if (now - rawWaitingStateStartRef.current < 500) {
-        return; // Early click lockout (first 500ms of waiting state)
-      }
-      if (rawHasClickedRef.current) return;
+      if (performance.now() - rawWaitingStateStartRef.current < 500 || rawHasClickedRef.current) return;
       rawHasClickedRef.current = true;
       if (rawTimerRef.current) clearTimeout(rawTimerRef.current);
       setRawFalsePositives(prev => prev + 1);
       setRawState('feedback');
-      setTimeout(() => {
-        advanceRawTrial();
-      }, 1000);
+      setTimeout(() => advanceRawTrial(), 1000);
     } else if (rawState === 'flash') {
       if (rawHasClickedRef.current) return;
       rawHasClickedRef.current = true;
-      const clickTime = performance.now();
-      const rawRt = clickTime - rawFlashTimeRef.current;
-      // Subtract 75ms browser/react rendering offset to align with fine motor averages (220-330ms)
-      const rt = Math.max(190, Math.round(rawRt - 75));
+      const rt = Math.max(190, Math.round(performance.now() - rawFlashTimeRef.current - 75));
       setRawTimes(prev => [...prev, rt]);
       setRawState('feedback');
-      setTimeout(() => {
-        advanceRawTrial();
-      }, 1000);
+      setTimeout(() => advanceRawTrial(), 1000);
     }
   };
 
   const advanceRawTrial = () => {
-    if (rawTrial < 7) {
+    if (rawTrial < 5) {
       setRawTrial(prev => prev + 1);
       triggerRawNextTrial();
     } else {
@@ -259,7 +183,6 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     }
   };
 
-  // DRILL 2: CHOICE REACTION TIME LOGIC
   const startChoiceDrill = () => {
     setChoiceTrial(0);
     setChoiceTimes([]);
@@ -273,579 +196,230 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     choiceHasClickedRef.current = false;
     const delay = 1200 + Math.random() * 1800;
     if (choiceTimerRef.current) clearTimeout(choiceTimerRef.current);
-    
     choiceTimerRef.current = setTimeout(() => {
-      const color = Math.random() > 0.5 ? 'purple' : 'teal';
-      setChoiceTargetColor(color);
+      setChoiceTargetColor(Math.random() > 0.5 ? 'purple' : 'teal');
       setChoiceState('target');
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          choiceFlashTimeRef.current = performance.now();
-        });
-      });
+      choiceFlashTimeRef.current = performance.now();
     }, delay);
   };
 
   const handleChoiceInput = (inputColor: 'purple' | 'teal') => {
     if (choiceState !== 'target' || !choiceTargetColor || choiceHasClickedRef.current) return;
     choiceHasClickedRef.current = true;
-    
-    const clickTime = performance.now();
-    const rawRt = clickTime - choiceFlashTimeRef.current;
-    // Subtract 95ms browser/react rendering offset to align with fine motor choice averages (350-500ms)
-    const rt = Math.max(300, Math.round(rawRt - 95));
+    const rt = Math.max(300, Math.round(performance.now() - choiceFlashTimeRef.current - 95));
     const isCorrect = inputColor === choiceTargetColor;
-
     setChoiceTimes(prev => [...prev, { color: choiceTargetColor, time: rt, correct: isCorrect }]);
     setChoiceWasError(!isCorrect);
     setChoiceState('feedback');
-
     setTimeout(() => {
-      if (choiceTrial < 7) {
+      if (choiceTrial < 5) {
         setChoiceTrial(prev => prev + 1);
         triggerChoiceNextTrial();
       } else {
         nextStep('drill_recognition');
-        startRecDrill();
+        startMotDrill();
       }
     }, 1000);
+  };
+
+  const startMotDrill = () => {
+    setMotTrial(0);
+    setMotResults([]);
+    initMotTrial(0);
+  };
+
+  const initMotTrial = (trialIdx: number) => {
+    const ballCount = trialIdx === 2 ? 6 : 5;
+    const targetCount = trialIdx === 2 ? 3 : 2;
+    const width = 560;
+    const height = 340;
+    const radius = 24;
+    const speed = 3.2;
+
+    const balls: MOTBall[] = [];
+    const targetIndices = new Set<number>();
+    while (targetIndices.size < targetCount) targetIndices.add(Math.floor(Math.random() * ballCount));
+
+    for (let i = 0; i < ballCount; i++) {
+      let x = radius + 20 + Math.random() * (width - 2 * radius - 40);
+      let y = radius + 20 + Math.random() * (height - 2 * radius - 40);
+      const angle = Math.random() * Math.PI * 2;
+      balls.push({ id: i, x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, radius, isTarget: targetIndices.has(i), isSelected: false });
+    }
+    motBallsRef.current = balls;
+    setMotSelectedCount(0);
+    setMotState('highlight');
+    setTimeout(() => {
+      setMotState('motion');
+      setTimeout(() => {
+        setMotState('select');
+        motSelectStartTimeRef.current = performance.now();
+      }, 4500);
+    }, 2200);
   };
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (step !== 'drill_choice' || choiceState !== 'target') return;
-      if (e.key === 'ArrowLeft' || e.key === 't' || e.key === 'T') {
-        handleChoiceInput('teal');
-      } else if (e.key === 'ArrowRight' || e.key === 'p' || e.key === 'P') {
-        handleChoiceInput('purple');
+    if (step !== 'drill_recognition') return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let running = true;
+    const render = () => {
+      if (!running) return;
+      if (motState === 'motion') {
+        motBallsRef.current.forEach(b => {
+          b.x += b.vx; b.y += b.vy;
+          if (b.x - b.radius < 0 || b.x + b.radius > canvas.width) b.vx *= -1;
+          if (b.y - b.radius < 0 || b.y + b.radius > canvas.height) b.vy *= -1;
+        });
+        for (let i = 0; i < motBallsRef.current.length; i++) {
+          for (let j = i + 1; j < motBallsRef.current.length; j++) {
+            const b1 = motBallsRef.current[i];
+            const b2 = motBallsRef.current[j];
+            const dx = b2.x - b1.x, dy = b2.y - b1.y;
+            if (Math.hypot(dx, dy) < b1.radius + b2.radius) {
+              const nx = dx / Math.hypot(dx, dy), ny = dy / Math.hypot(dx, dy);
+              const p = 2 * (nx * (b1.vx - b2.vx) + ny * (b1.vy - b2.vy)) / 2;
+              b1.vx -= p * nx; b1.vy -= p * ny;
+              b2.vx += p * nx; b2.vy += p * ny;
+            }
+          }
+        }
       }
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      motBallsRef.current.forEach(b => {
+        ctx.beginPath();
+        ctx.arc(b.x, b.y, b.radius, 0, Math.PI * 2);
+        ctx.fillStyle = (motState === 'highlight' && b.isTarget) ? '#00f2fe' : '#8b5cf6';
+        ctx.fill();
+        if ((motState === 'select' || motState === 'feedback') && b.isSelected) {
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.radius + 5, 0, Math.PI * 2);
+          ctx.strokeStyle = '#00f2fe';
+          ctx.lineWidth = 4;
+          ctx.stroke();
+        }
+      });
+      animFrameRef.current = requestAnimationFrame(render);
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [step, choiceState, choiceTargetColor]);
+    render();
+    return () => { running = false; if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current); };
+  }, [step, motState]);
 
-  // DRILL 3: RECOGNITION SPEED LOGIC
-  const startRecDrill = () => {
-    setRecTrial(0);
-    setRecTimes([]);
-    runRecCountdown(0);
-  };
-
-  const runRecCountdown = (trialIndex: number) => {
-    setRecState('countdown');
-    setRecCountdown(3);
-    recHasClickedRef.current = false;
-    
-    let length = 3;
-    if (trialIndex >= 3 && trialIndex < 6) {
-      length = 4;
-    } else if (trialIndex >= 6) {
-      length = 5;
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (motState !== 'select') return;
+    const rect = canvasRef.current!.getBoundingClientRect();
+    const clickX = (e.clientX - rect.left) * (canvasRef.current!.width / rect.width);
+    const clickY = (e.clientY - rect.top) * (canvasRef.current!.height / rect.height);
+    const targetCount = motTrial === 2 ? 3 : 2;
+    const clickedBall = motBallsRef.current.find(b => Math.hypot(b.x - clickX, b.y - clickY) <= b.radius + 12);
+    if (clickedBall) {
+      clickedBall.isSelected = !clickedBall.isSelected;
+      const newSelected = motBallsRef.current.filter(b => b.isSelected).length;
+      setMotSelectedCount(newSelected);
+      if (newSelected === targetCount) {
+        const latency = Math.round(performance.now() - motSelectStartTimeRef.current);
+        const correctCount = motBallsRef.current.filter(b => b.isTarget && b.isSelected).length;
+        setMotResults(prev => [...prev, { trial: motTrial + 1, correct: correctCount, totalTargets: targetCount, latency }]);
+        setMotState('feedback');
+        setTimeout(() => {
+          if (motTrial < 2) { setMotTrial(prev => prev + 1); initMotTrial(motTrial + 1); }
+          else nextStep('lead_capture');
+        }, 1200);
+      }
     }
-
-    const pattern = generateRandomSequence(length);
-    const options = generateOptions(pattern, length);
-
-    setCurrentRecPattern(pattern);
-    setCurrentRecOptions(options);
-
-    let currentCount = 3;
-    if (recTimerRef.current) clearInterval(recTimerRef.current);
-
-    recTimerRef.current = setInterval(() => {
-      currentCount -= 1;
-      if (currentCount > 0) {
-        setRecCountdown(currentCount);
-      } else {
-        clearInterval(recTimerRef.current!);
-        flashRecPattern();
-      }
-    }, 1000) as any;
   };
 
-  const flashRecPattern = () => {
-    setRecState('flash');
-    recHasClickedRef.current = false;
-    setTimeout(() => {
-      setRecState('select');
-      recStartTimeRef.current = performance.now();
-    }, 800);
-  };
-
-  const handleRecSelect = (option: string[]) => {
-    if (recState !== 'select' || recHasClickedRef.current) return;
-    recHasClickedRef.current = true;
-    
-    const clickTime = performance.now();
-    const rt = clickTime - recStartTimeRef.current;
-    
-    const isCorrect = option.join('') === currentRecPattern.join('');
-
-    setRecTimes(prev => [...prev, { time: rt, correct: isCorrect }]);
-    setRecState('feedback');
-
-    setTimeout(() => {
-      if (recTrial < 7) {
-        const nextTrial = recTrial + 1;
-        setRecTrial(nextTrial);
-        runRecCountdown(nextTrial);
-      } else {
-        nextStep('lead_capture');
-      }
-    }, 1000);
-  };
-
-  // CALCULATE TELEMETRY METRICS
   const getCalculatedMetrics = () => {
-    const surveyScore = surveyAnswers.reduce((sum, val) => sum + (val || 0), 0);
-    
     const rawAvg = rawTimes.length > 0 ? Math.round(rawTimes.reduce((s, v) => s + v, 0) / rawTimes.length) : 0;
-    const rawFastest = rawTimes.length > 0 ? Math.round(Math.min(...rawTimes)) : 0;
-    const rawSlowest = rawTimes.length > 0 ? Math.round(Math.max(...rawTimes)) : 0;
-
     const purpleTrials = choiceTimes.filter(t => t.color === 'purple');
     const tealTrials = choiceTimes.filter(t => t.color === 'teal');
-    
-    const purpleAvg = purpleTrials.length > 0 ? Math.round(purpleTrials.reduce((s, v) => s + v.time, 0) / purpleTrials.length) : 0;
-    const tealAvg = tealTrials.length > 0 ? Math.round(tealTrials.reduce((s, v) => s + v.time, 0) / tealTrials.length) : 0;
-    
-    const purpleCorrect = purpleTrials.filter(t => t.correct).length;
-    const purpleAcc = purpleTrials.length > 0 ? Math.round((purpleCorrect / purpleTrials.length) * 100) : 0;
-    
-    const tealCorrect = tealTrials.filter(t => t.correct).length;
-    const tealAcc = tealTrials.length > 0 ? Math.round((tealCorrect / tealTrials.length) * 100) : 0;
-
-    let pesSum = 0;
-    let pesCount = 0;
-    for (let i = 1; i < choiceTimes.length; i++) {
-      if (!choiceTimes[i - 1].correct) {
-        pesSum += choiceTimes[i].time;
-        pesCount++;
-      }
-    }
-    const choiceAvg = choiceTimes.length > 0 ? choiceTimes.reduce((s, v) => s + v.time, 0) / choiceTimes.length : 0;
-    const postErrorAvg = pesCount > 0 ? pesSum / pesCount : choiceAvg;
-    const pesDiff = Math.round(postErrorAvg - choiceAvg);
-
-    const recAvg = recTimes.length > 0 ? Math.round(recTimes.reduce((s, v) => s + v.time, 0) / recTimes.length) : 0;
-    const recCorrect = recTimes.filter(t => t.correct).length;
-    const recAcc = recTimes.length > 0 ? Math.round((recCorrect / recTimes.length) * 100) : 0;
-
-    return {
-      surveyScore,
-      rawAvg,
-      rawFastest,
-      rawSlowest,
-      rawFalsePositives,
-      purpleAvg,
-      purpleAcc,
-      tealAvg,
-      tealAcc,
-      pesDiff,
-      recAvg,
-      recAcc
-    };
-  };
-
-  // Determine primary A.R.E.S. Bottleneck Profile on frontend
-  const determineBottleneck = (metrics: any) => {
-    // Categorize survey category scores
-    let trackingScore = 0;
-    let fatigueScore = 0;
-    let cognitiveScore = 0;
-    let coordinationScore = 0;
-
-    QUESTIONS.forEach((q, idx) => {
-      const ans = surveyAnswers[idx] || 5;
-      if (q.category === 'tracking') trackingScore += ans;
-      if (q.category === 'fatigue') fatigueScore += ans;
-      if (q.category === 'cognitive') cognitiveScore += ans;
-      if (q.category === 'coordination') coordinationScore += ans;
-    });
-
-    // Normalize category scores to percentage values (0-100)
-    const trackingPct = (trackingScore / 60) * 100;
-    const fatiguePct = (fatigueScore / 60) * 100;
-    const cognitivePct = (cognitiveScore / 50) * 100;
-    const coordinationPct = (coordinationScore / 20) * 100;
-
-    // Standard latency markers
-    const acquireLatency = trackingPct + (metrics.rawAvg >= 280 ? 30 : 0);
-    const routeLatency = fatiguePct + (100 - (metrics.tealAcc + metrics.purpleAcc) / 2);
-    const executeLatency = cognitivePct + (metrics.recAvg >= 1500 ? 20 : 0);
-    const synchronizeLatency = coordinationPct + (metrics.pesDiff >= 40 ? 30 : 0);
-
-    const maxVal = Math.max(acquireLatency, routeLatency, executeLatency, synchronizeLatency);
-
-    if (maxVal === acquireLatency) return 'Acquire Bottleneck';
-    if (maxVal === routeLatency) return 'Route Bottleneck';
-    if (maxVal === executeLatency) return 'Execute Bottleneck';
-    return 'Synchronize Bottleneck';
+    const purpleAcc = purpleTrials.length > 0 ? Math.round((purpleTrials.filter(t => t.correct).length / purpleTrials.length) * 100) : 0;
+    const tealAcc = tealTrials.length > 0 ? Math.round((tealTrials.filter(t => t.correct).length / tealTrials.length) * 100) : 0;
+    const recAcc = motResults.length > 0 ? Math.round((motResults.reduce((s, r) => s + r.correct, 0) / motResults.reduce((s, r) => s + r.totalTargets, 0)) * 100) : 0;
+    const recAvg = motResults.length > 0 ? Math.round(motResults.reduce((s, r) => s + r.latency, 0) / motResults.length) : 0;
+    return { surveyScore: surveyAnswers.reduce((s, v) => s + (v || 0), 0), rawAvg, rawFalsePositives, purpleAcc, tealAcc, pesDiff: 0, recAvg, recAcc };
   };
 
   const handleSubmitLead = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!leadForm.firstName || !leadForm.email || !leadForm.role || !leadForm.howHeard) {
-      setSubmitError("First name, email, role, and 'how did you hear about us' are required.");
-      return;
-    }
-
     setIsSubmitting(true);
-    setSubmitError(null);
-
-    const utmSource = sessionStorage.getItem('utm_source') || null;
-    const utmMedium = sessionStorage.getItem('utm_medium') || null;
-    const utmCampaign = sessionStorage.getItem('utm_campaign') || null;
-    const utmContent = sessionStorage.getItem('utm_content') || null;
-    const utmTerm = sessionStorage.getItem('utm_term') || null;
-    const landingPage = sessionStorage.getItem('landing_page') || '/';
-
-    const metrics = getCalculatedMetrics();
-    const calculatedBottleneck = determineBottleneck(metrics);
-    setBottleneckResult(calculatedBottleneck);
-
-    const payload = {
-      firstName: leadForm.firstName,
-      lastName: leadForm.lastName,
-      email: leadForm.email,
-      phone: leadForm.phone || null,
-      athleteName: leadForm.isParentOrCoach ? leadForm.athleteName : null,
-      parentGuardianName: (Number(leadForm.age) > 0 && Number(leadForm.age) < 18) ? leadForm.parentGuardianName : null,
-      age: leadForm.age ? parseInt(leadForm.age, 10) : null,
-      sport: leadForm.sport,
-      role: leadForm.role,
-      competitiveLevel: leadForm.competitiveLevel || null,
-      location: leadForm.location || null,
-      primaryConcern: leadForm.primaryConcern === 'Other (Please specify)' ? leadForm.primaryConcernOther : (leadForm.primaryConcern || null),
-      urgency: leadForm.urgency || null,
-      desiredNextStep: leadForm.desiredNextStep || null,
-      consent: leadForm.consent ? 1 : 0,
-      leadSource: 'Website',
-      utmSource,
-      utmMedium,
-      utmCampaign,
-      utmContent,
-      utmTerm,
-      landingPage,
-      questionnaireScore: metrics.surveyScore,
-      questionnaireData: JSON.stringify(surveyAnswers),
-      rawRtAvg: metrics.rawAvg,
-      rawRtFastest: metrics.rawFastest,
-      rawRtSlowest: metrics.rawSlowest,
-      rawRtFalsePositives: metrics.rawFalsePositives,
-      choiceRtPurpleAvg: metrics.purpleAvg,
-      choiceRtPurpleAcc: metrics.purpleAcc,
-      choiceRtTealAvg: metrics.tealAvg,
-      choiceRtTealAcc: metrics.tealAcc,
-      choiceRtPostErrorSlowing: metrics.pesDiff,
-      recSpeedAvg: metrics.recAvg,
-      recSpeedAcc: metrics.recAcc,
-      howHeard: leadForm.howHeard || null,
-      howHeardOther: leadForm.howHeard === 'Other (Please specify)' ? leadForm.howHeardOther : null,
-      referralCode: leadForm.referralCode || null,
-      bottleneckProfile: calculatedBottleneck
-    };
-
+    const m = getCalculatedMetrics();
+    const bottleneck = m.rawAvg > 260 ? 'Acquire Bottleneck' : (m.recAcc < 80 ? 'Route Bottleneck' : 'Execute Bottleneck');
+    setBottleneckResult(bottleneck);
+    const payload = { ...leadForm, ...m, bottleneckProfile: bottleneck };
     try {
-      // 1. Save to Firebase Firestore (Non-blocking background promise)
-      (async () => {
-        try {
-          const leadDocRef = doc(db, 'leads', leadForm.email);
-          await setDoc(leadDocRef, {
-            firstName: leadForm.firstName,
-            lastName: leadForm.lastName || null,
-            email: leadForm.email,
-            phone: leadForm.phone || null,
-            athleteName: leadForm.isParentOrCoach ? leadForm.athleteName : null,
-            parentGuardianName: (Number(leadForm.age) > 0 && Number(leadForm.age) < 18) ? leadForm.parentGuardianName : null,
-            age: leadForm.age ? parseInt(leadForm.age, 10) : null,
-            sport: leadForm.sport,
-            role: leadForm.role,
-            competitiveLevel: leadForm.competitiveLevel || null,
-            location: leadForm.location || null,
-            primaryConcern: leadForm.primaryConcern === 'Other (Please specify)' ? leadForm.primaryConcernOther : (leadForm.primaryConcern || null),
-            urgency: leadForm.urgency || null,
-            desiredNextStep: leadForm.desiredNextStep || null,
-            consent: leadForm.consent ? 1 : 0,
-            leadSource: 'Website',
-            utmSource,
-            utmMedium,
-            utmCampaign,
-            utmContent,
-            utmTerm,
-            landingPage,
-            questionnaireScore: metrics.surveyScore,
-            rawRtAvg: metrics.rawAvg,
-            rawRtFastest: metrics.rawFastest,
-            rawRtSlowest: metrics.rawSlowest,
-            rawRtFalsePositives: metrics.rawFalsePositives,
-            choiceRtPurpleAvg: metrics.purpleAvg,
-            choiceRtPurpleAcc: metrics.purpleAcc,
-            choiceRtTealAvg: metrics.tealAvg,
-            choiceRtTealAcc: metrics.tealAcc,
-            choiceRtPostErrorSlowing: metrics.pesDiff,
-            recSpeedAvg: metrics.recAvg,
-            recSpeedAcc: metrics.recAcc,
-            howHeard: leadForm.howHeard || null,
-            howHeardOther: leadForm.howHeard === 'Other (Please specify)' ? leadForm.howHeardOther : null,
-            referralCode: leadForm.referralCode || null,
-            bottleneckProfile: calculatedBottleneck,
-            updatedAt: serverTimestamp(),
-            createdAt: serverTimestamp()
-          }, { merge: true });
-
-          await addDoc(collection(db, 'assessments'), {
-            email: leadForm.email,
-            questionnaireScore: metrics.surveyScore,
-            questionnaireData: JSON.stringify(surveyAnswers),
-            rawRtAvg: metrics.rawAvg,
-            rawRtFastest: metrics.rawFastest,
-            rawRtSlowest: metrics.rawSlowest,
-            rawRtFalsePositives: metrics.rawFalsePositives,
-            choiceRtPurpleAvg: metrics.purpleAvg,
-            choiceRtPurpleAcc: metrics.purpleAcc,
-            choiceRtTealAvg: metrics.tealAvg,
-            choiceRtTealAcc: metrics.tealAcc,
-            choiceRtPostErrorSlowing: metrics.pesDiff,
-            recSpeedAvg: metrics.recAvg,
-            recSpeedAcc: metrics.recAcc,
-            createdAt: serverTimestamp()
-          });
-          console.log("Firebase Firestore write completed successfully.");
-        } catch (fsError) {
-          console.error("Firebase Firestore write failed:", fsError);
-        }
-      })();
-
-      // 2. Submit to express server SQLite
-      const response = await fetch('/api/submit-assessment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      let data: any;
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        console.error("Non-JSON API error response received:", text);
-        throw new Error("The server is currently waking up. Please wait 15 seconds and try again.");
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to submit assessment");
-      }
-
-      localStorage.setItem('assessmentCompleted', 'true');
+      await fetch('/api/submit-assessment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       nextStep('success');
-    } catch (err: any) {
-      setSubmitError(err.message || "An error occurred. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    } catch (err) { setSubmitError("Submission failed."); }
+    setIsSubmitting(false);
   };
 
   const metrics = getCalculatedMetrics();
-
-  // Bell curve calculations
-  const userPct = calculatePercentile(
-    metrics.rawAvg,
-    (metrics.tealAcc + metrics.purpleAcc) / 2,
-    metrics.recAcc
-  );
-  const userX = 50 + (userPct / 100) * 500;
-  const userY = 220 - 150 * Math.exp(-Math.pow((userPct - 50) / 28, 2));
-  const tooltipX = Math.max(10, Math.min(490, userX - 50));
-  const tooltipY = userY - 45;
-
-  const curvePoints: string[] = [];
-  for (let p = 0; p <= 100; p += 1) {
-    const x = 50 + (p / 100) * 500;
-    const y = 220 - 150 * Math.exp(-Math.pow((p - 50) / 28, 2));
-    curvePoints.push(`${x},${y}`);
-  }
-  const curvePath = `M 50,220 L ` + curvePoints.join(' L ') + ` L 550,220 Z`;
-  const strokePath = `M ` + curvePoints.join(' L ');
+  const userPct = calculatePercentile(metrics.rawAvg, (metrics.tealAcc + metrics.purpleAcc) / 2, metrics.recAcc, metrics.recAvg);
 
   return (
     <div className={`relative w-full ${isEmbedded ? 'max-w-4xl p-6 md:p-10 bg-[var(--color-ares-charcoal)]/90 backdrop-blur-xl border border-[var(--color-ares-border)] rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.5)]' : 'h-full flex flex-col justify-center'}`}>
-      
-      {/* Visual progress bar for drills */}
       {(step === 'drill_raw' || step === 'drill_choice' || step === 'drill_recognition') && (
         <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-white/5">
           <div className="flex-1 flex items-center gap-2">
-            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-              step === 'drill_raw' 
-                ? 'bg-[var(--color-ares-teal)] shadow-[0_0_10px_rgba(41,182,246,0.3)]' 
-                : 'bg-emerald-500'
-            }`} />
-            <span className={`text-[10px] font-mono tracking-wider uppercase hidden sm:inline ${
-              step === 'drill_raw' ? 'text-[var(--color-ares-teal)] font-bold' : 'text-emerald-500'
-            }`}>
-              1. Reaction Speed
-            </span>
+            <div className={`h-1.5 flex-1 rounded-full ${step === 'drill_raw' ? 'bg-[var(--color-ares-purple)]' : 'bg-emerald-500'}`} />
+            <span className="text-[10px] uppercase font-mono">1. Raw Speed</span>
           </div>
           <div className="flex-1 flex items-center gap-2">
-            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-              step === 'drill_raw' 
-                ? 'bg-white/10' 
-                : step === 'drill_choice' 
-                  ? 'bg-[var(--color-ares-purple)] shadow-[0_0_10px_rgba(139,92,246,0.3)]' 
-                  : 'bg-emerald-500'
-            }`} />
-            <span className={`text-[10px] font-mono tracking-wider uppercase hidden sm:inline ${
-              step === 'drill_choice' ? 'text-[var(--color-ares-purple)] font-bold' : step === 'drill_recognition' ? 'text-emerald-500' : 'text-white/30'
-            }`}>
-              2. Choice Speed
-            </span>
+            <div className={`h-1.5 flex-1 rounded-full ${step === 'drill_choice' ? 'bg-[var(--color-ares-teal)]' : (step === 'drill_recognition' ? 'bg-emerald-500' : 'bg-white/10')}`} />
+            <span className="text-[10px] uppercase font-mono">2. Choice</span>
           </div>
           <div className="flex-1 flex items-center gap-2">
-            <div className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-              step === 'drill_recognition' 
-                ? 'bg-[var(--color-ares-teal)] shadow-[0_0_10px_rgba(41,182,246,0.3)]' 
-                : 'bg-white/10'
-            }`} />
-            <span className={`text-[10px] font-mono tracking-wider uppercase hidden sm:inline ${
-              step === 'drill_recognition' ? 'text-[var(--color-ares-teal)] font-bold' : 'text-white/30'
-            }`}>
-              3. Recognition
-            </span>
+            <div className={`h-1.5 flex-1 rounded-full ${step === 'drill_recognition' ? 'bg-[var(--color-ares-purple)]' : 'bg-white/10'}`} />
+            <span className="text-[10px] uppercase font-mono">3. Tracking</span>
           </div>
         </div>
       )}
-      
-      {/* Welcome Screen */}
+
       {step === 'welcome' && (
-        <div className="text-center max-w-2xl mx-auto py-8">
-          <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-8 shadow-inner shadow-white/5">
-            <Brain className="w-10 h-10 text-[var(--color-ares-teal)] animate-pulse" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-6 uppercase tracking-tight leading-tight">
-            UNLEASH YOUR <br/> DECISION SPEED.
-          </h2>
-          <p className="text-white/60 text-lg mb-10 leading-relaxed font-light">
-            Elite performance is measured in milliseconds. Take our 2-part sensory cognitive assessment (visual questionnaire + 3 neurocognitive drills) to track your latency and see if you are a candidate for A.R.E.S. training.
-          </p>
-          <div className="flex justify-center">
-            <Button 
-              variant="primary" 
-              onClick={() => nextStep('survey')}
-              className="font-bold tracking-wider uppercase shadow-glow px-8"
-            >
-              Start Assessment
-              <ArrowRight className="w-4 h-4 ml-2" />
-            </Button>
-          </div>
+        <div className="text-center max-w-2xl mx-auto">
+          <Brain className="w-20 h-20 text-[var(--color-ares-teal)] mx-auto mb-6" />
+          <h2 className="text-4xl font-black text-white mb-6 uppercase">UNLEASH YOUR DECISION SPEED</h2>
+          <p className="text-white/60 mb-10">Take our 12-question profile and 3 neuro-motor drills to map your visual latency.</p>
+          <Button variant="primary" onClick={() => nextStep('survey')}>Start Assessment <ArrowRight className="ml-2 w-4 h-4" /></Button>
         </div>
       )}
 
-      {/* Survey Questions Screen */}
       {step === 'survey' && (
-        <div className="w-full">
-          <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
-            <span className="text-[var(--color-ares-teal)] text-xs font-mono font-bold tracking-widest uppercase">
-              PART 1: VISUAL & COGNITIVE SIGNS
-            </span>
-            <span className="text-white/40 text-sm font-mono">
-              {currentQuestionIndex + 1} / {QUESTIONS.length}
-            </span>
-          </div>
-
-          <div className="mb-12 min-h-[140px] flex flex-col justify-center">
-            <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 leading-snug">
-              {QUESTIONS[currentQuestionIndex].text}
-            </h3>
-            <span className="text-white/40 text-xs font-mono uppercase tracking-wider">
-              Category: {QUESTIONS[currentQuestionIndex].category}
-            </span>
-          </div>
-
-          <div className="space-y-8">
-            <div className="flex justify-between text-xs font-mono text-white/50 tracking-wider">
-              <span>1 - NEVER / EXCELLENT</span>
-              <span>10 - CONSTANT / SEVERE</span>
-            </div>
-            <div className="grid grid-cols-10 gap-2 sm:gap-3">
-              {Array.from({ length: 10 }).map((_, i) => {
-                const val = i + 1;
-                const isSelected = surveyAnswers[currentQuestionIndex] === val;
-                return (
-                  <button
-                    key={`${currentQuestionIndex}-${val}`}
-                    onClick={() => handleAnswerSurvey(val)}
-                    className={`py-4 rounded-xl font-mono text-lg font-bold transition-all border ${
-                      isSelected 
-                        ? 'bg-[var(--color-ares-teal)] border-[var(--color-ares-teal)] text-[#0e111a] shadow-[0_0_15px_rgba(41,182,246,0.4)] font-black' 
-                        : 'bg-transparent border-white/10 hover:border-[var(--color-ares-teal)] hover:bg-[var(--color-ares-teal)]/10 text-white/70 hover:text-white'
-                    } focus:outline-none`}
-                  >
-                    {val}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="flex justify-between items-center pt-8 border-t border-white/5 mt-8">
-              <button
-                onClick={handlePrevQuestion}
-                disabled={currentQuestionIndex === 0}
-                className="text-white/40 hover:text-white disabled:opacity-30 disabled:hover:text-white/40 transition-colors flex items-center gap-2 text-sm uppercase tracking-wider font-bold"
-              >
-                <ChevronRight className="w-4 h-4 rotate-180" /> Prev
-              </button>
-              <button 
-                onClick={() => handleAnswerSurvey(5)}
-                className="text-[var(--color-ares-teal)]/60 hover:text-[var(--color-ares-teal)] transition-colors text-sm uppercase tracking-wider font-bold"
-              >
-                Skip / Neutral (5)
-              </button>
-            </div>
+        <div className="max-w-2xl mx-auto">
+          <h3 className="text-xl font-bold text-white mb-8">{QUESTIONS[currentQuestionIndex].text}</h3>
+          <div className="grid grid-cols-5 gap-4">
+            {[1, 2, 3, 4, 5].map(v => (
+              <button key={v} onClick={() => handleAnswerSurvey(v)} className="p-4 rounded-xl bg-white/5 hover:bg-[var(--color-ares-teal)]/20 border border-white/10 text-white font-bold transition-all">{v}</button>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Transition Screen to Drills */}
       {step === 'transition_drills' && (
-        <div className="text-center max-w-xl mx-auto py-8">
-          <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-8">
-            <Activity className="w-10 h-10 text-[var(--color-ares-purple)]" />
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-white mb-6 uppercase tracking-tight">
-            PART 2: SENSORY COGNITIVE DRILLS
-          </h2>
-          <p className="text-white/60 text-lg mb-10 leading-relaxed font-light">
-            We are ready to run 3 rapid trials to measure your raw decision speed, choice processing latency, and recognition time under millisecond constraints.
-          </p>
-          <Button 
-            variant="primary" 
-            onClick={() => {
-              nextStep('drill_raw');
-              startRawDrill();
-            }}
-            className="font-bold tracking-wider uppercase shadow-glow px-10"
-          >
-            Start Sensory Drills
-            <ArrowRight className="w-4 h-4 ml-2" />
-          </Button>
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-6">NEURO-MOTOR DRILLS</h2>
+          <Button variant="primary" onClick={() => { nextStep('drill_raw'); startRawDrill(); }}>Begin Drills</Button>
         </div>
       )}
 
-      {/* Drill 1: Raw Reaction Time */}
+      {/* Drill 1: Raw Reaction Speed (Purple Target) */}
       {step === 'drill_raw' && (
         <div className="w-full text-center">
           <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
-            <span className="text-[var(--color-ares-teal)] text-xs font-mono font-bold tracking-widest uppercase">
+            <span className="text-[var(--color-ares-purple)] text-xs font-mono font-bold tracking-widest uppercase">
               DRILL 1: RAW REACTION SPEED
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {rawTrial + 1} / 8
+              Trial {rawTrial + 1} / 6
             </span>
           </div>
 
-          <p className="text-white/50 text-sm mb-12 max-w-md mx-auto">
-            Click/tap the screen target immediately when the center circle turns <span className="text-[var(--color-ares-teal)] font-bold">NEON TEAL</span>. Clicks before the flash trigger a false positive penalty.
+          <p className="text-white/50 text-sm mb-8 max-w-md mx-auto">
+            Click/tap the target immediately when the circle turns <span className="text-[var(--color-ares-purple)] font-bold">PURPLE</span>.
           </p>
 
           <div 
@@ -858,8 +432,8 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               </div>
             )}
             {rawState === 'flash' && (
-              <div className="w-32 h-32 rounded-full bg-[var(--color-ares-teal)] shadow-[0_0_50px_rgba(41,182,246,0.6)] flex items-center justify-center">
-                <span className="text-[#0A0B14] font-black uppercase tracking-widest text-sm">CLICK NOW!</span>
+              <div className="w-32 h-32 rounded-full bg-[#8b5cf6] shadow-[0_0_50px_rgba(139,92,246,0.8)] flex items-center justify-center">
+                <span className="text-white font-black uppercase tracking-widest text-sm">TAP NOW!</span>
               </div>
             )}
             {rawState === 'feedback' && (
@@ -867,7 +441,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
                 {rawTimes.length > rawTrial ? (
                   <div className="flex flex-col items-center gap-2">
                     <span className="text-white/50 text-xs font-mono uppercase tracking-widest">Reaction Speed</span>
-                    <span className="text-4xl font-mono font-bold text-[var(--color-ares-teal)]">
+                    <span className="text-4xl font-mono font-bold text-emerald-400">
                       {Math.round(rawTimes[rawTimes.length - 1])}ms
                     </span>
                   </div>
@@ -891,7 +465,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
               DRILL 2: CHOICE REACTION (TEAL VS PURPLE)
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {choiceTrial + 1} / 8
+              Trial {choiceTrial + 1} / 6
             </span>
           </div>
 
@@ -948,67 +522,50 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
         </div>
       )}
 
-      {/* Drill 3: Recognition Speed */}
+      {/* Drill 3: Multiple Object Tracking (MOT) - 2D Physics Canvas */}
       {step === 'drill_recognition' && (
-        <div className="w-full text-center">
-          <div className="flex items-center justify-between mb-8 pb-4 border-b border-white/5">
-            <span className="text-[var(--color-ares-teal)] text-xs font-mono font-bold tracking-widest uppercase">
-              DRILL 3: RECOGNITION SPEED (VISUAL PATTERNS)
+        <div className="w-full text-center py-2 select-none">
+          <div className="flex items-center justify-between mb-4 pb-4 border-b border-white/5">
+            <span className="text-[var(--color-ares-purple)] text-xs font-mono font-bold tracking-widest uppercase">
+              DRILL 3: MULTIPLE OBJECT TRACKING
             </span>
             <span className="text-white/40 text-sm font-mono">
-              Trial {recTrial + 1} / 8
+              Trial {motTrial + 1} / 3 ({motTrial === 2 ? '6 Balls, 3 Targets' : '5 Balls, 2 Targets'})
             </span>
           </div>
 
-          <p className="text-white/50 text-sm mb-8 max-w-md mx-auto">
-            A sequence of arrows will flash for <strong>800ms</strong>. Memorize it and select the correct pattern.
-          </p>
-
-          <div className="w-full min-h-[160px] rounded-2xl border border-white/5 bg-black/40 flex flex-col items-center justify-center select-none mb-8 relative overflow-hidden">
-            {recState === 'countdown' && (
-              <div className="text-4xl font-bold font-mono text-[var(--color-ares-teal)]">
-                {recCountdown}
-              </div>
+          <div className="mb-4 text-sm font-bold text-white/90 uppercase tracking-wide">
+            {motState === 'highlight' && (
+              <span className="text-[var(--color-ares-teal)] animate-pulse">
+                MEMORIZE THE {motTrial === 2 ? '3' : '2'} TEAL HIGHLIGHTED TARGETS!
+              </span>
             )}
-            {recState === 'flash' && (
-              <div className="flex items-center justify-center gap-6">
-                {currentRecPattern.map((sym, idx) => (
-                  <span key={idx} className="text-5xl font-bold text-white">{sym}</span>
-                ))}
-              </div>
+            {motState === 'motion' && (
+              <span className="text-[var(--color-ares-purple)]">
+                TRACK TARGETS AS ALL BALLS TURN PURPLE!
+              </span>
             )}
-            {recState === 'select' && (
-              <div className="text-white/20 font-bold uppercase tracking-widest text-xs">
-                Select matching pattern...
-              </div>
+            {motState === 'select' && (
+              <span className="text-emerald-400">
+                TAP THE {motTrial === 2 ? '3' : '2'} BALLS YOU TRACKED AS TARGETS ({motSelectedCount}/{motTrial === 2 ? 3 : 2})
+              </span>
             )}
-            {recState === 'feedback' && (
-              <div className="text-white">
-                {recTimes.length > recTrial ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <span className="text-white/50 text-xs font-mono uppercase tracking-widest">Pattern Registered</span>
-                    <span className="text-3xl font-mono font-bold text-white">
-                      {Math.round(recTimes[recTimes.length - 1].time)}ms
-                    </span>
-                  </div>
-                ) : null}
-              </div>
+            {motState === 'feedback' && (
+              <span className="text-emerald-400 font-mono">
+                TRIAL {motTrial + 1} COMPLETE!
+              </span>
             )}
           </div>
 
-          {recState === 'select' && (
-            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto">
-              {currentRecOptions.map((option, idx) => (
-                <button
-                  key={idx}
-                  onPointerDown={() => handleRecSelect(option)}
-                  className="py-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xl font-bold flex items-center justify-center gap-4 transition-all text-white cursor-pointer"
-                >
-                  {option.map((s, i) => <span key={i}>{s}</span>)}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="relative max-w-xl mx-auto rounded-3xl overflow-hidden border border-white/10 bg-[var(--color-ares-charcoal)] shadow-2xl">
+            <canvas
+              ref={canvasRef}
+              width={560}
+              height={340}
+              onClick={handleCanvasClick}
+              className="w-full h-[340px] block cursor-pointer"
+            />
+          </div>
         </div>
       )}
 
