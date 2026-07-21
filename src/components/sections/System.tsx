@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Eye, Cpu, Zap, RefreshCw, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Eye, Cpu, Zap, RefreshCw, ChevronLeft, ChevronRight, ArrowRight, Sparkles, Activity } from 'lucide-react';
 import { SectionReveal } from '../ui/SectionReveal';
 import { ScrollReveal } from '../ui/ScrollReveal';
 import { VideoEmbed } from '../ui/VideoEmbed';
-import { RadialOrbitalTimelineDemo } from '../ui/demo';
-import { variants } from '../../config/motion';
 
 const GALLERY_IMAGES = [
   "/DSC_1736.jpg",
@@ -18,38 +16,70 @@ const GALLERY_IMAGES = [
 const steps = [
   {
     id: "01",
+    letter: "A",
     title: "ACQUIRE",
-    subtitle: "Visual Intake",
-    description: "How the eyes acquire visual information. We evaluate how efficiently your mechanical visual system gathers the right data from the environment before a decision is ever made.",
+    subtitle: "Visual Intake Optimization",
+    description: "How the eyes acquire visual information. We evaluate how efficiently your mechanical visual system gathers accurate data from the environment before a decision is ever made.",
+    focus: "Eyes & Ocular Muscles",
+    metrics: ["Dynamic Acuity", "Saccadic Speed", "Contrast Sensitivity", "Peripheral Field"],
+    microBenefit: "Isolates mechanical tracking to eliminate visual input delays before neural routing.",
     icon: Eye,
-    color: "from-[var(--color-ares-teal)] to-[var(--color-ares-teal)]/50",
+    colorTheme: "teal",
+    gradient: "from-[var(--color-ares-teal)] to-cyan-400",
+    badgeBg: "bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] border-[var(--color-ares-teal)]/30",
+    borderHover: "hover:border-[var(--color-ares-teal)]",
+    glow: "group-hover:shadow-[0_0_30px_rgba(41,152,170,0.25)]",
     link: "/detail/acquire"
   },
   {
     id: "02",
+    letter: "R",
     title: "ROUTE",
-    subtitle: "Neural Processing",
-    description: "How the brain processes information. We measure how fast the brain filters noise, routes visual data, and makes decisions in complex environments.",
+    subtitle: "Neural Pathway Processing",
+    description: "How the brain processes information. We measure how fast the visual cortex filters noise, routes visual data, and formulates decisions under stress.",
+    focus: "Visual Cortex & Neural Pathways",
+    metrics: ["Signal-to-Noise Ratio", "Cortical Latency", "Decision Speed", "Cognitive Load"],
+    microBenefit: "Maps neural transmission to convert conscious deliberation into rapid subconscious reflex.",
     icon: Cpu,
-    color: "from-[var(--color-ares-purple)] to-[var(--color-ares-purple)]/50",
+    colorTheme: "purple",
+    gradient: "from-[var(--color-ares-purple)] to-indigo-400",
+    badgeBg: "bg-[var(--color-ares-purple)]/10 text-[var(--color-ares-purple)] border-[var(--color-ares-purple)]/30",
+    borderHover: "hover:border-[var(--color-ares-purple)]",
+    glow: "group-hover:shadow-[0_0_30px_rgba(139,92,246,0.25)]",
     link: "/detail/route"
   },
   {
     id: "03",
+    letter: "E",
     title: "EXECUTE",
-    subtitle: "Motor Response",
-    description: "How the body responds. We evaluate reaction time, speed, and motor output execution after the brain commits to a decision.",
+    subtitle: "Motor Output Response",
+    description: "How the body responds. We evaluate reaction time, neuromuscular speed, and physical execution after the brain commits to a decision.",
+    focus: "Motor Cortex & Neuromuscular System",
+    metrics: ["Choice Reaction Time", "Motor Latency", "Post-Error Recovery", "Hand-Eye Speed"],
+    microBenefit: "Ensures motor response is crisp, explosive, and uninhibited once a decision is made.",
     icon: Zap,
-    color: "from-[var(--color-ares-teal)] to-[var(--color-ares-teal)]/50",
+    colorTheme: "teal",
+    gradient: "from-[var(--color-ares-teal)] to-emerald-400",
+    badgeBg: "bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] border-[var(--color-ares-teal)]/30",
+    borderHover: "hover:border-[var(--color-ares-teal)]",
+    glow: "group-hover:shadow-[0_0_30px_rgba(41,152,170,0.25)]",
     link: "/detail/execute"
   },
   {
     id: "04",
+    letter: "S",
     title: "SYNCHRONIZE",
-    subtitle: "Game-Speed Harmony",
-    description: "How the entire system works together. We train the complete loop under game-speed pressure and cognitive load to ensure flawless real-time performance.",
+    subtitle: "Game-Speed Integration",
+    description: "How the entire system works together. We train the complete loop under game-speed pressure and physical fatigue to ensure flawless real-time performance.",
+    focus: "Integrated Human Operating System",
+    metrics: ["Neuro-Endurance", "Fatigue Resistance", "Gaze-Motor Coupling", "Real-Time Adaptability"],
+    microBenefit: "Stress-tests macro-system integration so peak execution holds under championship pressure.",
     icon: RefreshCw,
-    color: "from-[var(--color-ares-purple)] to-[var(--color-ares-purple)]/50",
+    colorTheme: "purple",
+    gradient: "from-[var(--color-ares-purple)] to-fuchsia-400",
+    badgeBg: "bg-[var(--color-ares-purple)]/10 text-[var(--color-ares-purple)] border-[var(--color-ares-purple)]/30",
+    borderHover: "hover:border-[var(--color-ares-purple)]",
+    glow: "group-hover:shadow-[0_0_30px_rgba(139,92,246,0.25)]",
     link: "/detail/synchronize"
   }
 ];
@@ -107,7 +137,6 @@ export function SystemSection() {
                     role="img"
                     aria-label={`ARES Training Facility showcasing ${currentImageIndex + 1}`}
                   >
-                    {/* Preload the *next* image to avoid layout/flash issues, lazy loading the rest visually */}
                     <img 
                       src={encodeURI(GALLERY_IMAGES[(currentImageIndex + 1) % GALLERY_IMAGES.length])} 
                       className="hidden" 
@@ -176,20 +205,103 @@ export function SystemSection() {
           </ScrollReveal>
         </div>
 
-        {/* A.R.E.S. Loop Visualization */}
-        <div className="mb-20 max-w-5xl mx-auto">
+        {/* Interactive A.R.E.S. Performance Loop Section */}
+        <div className="mb-20 max-w-7xl mx-auto">
           <ScrollReveal direction="up" distance={40}>
-            <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-6 relative overflow-hidden shadow-2xl">
-              <div className="text-center mb-8 relative z-10 pt-4">
-                <h3 className="text-2xl font-bold tracking-widest text-white uppercase">The Performance Loop</h3>
-                <p className="text-[var(--color-ares-teal)] mt-2 font-mono text-sm tracking-widest">CONTINUOUS NEURO-MECHANICAL SYNCHRONIZATION</p>
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 text-[var(--color-ares-teal)] text-xs font-mono tracking-widest uppercase mb-4">
+                <Sparkles className="w-3.5 h-3.5" /> Interactive Framework Breakdown
               </div>
-              <RadialOrbitalTimelineDemo />
+              <h3 className="text-3xl sm:text-4xl font-bold tracking-tight text-white uppercase">The Performance Loop</h3>
+              <p className="text-white/60 mt-3 text-base sm:text-lg max-w-2xl mx-auto">
+                Hover over any phase to inspect the neuro-mechanical mechanism, then click to view detailed telemetry breakdowns.
+              </p>
+            </div>
+
+            {/* 4 Interactive Hover Cards Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {steps.map((step) => {
+                const IconComponent = step.icon;
+                return (
+                  <Link
+                    key={step.id}
+                    to={step.link}
+                    className={`group relative bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] ${step.borderHover} ${step.glow} rounded-2xl p-6 sm:p-7 transition-all duration-300 flex flex-col justify-between hover:-translate-y-1.5 hover:bg-[#161822] shadow-xl overflow-hidden`}
+                  >
+                    {/* Top Decorative Glow Corner */}
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+
+                    <div>
+                      {/* Card Header: Letter Badge + ID + Icon */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-3">
+                          <span className={`text-3xl font-black font-display bg-gradient-to-r ${step.gradient} bg-clip-text text-transparent`}>
+                            {step.letter}
+                          </span>
+                          <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${step.badgeBg}`}>
+                            PHASE {step.id}
+                          </span>
+                        </div>
+                        <div className="p-3 rounded-xl bg-white/5 border border-white/10 group-hover:scale-110 group-hover:bg-white/10 transition-all">
+                          <IconComponent className="w-6 h-6 text-white group-hover:text-[var(--color-ares-teal)] transition-colors" />
+                        </div>
+                      </div>
+
+                      {/* Title & Subtitle */}
+                      <h4 className="text-2xl font-bold text-white tracking-tight mb-1 group-hover:text-[var(--color-ares-teal)] transition-colors">
+                        {step.title}
+                      </h4>
+                      <div className="text-xs font-mono font-medium text-[var(--color-ares-teal)] tracking-wider uppercase mb-4">
+                        {step.subtitle}
+                      </div>
+
+                      {/* Main Description */}
+                      <p className="text-white/70 text-sm leading-relaxed mb-6">
+                        {step.description}
+                      </p>
+
+                      {/* Expanded Hover Details */}
+                      <div className="border-t border-white/10 pt-4 mt-auto space-y-3">
+                        <div>
+                          <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-1">Anatomical Focus</span>
+                          <div className="text-xs font-semibold text-white/90 flex items-center gap-1.5">
+                            <Activity className="w-3.5 h-3.5 text-[var(--color-ares-teal)] shrink-0" />
+                            {step.focus}
+                          </div>
+                        </div>
+
+                        <div>
+                          <span className="text-[10px] font-mono text-white/40 uppercase tracking-widest block mb-2">Key Telemetry Metrics</span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {step.metrics.map((m, idx) => (
+                              <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-white/5 border border-white/10 text-white/80 group-hover:border-white/20 transition-colors">
+                                {m}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Micro Benefit Callout on Hover */}
+                        <div className="bg-white/5 rounded-xl p-3 border border-white/5 group-hover:border-white/15 transition-all mt-3">
+                          <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-wider block mb-1">Impact</span>
+                          <p className="text-xs text-white/80 leading-snug">
+                            {step.microBenefit}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Bottom CTA Action Button */}
+                    <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between text-xs font-bold text-white group-hover:text-[var(--color-ares-teal)] transition-colors">
+                      <span>Explore {step.title} Phase</span>
+                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1.5 transition-transform" />
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </ScrollReveal>
         </div>
-
-
 
         {/* System Video Embed */}
         <div className="mt-20 sm:mt-32 max-w-4xl mx-auto">

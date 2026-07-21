@@ -3,7 +3,7 @@
 // BOTH the client (display) and the server (price authority for Stripe checkout).
 // Never trust a price sent from the browser — the server looks prices up here by id.
 
-export type ProductCategory = 'bundles' | 'supplements' | 'tools' | 'eyewear' | 'digital';
+export type ProductCategory = 'bundles' | 'supplements' | 'tools' | 'eyewear' | 'digital' | 'merch';
 
 // stripe        -> one-time Stripe Checkout
 // stripe-both   -> one-time OR subscribe & save (recurring)
@@ -44,7 +44,10 @@ export const CATEGORY_LABELS: Record<ProductCategory, string> = {
   eyewear: 'Eyewear',
   tools: 'Vision Training Tools',
   digital: 'Digital Training',
+  merch: 'Ares Merch',
 };
+
+export const MERCH_STORE_URL = 'https://ares-elite-sports-vision-shop.fourthwall.com';
 
 export const PRODUCTS: Product[] = [
   // ---------- BUNDLES & KITS ----------
@@ -145,18 +148,19 @@ export const PRODUCTS: Product[] = [
     description:
       'Train the visual system behind every rep. A practitioner-grade blend of macular carotenoids (lutein, zeaxanthin, meso-zeaxanthin) plus 300 mg DHA/EPA omega-3 in one daily softgel. These nutrients help build macular pigment, which supports contrast sensitivity and recovery from glare. One bottle = a full 3-month training block.',
     price: 85,
-    subscribePrice: 79,
-    subscribeInterval: 'month',
     features: [
       '90 softgels — 3-month supply',
       'Lutein · Zeaxanthin · Meso-Zeaxanthin (10:10:2) + 300 mg DHA/EPA',
       'Supports contrast sensitivity & glare recovery',
-      'Recommended & stocked by Ares Elite Sports Vision',
+      'Save 10% with practice code 12129 at checkout on MacuHealth.com',
     ],
-    badges: ['Practitioner Recommended'],
-    purchase: 'stripe-both',
+    badges: ['Practitioner Recommended', 'Code 12129 · 10% Off'],
+    purchase: 'external',
+    externalUrl:
+      'https://www.macuhealth.com/product/macuhealth-vision-edge-pro-supplement-for-eye-support/',
+    externalLabel: 'Buy at MacuHealth.com — 10% off with Code 12129',
     inStock: true,
-    note: 'These statements have not been evaluated by the FDA. Not intended to diagnose, treat, cure, or prevent any disease. Consult your eye-care professional before starting any supplement.',
+    note: 'Ordering direct from MacuHealth with our practice code 12129 saves you 10% and links your purchase to Ares Elite Sports Vision. These statements have not been evaluated by the FDA. Not intended to diagnose, treat, cure, or prevent any disease. Consult your eye-care professional before starting any supplement.',
   },
   {
     id: 'nuun-sport-hydration',
@@ -444,6 +448,69 @@ export const PRODUCTS: Product[] = [
     inStock: true,
     note: 'Delivered as a private, purchase-protected in-browser program with a built-in 28-day tracker — your access link arrives by email after checkout.',
   },
+
+  // ---------- MERCH (fulfilled by Fourthwall — zero inventory) ----------
+  {
+    id: 'ares-merch-tee',
+    slug: 'merch-tees',
+    name: 'Ares Tees',
+    category: 'merch',
+    tagline: 'Eye-Hand Coordination statement tee, armored owl, retro sunset & more',
+    description:
+      'Premium tees in the full Ares design line — the "It\'s pronounced EYE-HAND Coordination" statement tee with "The eyes lead. The hands follow." on the back, the armored owl badge, the retro sunset owl, and the classic wordmark. Printed on demand and shipped direct from our merch store.',
+    price: 28,
+    features: [
+      'Multiple designs: statement, badge, retro, classic',
+      'Premium soft unisex fit — navy, black & cream',
+      'Printed & shipped by our merch partner',
+      'Returns handled by the store',
+    ],
+    badges: ['New'],
+    purchase: 'external',
+    externalUrl: MERCH_STORE_URL,
+    externalLabel: 'Shop Tees at the Ares Merch Store',
+    inStock: true,
+  },
+  {
+    id: 'ares-merch-hoodie',
+    slug: 'merch-hoodies',
+    name: 'Ares Hoodies',
+    category: 'merch',
+    tagline: 'Armored owl badge & Milliseconds Matter back print',
+    description:
+      'Heavyweight pullover hoodies carrying the armored owl badge and the full MILLISECONDS MATTER™ back print. Built for early practices and late sessions. Printed on demand and shipped direct from our merch store.',
+    price: 52,
+    features: [
+      'Heavyweight pullover — navy & black',
+      'Armored badge front / wordmark back options',
+      'Printed & shipped by our merch partner',
+      'Returns handled by the store',
+    ],
+    purchase: 'external',
+    externalUrl: MERCH_STORE_URL,
+    externalLabel: 'Shop Hoodies at the Ares Merch Store',
+    inStock: true,
+  },
+  {
+    id: 'ares-merch-hat',
+    slug: 'merch-hats',
+    name: 'Ares Hats',
+    category: 'merch',
+    tagline: 'Embroidered owl — Milliseconds Matter on the back',
+    description:
+      'Classic embroidered caps with the Ares owl up front and MILLISECONDS MATTER™ stitched on the back. Printed on demand and shipped direct from our merch store.',
+    price: 30,
+    features: [
+      'Embroidered owl logo',
+      'MILLISECONDS MATTER™ back embroidery',
+      'Classic dad-cap & snapback styles',
+      'Shipped by our merch partner',
+    ],
+    purchase: 'external',
+    externalUrl: MERCH_STORE_URL,
+    externalLabel: 'Shop Hats at the Ares Merch Store',
+    inStock: true,
+  },
 ];
 
 export const getProduct = (idOrSlug: string): Product | undefined =>
@@ -474,6 +541,10 @@ export const LIVE_PRODUCT_IDS = new Set<string>([
   'drills-bundle',
   'eye-hand-drills',
   'beginner-drills',
+  'macuhealth-visionedge-pro',
+  'ares-merch-tee',
+  'ares-merch-hoodie',
+  'ares-merch-hat',
 ]);
 
 // Gated readers: reader slug -> { product that unlocks it, private file on the server }.

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { SEO } from '../components/SEO';
 import { Link } from 'react-router-dom';
-import { Pill, Glasses, Target, BookOpen, ArrowRight, Check, Package } from 'lucide-react';
+import { Pill, Glasses, Target, BookOpen, ArrowRight, Check, Package, Shirt } from 'lucide-react';
 import {
   PRODUCTS,
   CATEGORY_LABELS,
@@ -16,13 +16,14 @@ const CATEGORY_ICON: Record<ProductCategory, ReactNode> = {
   eyewear: <Glasses className="w-5 h-5" />,
   tools: <Target className="w-5 h-5" />,
   digital: <BookOpen className="w-5 h-5" />,
+  merch: <Shirt className="w-5 h-5" />,
 };
 
-const CATEGORY_ORDER: ProductCategory[] = ['bundles', 'supplements', 'eyewear', 'tools', 'digital'];
+const CATEGORY_ORDER: ProductCategory[] = ['bundles', 'supplements', 'eyewear', 'tools', 'digital', 'merch'];
 
 function priceLabel(p: Product) {
   if (p.purchase === 'free') return 'Free';
-  if (p.purchase === 'external') return 'Shop Dispensary';
+  if (p.purchase === 'external') return p.price > 0 ? `$${p.price}` : 'Shop Now';
   if (p.subscribePrice) return `$${p.price}`;
   return `$${p.price.toFixed(p.price % 1 ? 2 : 0)}`;
 }
@@ -68,7 +69,7 @@ export default function ShopPage() {
     <>
       <SEO
         title="Performance Shop | Ares Elite Sports Vision"
-        description="Supplements, eyewear, vision-training tools, and digital programs to sharpen elite athletic vision — curated by Ares Elite Sports Vision."
+        description="Vision-training programs for youth and developing athletes, plus supplements, eyewear, and training tools — curated by Ares Elite Sports Vision."
         path="/shop"
       />
       <div className="bg-[var(--color-ares-bg)] min-h-screen">
@@ -81,8 +82,8 @@ export default function ShopPage() {
             Gear up your vision
           </h1>
           <p className="text-[var(--color-ares-muted)] max-w-2xl mx-auto mt-4">
-            Everything we recommend to elite athletes — supplements, eyewear, training tools, and
-            digital programs. Curated and stocked by Ares Elite Sports Vision.
+            Vision training built for youth and developing athletes — plus the supplements,
+            eyewear, and tools we trust. Curated and stocked by Ares Elite Sports Vision.
           </p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-6 text-sm text-[var(--color-ares-muted)]">
             <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-[var(--color-ares-teal)]" /> NSF-certified options</span>
