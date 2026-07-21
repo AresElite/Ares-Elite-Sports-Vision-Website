@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Moon, Sun } from 'lucide-react';
+import { ArrowRight, Zap, Target, Brain, Activity, ShieldCheck, CheckCircle2, ChevronRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SectionReveal } from '../ui/SectionReveal';
 
@@ -9,6 +9,7 @@ interface HeroProps {
 }
 
 function HeroDrillWidget() {
+  const [activeTab, setActiveTab] = useState<'drill' | 'framework'>('drill');
   const [gameState, setGameState] = useState<'idle' | 'countdown' | 'waiting' | 'active' | 'recorded' | 'complete' | 'early'>('idle');
   const [countdown, setCountdown] = useState(3);
   const [trials, setTrials] = useState<number[]>([]);
@@ -47,13 +48,13 @@ function HeroDrillWidget() {
 
   const triggerWaitingState = () => {
     setGameState('waiting');
-    const delay = 1000 + Math.random() * 1500; // 1s to 2.5s delay between trials
+    const delay = 1000 + Math.random() * 1500;
     timerRef.current = setTimeout(() => {
       setGameState('active');
     }, delay);
   };
 
-  const handleTap = (e: React.MouseEvent | React.TouchEvent) => {
+  const handleTap = (e: React.PointerEvent | React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (gameState === 'waiting') {
@@ -73,7 +74,7 @@ function HeroDrillWidget() {
         setGameState('recorded');
         timerRef.current = setTimeout(() => {
           triggerWaitingState();
-        }, 1200); // Show trial results for 1.2s
+        }, 1200);
       }
     }
   };
@@ -104,7 +105,6 @@ function HeroDrillWidget() {
     if (!leadData.email) return;
     setIsSubmittingLead(true);
     try {
-      // Fire-and-forget server contact lead
       await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -125,258 +125,267 @@ function HeroDrillWidget() {
   };
 
   return (
-    <div className="relative p-6 rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)]/95 shadow-glow flex flex-col h-full backdrop-blur-md overflow-hidden min-h-[300px] justify-between transition-all duration-300">
-      {/* Ambient gradient highlight */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-ares-purple)]/10 to-transparent pointer-events-none" />
-      
-      {gameState === 'idle' && (
-        <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
-          <div>
-            <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-2 font-bold animate-pulse">5-Tap Sensory Drill</div>
-            <h3 className="font-bold text-[var(--color-ares-white)] text-lg sm:text-xl leading-tight mb-2 uppercase">Is your reaction speed elite?</h3>
-            <p className="text-xs text-[var(--color-ares-muted)] max-w-xs leading-relaxed">
-              We track 5 consecutive taps to measure your average latency. Click instantly as soon as the target turns solid teal.
-            </p>
-          </div>
+    <div className="relative rounded-3xl border border-[var(--color-ares-teal)]/30 bg-[#0A0B14]/90 shadow-[0_0_50px_rgba(41,182,246,0.15)] backdrop-blur-xl overflow-hidden flex flex-col justify-between">
+      {/* Top Header & Mode Toggle */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/40">
+        <div className="flex items-center gap-2">
+          <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-ares-teal)] animate-pulse" />
+          <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">
+            A.R.E.S. NEURO-CONSOLE
+          </span>
+        </div>
+        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 text-[10px] font-mono">
           <button
-            onClick={startDrill}
-            className="mt-6 w-full py-3 px-6 rounded-xl bg-[var(--color-ares-purple)] hover:bg-[var(--color-ares-purple)]/90 text-white font-bold text-xs tracking-wider uppercase transition-all shadow-md active:scale-98 cursor-pointer"
+            onClick={() => setActiveTab('drill')}
+            className={`px-3 py-1 rounded-lg transition-all cursor-pointer uppercase ${
+              activeTab === 'drill'
+                ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold shadow-md'
+                : 'text-white/60 hover:text-white'
+            }`}
           >
-            Start Reaction Test
+            5-Tap Drill
+          </button>
+          <button
+            onClick={() => setActiveTab('framework')}
+            className={`px-3 py-1 rounded-lg transition-all cursor-pointer uppercase ${
+              activeTab === 'framework'
+                ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold shadow-md'
+                : 'text-white/60 hover:text-white'
+            }`}
+          >
+            A.R.E.S. Loop
           </button>
         </div>
-      )}
+      </div>
 
-      {gameState === 'countdown' && (
-        <div className="relative z-10 flex flex-col items-center justify-center flex-grow py-8">
-          <div className="text-[var(--color-ares-muted)] text-[10px] font-mono tracking-widest uppercase mb-4">Prepare to Tap...</div>
-          <motion.div
-            key={countdown}
-            initial={{ scale: 0.5, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="text-5xl sm:text-6xl font-black text-[var(--color-ares-teal)] font-mono"
-          >
-            {countdown}
-          </motion.div>
-        </div>
-      )}
-
-      {(gameState === 'waiting' || gameState === 'active') && (
-        <div 
-          onMouseDown={handleTap}
-          onTouchStart={handleTap}
-          className="relative z-10 flex flex-col items-center justify-center flex-grow py-4 cursor-pointer select-none"
-        >
-          {/* Progress dots at the top */}
-          <div className="flex gap-1.5 justify-center mb-6 pointer-events-none">
-            {[0, 1, 2, 3, 4].map((idx) => (
-              <div 
-                key={idx} 
-                className={`h-1.5 w-1.5 rounded-full transition-all duration-300 ${
-                  idx < trials.length 
-                    ? 'bg-[var(--color-ares-teal)]' 
-                    : idx === trials.length && gameState === 'active'
-                      ? 'bg-[var(--color-ares-teal)] scale-125 animate-pulse'
-                      : 'bg-white/20'
-                }`}
-              />
-            ))}
-          </div>
-
-          {gameState === 'waiting' ? (
-            <div className="flex flex-col items-center justify-center h-28 w-28 rounded-full border-2 border-dashed border-[var(--color-ares-border)] animate-pulse bg-white/5">
-              <span className="text-[9px] font-mono text-[var(--color-ares-muted)] uppercase tracking-wider text-center px-2">Wait for target...</span>
-            </div>
-          ) : (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1.05, opacity: 1 }}
-              transition={{ duration: 0.05, ease: "easeOut" }}
-              className="flex items-center justify-center h-28 w-28 rounded-full bg-[var(--color-ares-teal)] border-4 border-white shadow-[0_0_40px_rgba(41,152,170,0.8)] active:scale-95"
-            >
-              <span className="text-xs font-black text-[#0B0F2A] uppercase tracking-widest">TAP NOW!</span>
-            </motion.div>
-          )}
-        </div>
-      )}
-
-      {gameState === 'recorded' && (
-        <div className="relative z-10 flex flex-col items-center justify-center flex-grow py-4 text-center">
-          <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">Trial {trials.length} of 5 Recorded</div>
-          <div className="text-4xl font-black text-[var(--color-ares-white)] font-mono mb-4">{currentTrialTime}ms</div>
-          <div className="text-[10px] text-[var(--color-ares-muted)] uppercase tracking-wider animate-pulse">Get ready for next target...</div>
-        </div>
-      )}
-
-      {gameState === 'early' && (
-        <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
-          <div>
-            <div className="text-red-500 font-mono text-xs tracking-widest uppercase mb-2 font-bold">ANTICIPATION ERROR</div>
-            <h3 className="font-bold text-[var(--color-ares-white)] text-lg sm:text-xl leading-tight mb-2">False Start</h3>
-            <p className="text-xs text-[var(--color-ares-muted)] max-w-xs leading-relaxed">
-              You reacted before the target flashed. Real games require choice execution, not guesses.
-            </p>
-          </div>
-          <button
-            onClick={() => {
-              triggerWaitingState();
-            }}
-            className="mt-6 w-full py-3 px-6 rounded-xl bg-white/10 hover:bg-white/20 border border-[var(--color-ares-border)] text-[var(--color-ares-white)] font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
-          >
-            Continue Trial {trials.length + 1} of 5
-          </button>
-        </div>
-      )}
-
-      {gameState === 'complete' && (() => {
-        const averageTime = trials.length > 0 ? Math.round(trials.reduce((sum, t) => sum + t, 0) / trials.length) : 0;
-        
-        if (!leadSubmitted) {
-          return (
-            <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
-              <div className="w-full">
-                <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">5-Tap Test Complete!</div>
-                <div className="text-2xl font-black text-[var(--color-ares-white)] font-mono mb-1">{averageTime}ms Avg Latency</div>
-                <p className="text-xs text-white/70 mb-4">
-                  Unlock your sport-specific AQ™ benchmark report comparing your speed to elite athletes.
-                </p>
-
-                <form onSubmit={handleLeadSubmit} className="space-y-2 text-left">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] font-mono text-white/60 uppercase">Sport</label>
-                      <select
-                        value={leadData.sport}
-                        onChange={(e) => setLeadData({ ...leadData, sport: e.target.value })}
-                        className="w-full bg-black/40 border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white"
-                      >
-                        <option value="Baseball">Baseball</option>
-                        <option value="Softball">Softball</option>
-                        <option value="Soccer">Soccer</option>
-                        <option value="Basketball">Basketball</option>
-                        <option value="Motorsport">Motorsport</option>
-                        <option value="Hockey">Hockey</option>
-                        <option value="Football">Football</option>
-                        <option value="Golf">Golf</option>
-                        <option value="Other">Other</option>
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] font-mono text-white/60 uppercase">Level</label>
-                      <select
-                        value={leadData.level}
-                        onChange={(e) => setLeadData({ ...leadData, level: e.target.value })}
-                        className="w-full bg-black/40 border border-white/20 rounded-lg px-2 py-1.5 text-xs text-white"
-                      >
-                        <option value="Youth">Youth</option>
-                        <option value="High School">High School</option>
-                        <option value="Collegiate">Collegiate</option>
-                        <option value="Pro">Pro / Elite</option>
-                        <option value="Master">Master</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-mono text-white/60 uppercase">Email Address *</label>
-                    <input
-                      type="email"
-                      required
-                      placeholder="athlete@example.com"
-                      value={leadData.email}
-                      onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
-                      className="w-full bg-black/40 border border-white/20 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-white/30"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] font-mono text-white/60 uppercase">Phone Number (Optional)</label>
-                    <input
-                      type="tel"
-                      placeholder="(317) 555-0199"
-                      value={leadData.phone}
-                      onChange={(e) => setLeadData({ ...leadData, phone: e.target.value })}
-                      className="w-full bg-black/40 border border-white/20 rounded-lg px-3 py-1.5 text-xs text-white placeholder:text-white/30"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmittingLead}
-                    className="w-full py-2.5 px-4 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold text-xs tracking-wider uppercase transition-all shadow-md mt-2 disabled:opacity-50"
-                  >
-                    {isSubmittingLead ? 'Generating Report...' : 'Unlock Full AQ™ Report'}
-                  </button>
-                </form>
-              </div>
-            </div>
-          );
-        }
-
-        return (
-          <div className="relative z-10 flex flex-col h-full justify-between items-center text-center py-2 flex-grow">
-            <div className="w-full">
-              <div className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-[0.2em] mb-1 font-bold">
-                AQ™ Benchmark Unlocked ({leadData.sport} - {leadData.level})
-              </div>
-              <div className="text-3xl sm:text-4xl font-black text-[var(--color-ares-white)] mb-3 font-mono">{averageTime}ms</div>
-              
-              {/* Individual Trial Times breakdown */}
-              <div className="flex justify-center gap-1.5 mb-3">
-                {trials.map((t, idx) => (
-                  <div key={idx} className="flex flex-col items-center">
-                    <span className="text-[8px] font-mono text-[var(--color-ares-muted)]">T{idx+1}</span>
-                    <span className="px-1.5 py-0.5 rounded bg-white/5 border border-[var(--color-ares-border)] text-[9px] font-mono text-white/80">{t}ms</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Visual Benchmark Bar */}
-              <div className="space-y-2 text-left mb-4">
-                <div className="relative h-1.5 w-full bg-[var(--color-ares-border)] rounded-full overflow-hidden">
-                  <div className="absolute left-[35%] top-0 bottom-0 w-0.5 bg-[var(--color-ares-teal)] z-20" title="Elite: 220ms"></div>
-                  <div 
-                    className={`absolute left-0 top-0 bottom-0 rounded-full z-10 ${
-                      averageTime <= 240 ? 'bg-[var(--color-ares-teal)]' : 'bg-red-500/80'
-                    }`}
-                    style={{ width: `${Math.min(Math.max(averageTime / 600 * 100, 15), 100)}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-[9px] font-mono text-[var(--color-ares-muted)] tracking-wider">
-                  <span>0ms</span>
-                  <span className="text-[var(--color-ares-teal)] font-bold">Elite: 220ms</span>
-                  <span>Avg: 290ms</span>
-                </div>
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3 mb-4 text-xs text-white/80 text-left">
-                {averageTime <= 240 ? (
-                  <span><strong>Elite Status:</strong> Your reaction latency is in the top tier for {leadData.sport}. Book a 90-minute evaluation to map choice routing under G-force.</span>
-                ) : (
-                  <span><strong>Visual Gaps Detected:</strong> Your reaction is {averageTime > 220 ? `${averageTime - 220}ms` : '50+ms'} slower than elite {leadData.sport} standards.</span>
-                )}
-              </div>
+      {/* Console Main Display */}
+      <div className="p-6 sm:p-8 min-h-[340px] flex flex-col justify-center relative">
+        {activeTab === 'framework' ? (
+          <div className="space-y-4">
+            <div className="text-center mb-4">
+              <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-widest">
+                THE NEURO-COGNITIVE PERFORMANCE LOOP
+              </span>
+              <h3 className="text-lg font-bold text-white uppercase mt-1">Acquire · Route · Execute · Synchronize</h3>
             </div>
             
-            <div className="flex flex-col sm:flex-row gap-2 w-full mt-2">
-              <Link
-                to="/book/evaluation"
-                className="flex-1 py-3 px-4 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-bold text-xs tracking-wider uppercase text-center shadow-lg transition-all"
-              >
-                Book 90-Min Evaluation ($449)
+            <div className="grid grid-cols-2 gap-3">
+              <Link to="/acquire" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                <div className="flex items-center gap-2 mb-1">
+                  <Target className="w-4 h-4 text-[var(--color-ares-teal)]" />
+                  <span className="text-xs font-bold text-white uppercase">1. Acquire</span>
+                </div>
+                <p className="text-[11px] text-white/60 leading-tight">Visual intake & spatial eye tracking speed.</p>
               </Link>
-              <button
-                onClick={startDrill}
-                className="py-3 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-[var(--color-ares-border)] text-[var(--color-ares-white)] font-bold text-xs tracking-wider uppercase transition-all cursor-pointer"
-              >
-                Retest
-              </button>
+
+              <Link to="/route" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                <div className="flex items-center gap-2 mb-1">
+                  <Brain className="w-4 h-4 text-[var(--color-ares-purple)]" />
+                  <span className="text-xs font-bold text-white uppercase">2. Route</span>
+                </div>
+                <p className="text-[11px] text-white/60 leading-tight">Neural processing & decision latency under stress.</p>
+              </Link>
+
+              <Link to="/execute" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap className="w-4 h-4 text-emerald-400" />
+                  <span className="text-xs font-bold text-white uppercase">3. Execute</span>
+                </div>
+                <p className="text-[11px] text-white/60 leading-tight">Bi-lateral motor output & reaction execution.</p>
+              </Link>
+
+              <Link to="/synchronize" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                <div className="flex items-center gap-2 mb-1">
+                  <Activity className="w-4 h-4 text-amber-400" />
+                  <span className="text-xs font-bold text-white uppercase">4. Synchronize</span>
+                </div>
+                <p className="text-[11px] text-white/60 leading-tight">Full-system calibration for game-day dominance.</p>
+              </Link>
             </div>
           </div>
-        );
-      })()}
+        ) : (
+          <>
+            {gameState === 'idle' && (
+              <div className="text-center space-y-5">
+                <div className="w-16 h-16 rounded-2xl bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(41,182,246,0.2)]">
+                  <Zap className="w-8 h-8 text-[var(--color-ares-teal)]" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white uppercase tracking-tight">Test Your Reaction Latency</h3>
+                  <p className="text-xs text-white/60 mt-1 max-w-xs mx-auto leading-relaxed">
+                    Tap 5 target flashes to benchmark your visual capture speed against collegiate & pro standards.
+                  </p>
+                </div>
+                <button
+                  onClick={startDrill}
+                  className="w-full py-4 px-6 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-black text-xs uppercase tracking-widest transition-all shadow-[0_0_25px_rgba(41,182,246,0.4)] cursor-pointer"
+                >
+                  START 5-TAP DRILL
+                </button>
+              </div>
+            )}
+
+            {gameState === 'countdown' && (
+              <div className="text-center py-8">
+                <div className="text-6xl font-black font-mono text-[var(--color-ares-teal)] animate-pulse mb-2">
+                  {countdown}
+                </div>
+                <p className="text-xs font-mono text-white/50 uppercase tracking-widest">Prepare your finger or mouse cursor...</p>
+              </div>
+            )}
+
+            {(gameState === 'waiting' || gameState === 'active' || gameState === 'recorded' || gameState === 'early') && (
+              <div
+                onPointerDown={handleTap}
+                className={`w-full min-h-[220px] rounded-2xl border flex flex-col items-center justify-center cursor-pointer select-none transition-all ${
+                  gameState === 'active'
+                    ? 'bg-[var(--color-ares-teal)] border-[var(--color-ares-teal)] shadow-[0_0_60px_rgba(41,182,246,0.8)]'
+                    : gameState === 'early'
+                    ? 'bg-red-500/20 border-red-500/50'
+                    : 'bg-black/60 border-white/10 hover:border-white/20'
+                }`}
+              >
+                {gameState === 'waiting' && (
+                  <div className="text-center space-y-2">
+                    <span className="text-xs font-mono text-white/40 uppercase tracking-widest">Tap when solid teal flashes!</span>
+                    <div className="w-4 h-4 rounded-full bg-white/20 animate-ping mx-auto" />
+                  </div>
+                )}
+                {gameState === 'active' && (
+                  <span className="text-2xl font-black text-[#0A0B14] uppercase tracking-widest animate-bounce">TAP NOW!</span>
+                )}
+                {gameState === 'recorded' && (
+                  <div className="text-center">
+                    <span className="text-xs font-mono text-white/50 uppercase">Trial {trials.length}/5 Captured</span>
+                    <div className="text-4xl font-black font-mono text-[var(--color-ares-teal)] mt-1">{currentTrialTime}ms</div>
+                  </div>
+                )}
+                {gameState === 'early' && (
+                  <div className="text-center">
+                    <span className="text-sm font-bold text-red-400 uppercase">Too Early!</span>
+                    <p className="text-[10px] font-mono text-white/60 mt-1">Wait for solid teal flash...</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {gameState === 'complete' && (() => {
+              const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
+              
+              if (!leadSubmitted) {
+                return (
+                  <div className="space-y-4 text-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold uppercase">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> 5-Tap Test Completed
+                    </div>
+                    <div>
+                      <div className="text-xs font-mono text-white/50 uppercase">Average Latency</div>
+                      <div className="text-4xl font-black font-mono text-[var(--color-ares-teal)]">{avg}ms</div>
+                    </div>
+                    
+                    <form onSubmit={handleLeadSubmit} className="space-y-2 text-left">
+                      <div className="grid grid-cols-2 gap-2">
+                        <select
+                          value={leadData.sport}
+                          onChange={(e) => setLeadData({ ...leadData, sport: e.target.value })}
+                          className="bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-xs text-white"
+                        >
+                          <option value="Baseball">Baseball</option>
+                          <option value="Softball">Softball</option>
+                          <option value="Soccer">Soccer</option>
+                          <option value="Basketball">Basketball</option>
+                          <option value="Motorsport">Motorsport</option>
+                          <option value="Hockey">Hockey</option>
+                          <option value="Football">Football</option>
+                          <option value="Other">Other</option>
+                        </select>
+                        <select
+                          value={leadData.level}
+                          onChange={(e) => setLeadData({ ...leadData, level: e.target.value })}
+                          className="bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-xs text-white"
+                        >
+                          <option value="Youth">Youth</option>
+                          <option value="High School">High School</option>
+                          <option value="Collegiate">Collegiate</option>
+                          <option value="Pro">Pro / Elite</option>
+                        </select>
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        placeholder="Enter email to unlock report..."
+                        value={leadData.email}
+                        onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
+                        className="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-white/30"
+                      />
+                      <button
+                        type="submit"
+                        disabled={isSubmittingLead}
+                        className="w-full py-3 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold text-xs uppercase tracking-wider cursor-pointer hover:bg-[#4FC3F7] transition-all"
+                      >
+                        {isSubmittingLead ? 'Processing...' : 'Unlock Benchmark Report'}
+                      </button>
+                    </form>
+                  </div>
+                );
+              }
+
+              return (
+                <div className="space-y-4 text-center">
+                  <div>
+                    <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase">AQ™ Benchmark Metric</span>
+                    <div className="text-4xl font-black font-mono text-white mt-1">{avg}ms</div>
+                  </div>
+                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white/80 text-left">
+                    {avg <= 240 ? (
+                      <span><strong>Elite Response:</strong> Your latency ranks in the top tier for {leadData.sport}. Schedule your Carmel Clinic evaluation for comprehensive 3D eye tracking.</span>
+                    ) : (
+                      <span><strong>Visual Bottleneck Detected:</strong> Your reaction is {avg - 220}ms slower than elite {leadData.sport} benchmarks.</span>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Link
+                      to="/book/evaluation"
+                      className="flex-1 py-3 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold text-xs uppercase text-center cursor-pointer"
+                    >
+                      Book Carmel Clinic ($449)
+                    </Link>
+                    <button
+                      onClick={startDrill}
+                      className="px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-bold text-xs uppercase cursor-pointer"
+                    >
+                      Retest
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
+          </>
+        )}
+      </div>
+
+      {/* Pathway Quick Buttons */}
+      <div className="grid grid-cols-2 border-t border-white/10 bg-black/50 divide-x divide-white/10">
+        <Link
+          to="/book/evaluation"
+          className="p-4 text-left hover:bg-white/5 transition-all group flex flex-col justify-between"
+        >
+          <span className="text-[10px] font-mono text-white/50 uppercase">For Individuals</span>
+          <span className="text-xs font-bold text-white uppercase group-hover:text-[var(--color-ares-teal)] transition-colors flex items-center mt-1">
+            Athletes & Parents <ChevronRight className="w-3.5 h-3.5 ml-1" />
+          </span>
+        </Link>
+
+        <Link
+          to="/teams-and-organizations"
+          className="p-4 text-left hover:bg-white/5 transition-all group flex flex-col justify-between"
+        >
+          <span className="text-[10px] font-mono text-white/50 uppercase">For Facilities & Teams</span>
+          <span className="text-xs font-bold text-white uppercase group-hover:text-[var(--color-ares-teal)] transition-colors flex items-center mt-1">
+            Teams & Orgs <ChevronRight className="w-3.5 h-3.5 ml-1" />
+          </span>
+        </Link>
+      </div>
     </div>
   );
 }
@@ -384,21 +393,21 @@ function HeroDrillWidget() {
 export function Hero({ isReady = true }: HeroProps) {
   return (
     <SectionReveal 
-      className="relative min-h-dvh flex items-center justify-center overflow-hidden pt-28 pb-32 lg:pt-32 lg:pb-32"
+      className="relative min-h-dvh flex items-center justify-center overflow-hidden pt-28 pb-28 lg:pt-32 lg:pb-32"
       animate={isReady ? "visible" : "hidden"}
     >
-      {/* High-Tension Video Background */}
+      {/* Background Video Layer */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[var(--color-ares-bg)]/75 z-10 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-ares-bg)] via-[var(--color-ares-bg)]/80 to-transparent z-10" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-ares-bg)] via-[var(--color-ares-bg)]/60 to-transparent z-10" />
+        <div className="absolute inset-0 bg-[#0A0B14]/85 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0B14] via-[#0A0B14]/80 to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0B14] via-[#0A0B14]/70 to-transparent z-10" />
         
         <video 
           autoPlay 
           muted 
           loop 
           playsInline 
-          className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-80"
+          className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-40"
           poster="/DSC_1736.jpg"
         >
           <source src="/cam-fl-6.mov" type="video/mp4" />
@@ -407,114 +416,88 @@ export function Hero({ isReady = true }: HeroProps) {
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-4">
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 lg:gap-12 items-center">
+          
+          {/* Main Left Content Column */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: -50 }}
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-            className="text-center xl:text-left flex flex-col items-center xl:items-start"
+            initial={{ opacity: 0, x: -40 }}
+            animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="xl:col-span-7 text-center xl:text-left flex flex-col items-center xl:items-start"
           >
-            <div className="inline-flex items-center px-4 py-1.5 rounded-full border border-[var(--color-ares-teal)]/30 bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] text-[10px] sm:text-xs font-bold tracking-[0.2em] mb-4 uppercase">
+            {/* System Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[var(--color-ares-teal)]/30 bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] text-[10px] sm:text-xs font-mono font-bold tracking-[0.2em] mb-6 uppercase shadow-[0_0_20px_rgba(41,182,246,0.15)]">
+              <span className="w-2 h-2 rounded-full bg-[var(--color-ares-teal)] animate-ping" />
               THE OPERATING SYSTEM FOR VISUAL-NEUROCOGNITIVE PERFORMANCE
             </div>
             
-            <motion.h1 
-              className="text-[2.75rem] sm:text-[4.5rem] md:text-[6rem] lg:text-[7rem] xl:text-[5rem] 2xl:text-[5.5rem] font-black tracking-tighter text-[var(--color-ares-white)] leading-[0.95] mb-6 cursor-default uppercase drop-shadow-xl animate-pulse-slow"
-              whileHover={{
-                x: [-1, 1, -0.5, 0.5, 0],
-                y: [0.5, -0.5, 0.5, -0.5, 0],
-                opacity: [1, 0.9, 1, 0.95, 1],
-                transition: { duration: 0.2, repeat: Infinity, repeatType: "mirror" }
-              }}
-            >
+            {/* High-Impact Headline */}
+            <h1 className="text-[3rem] sm:text-[4.75rem] md:text-[5.5rem] lg:text-[6rem] xl:text-[5.25rem] font-black tracking-tighter text-white leading-[0.95] mb-6 uppercase drop-shadow-2xl">
               MILLISECONDS<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-[var(--color-ares-white)] mt-1 sm:mt-2 block drop-shadow-none">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] via-white to-[var(--color-ares-purple)] mt-2 block">
                 MATTER™
               </span>
-            </motion.h1>
+            </h1>
             
-            <p className="text-xl sm:text-2xl xl:text-[1.35rem] 2xl:text-2xl text-[var(--color-ares-white)]/90 font-medium mb-10 max-w-2xl leading-snug text-balance drop-shadow-lg">
-              Cut reaction-time lag, make faster decisions under fatigue, and uncover hidden bottlenecks. Whether you're struggling with late reads or looking to squeeze another 10% out of an already elite performance, Ares finds the milliseconds that keep you ahead.
+            {/* Subheadline */}
+            <p className="text-lg sm:text-xl text-white/80 font-normal mb-8 max-w-2xl leading-relaxed text-balance">
+              Cut reaction latency, accelerate decision velocity under fatigue, and eliminate cognitive bottlenecks. Ares finds the hidden milliseconds that decide games.
             </p>
 
-            <div className="flex flex-col w-full items-center xl:items-start gap-4">
-              <div className="flex flex-col sm:flex-row gap-4 w-full justify-center xl:justify-start">
-                <Link to="/book/evaluation" className="inline-flex items-center justify-center px-8 py-4 bg-[var(--color-ares-teal)] hover:bg-[var(--color-ares-teal)]/90 text-white rounded-xl transition-all shadow-[0_0_20px_rgba(41,152,170,0.3)] hover:shadow-[0_0_30px_rgba(41,152,170,0.5)] font-bold tracking-wide uppercase text-sm sm:text-base">
-                  Find Your Baseline
-                </Link>
-                <Link to="/assessment" className="inline-flex items-center justify-center px-8 py-4 bg-black/40 backdrop-blur-md border border-[var(--color-ares-border)] hover:bg-white/10 text-white rounded-xl transition-all font-bold tracking-wide uppercase text-sm sm:text-base shadow-md">
-                  Start Free Assessment
-                </Link>
-              </div>
-              <p className="text-[var(--color-ares-white)]/60 text-xs sm:text-sm max-w-sm text-center xl:text-left mt-1 font-medium tracking-wide">
-                Secure your 80-90 minute objective evaluation to discover the processing gaps you didn't know were holding you back.
-              </p>
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-4 w-full justify-center xl:justify-start max-w-md">
+              <Link 
+                to="/book/evaluation" 
+                className="flex-1 inline-flex items-center justify-center px-8 py-4 bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] rounded-2xl transition-all shadow-[0_0_30px_rgba(41,182,246,0.4)] hover:shadow-[0_0_40px_rgba(41,182,246,0.6)] font-black tracking-wider uppercase text-sm cursor-pointer"
+              >
+                BOOK CLINIC EVALUATION ($449)
+              </Link>
+              <Link 
+                to="/assessment" 
+                className="flex-1 inline-flex items-center justify-center px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-2xl transition-all font-bold tracking-wider uppercase text-sm backdrop-blur-md cursor-pointer"
+              >
+                ONLINE DIAGNOSTIC
+              </Link>
             </div>
+
+            <p className="text-white/40 text-xs mt-3 font-mono">
+              ★ 80-90 Minute In-Person Evaluation at Carmel Clinic | Gated Online Latency Diagnostic
+            </p>
           </motion.div>
 
+          {/* Right Interactive HUD Console */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, rotateY: 30 }}
-            animate={isReady ? { opacity: 1, scale: 1, rotateY: 0 } : { opacity: 0, scale: 0.9, rotateY: 30 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="block text-left mt-8 xl:mt-0"
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={isReady ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.95, y: 20 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="xl:col-span-5 w-full max-w-md mx-auto xl:max-w-none"
           >
-            {/* Audience Pathway Cards Grid with the 5-Second Teaser Drill embedded at the top */}
-            <div className="grid grid-cols-1 gap-6 sm:max-w-md mx-auto xl:mx-0 xl:ml-auto">
-              
-              {/* Interactive Teaser Widget */}
-              <HeroDrillWidget />
-
-              {/* Athlete / Parent */}
-              <Link to="/book/evaluation" className="group relative p-6 sm:p-8 rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)]/95 hover:bg-[var(--color-ares-dark-purple)] transition-all overflow-hidden shadow-glow flex flex-col h-full backdrop-blur-md">
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-ares-teal)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative z-10 flex flex-col h-full">
-                  <div className="font-bold text-[var(--color-ares-white)] mb-3 text-xl sm:text-2xl leading-tight text-balance">Athletes & Parents</div>
-                  <div className="text-sm sm:text-base text-[var(--color-ares-white)]/80 font-medium mb-8 leading-relaxed flex-grow drop-shadow-md">Start with an Evaluation to identify visual and cognitive bottlenecks affecting your performance.</div>
-                  <div className="text-[var(--color-ares-teal)] text-sm font-bold flex items-center mt-auto uppercase tracking-widest">
-                    Book Your Evaluation <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Link>
-
-              {/* Team / Organization */}
-              <Link to="/teams-and-organizations" className="group relative p-6 sm:p-8 rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)]/95 hover:bg-[var(--color-ares-dark-purple)] transition-all overflow-hidden shadow-glow flex flex-col h-full backdrop-blur-md">
-                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="relative z-10 flex flex-col h-full">
-                  <div className="font-bold text-[var(--color-ares-white)] mb-3 text-xl sm:text-2xl leading-tight text-balance">Teams & Organizations</div>
-                  <div className="text-sm sm:text-base text-[var(--color-ares-white)]/80 font-medium mb-8 leading-relaxed flex-grow drop-shadow-md">Bring objective testing and structured training to your athletes or facility.</div>
-                  <div className="text-[var(--color-ares-white)] text-sm font-bold flex items-center mt-auto uppercase tracking-widest">
-                    Team Consultation <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </Link>
-            </div>
-            
+            <HeroDrillWidget />
           </motion.div>
+
         </div>
       </div>
 
-      {/* Full-width Trusted By Bar */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={isReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-        transition={{ duration: 0.8, delay: 0.8 }}
-        className="absolute bottom-0 left-0 w-full border-t border-[var(--color-ares-border)] bg-black/80 backdrop-blur-xl py-4 sm:py-5 z-20"
-      >
-        <div className="max-w-7xl mx-auto px-6 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4 md:gap-8">
+      {/* Bottom Proof Bar */}
+      <div className="absolute bottom-0 left-0 w-full border-t border-white/10 bg-[#0A0B14]/90 backdrop-blur-xl py-4 z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="h-2 w-2 rounded-full bg-[var(--color-ares-teal)] animate-pulse"></div>
-            <p className="text-[10px] sm:text-xs text-white/80 font-bold uppercase tracking-[0.2em] whitespace-nowrap">Objective data for elite performance</p>
+            <ShieldCheck className="w-4 h-4 text-[var(--color-ares-teal)]" />
+            <p className="text-[11px] text-white/70 font-mono uppercase tracking-widest">
+              OBJECTIVE DATA FOR ELITE VISUAL-MOTOR PERFORMANCE
+            </p>
           </div>
-          <div className="flex flex-wrap justify-center sm:justify-end gap-5 sm:gap-8 items-center opacity-60 hover:opacity-100 transition-all duration-500 w-full md:w-auto">
-            <span className="text-[10px] uppercase tracking-widest text-[var(--color-ares-muted)] mr-2 hidden sm:block">Trusted by athletes who cannot afford to be slow:</span>
-            <div className="text-[11px] sm:text-xs font-bold text-white tracking-widest uppercase">INDYCAR</div>
-            <div className="w-1 h-1 rounded-full bg-white/20"></div>
-            <div className="text-[11px] sm:text-xs font-bold text-white tracking-widest uppercase">NHL</div>
-            <div className="w-1 h-1 rounded-full bg-white/20"></div>
-            <div className="text-[11px] sm:text-xs font-bold text-white tracking-widest uppercase">NCAA</div>
+          <div className="flex items-center gap-6 text-xs font-mono font-bold text-white/60 uppercase tracking-widest">
+            <span>INDYCAR</span>
+            <span className="text-[var(--color-ares-teal)]">·</span>
+            <span>NHL</span>
+            <span className="text-[var(--color-ares-teal)]">·</span>
+            <span>NCAA</span>
+            <span className="text-[var(--color-ares-teal)]">·</span>
+            <span>MOTORSPORTS</span>
           </div>
         </div>
-      </motion.div>
+      </div>
     </SectionReveal>
   );
 }
