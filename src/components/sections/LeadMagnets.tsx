@@ -1,10 +1,8 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, Trophy, CalendarCheck, ArrowRight } from 'lucide-react';
+import { Target, Activity, ShieldCheck, ArrowRight } from 'lucide-react';
 import { ScrollReveal } from '../ui/ScrollReveal';
 
-// The 7-Day Vision Challenge — the site's single lead magnet.
-// Complete all 7 days -> unlock 10% off a Sports Vision Performance Evaluation.
 export function LeadMagnets() {
   return (
     <section className="py-24 bg-[var(--color-ares-bg)] relative">
@@ -18,25 +16,28 @@ export function LeadMagnets() {
             <div className="relative grid md:grid-cols-2 gap-10 items-center">
               <div>
                 <div className="inline-flex items-center px-3 py-1 bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] text-xs font-bold tracking-widest rounded-full uppercase mb-5">
-                  Free · 7 Days · Real Reward
+                  Neuro-Cognitive Latency Diagnostic
                 </div>
                 <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight">
-                  Take the 7-Day Vision Challenge
+                  Map Your Visual Processing Speed
                 </h2>
-                <p className="text-[var(--color-ares-muted)] text-lg mb-6">
-                  Two drills a day from the same system we use with real athletes.
-                  Finish all seven days and earn{' '}
-                  <strong className="text-white">
-                    10% off a Sports Vision Performance Evaluation
-                  </strong>{' '}
-                  at our Carmel clinic.
+                <p className="text-[var(--color-ares-muted)] text-lg mb-6 leading-relaxed">
+                  Most training programs guess. We measure. Run 3 interactive online drills right now to benchmark your Choice Reaction Time, Target Capture, and Focus Latency.
                 </p>
-                <Link
-                  to="/vision-challenge"
-                  className="inline-flex items-center gap-2 bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] font-bold px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity uppercase tracking-wide text-sm"
-                >
-                  Start the challenge <ArrowRight className="w-4 h-4" />
-                </Link>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Link
+                    to="/assessment"
+                    className="inline-flex items-center justify-center gap-2 bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] font-bold px-7 py-3.5 rounded-xl hover:opacity-90 transition-opacity uppercase tracking-wide text-sm"
+                  >
+                    Start Assessment <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link
+                    to="/book/evaluation"
+                    className="inline-flex items-center justify-center gap-2 border border-[var(--color-ares-purple)] text-white font-bold px-6 py-3.5 rounded-xl hover:bg-[var(--color-ares-purple)]/20 transition-all uppercase tracking-wide text-xs"
+                  >
+                    Book Clinic Evaluation ($449)
+                  </Link>
+                </div>
               </div>
 
               <motion.ul
@@ -47,29 +48,29 @@ export function LeadMagnets() {
               >
                 <li className="flex items-start gap-4">
                   <span className="p-2.5 rounded-xl bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] shrink-0">
-                    <Eye className="w-5 h-5" />
+                    <Target className="w-5 h-5" />
                   </span>
                   <span className="text-[var(--color-ares-muted)]">
-                    <strong className="text-white block">Three real drills</strong>
-                    Focus, tracking, and eye-teaming — 10-15 minutes a day
+                    <strong className="text-white block">Choice Latency Telemetry</strong>
+                    Measure motor reaction lag under split-second visual decision stress.
                   </span>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="p-2.5 rounded-xl bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] shrink-0">
-                    <Trophy className="w-5 h-5" />
+                    <Activity className="w-5 h-5" />
                   </span>
                   <span className="text-[var(--color-ares-muted)]">
-                    <strong className="text-white block">A challenge board</strong>
-                    Check off each day — your reward unlocks when you finish
+                    <strong className="text-white block">Gaze Pursuit & Tracking</strong>
+                    Benchmark target acquisition accuracy against elite athletic percentiles.
                   </span>
                 </li>
                 <li className="flex items-start gap-4">
                   <span className="p-2.5 rounded-xl bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] shrink-0">
-                    <CalendarCheck className="w-5 h-5" />
+                    <ShieldCheck className="w-5 h-5" />
                   </span>
                   <span className="text-[var(--color-ares-muted)]">
-                    <strong className="text-white block">10% off your evaluation</strong>
-                    The full assessment we run for competitive athletes
+                    <strong className="text-white block">Custom Bottleneck Profile</strong>
+                    Get an immediate empirical profile mapping your exact visual bottlenecks.
                   </span>
                 </li>
               </motion.ul>

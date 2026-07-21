@@ -46,7 +46,7 @@ export function Navbar() {
     {
       title: "PERFORMANCE",
       links: [
-        { label: "Free 7-Day Protocol", path: "/free-week" },
+        { label: "Sensory Assessment", path: "/assessment" },
         { label: "Elite Athletes", path: "/athletes" },
         { label: "Parents & Youth", path: "/parents" },
         { label: "Pro & Motorsports", path: "/pro-sports" },
@@ -57,14 +57,13 @@ export function Navbar() {
     {
       title: "PLATFORMS & TECH",
       links: [
-        { label: "Free 7-Day Protocol", path: "/free-week" },
+        { label: "Sensory Assessment", path: "/assessment" },
         { label: "The A.R.E.S. System", path: "/ares-performance-system" },
         { label: "Coaches Protocol", path: "/coaches" },
         { label: "Teams & Facilities", path: "/teams-and-organizations" },
         { label: "Technology & Data", path: "/technology-and-data" },
         { label: "Purchase Packages", path: "/book/packages" },
         { label: "Performance Shop", path: "/shop" },
-        { label: "7-Day Vision Challenge", path: "/vision-challenge" },
         { label: "A.R.E.S. Certification", path: "/certification" }
       ]
     },
@@ -114,9 +113,9 @@ export function Navbar() {
               Book Tele-Training
             </Link>
             <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
-            <Link to="/free-week" className="text-[var(--color-ares-teal)] hover:text-white transition-colors inline-flex items-center gap-1.5 font-bold">
+            <Link to="/assessment" className="text-[var(--color-ares-teal)] hover:text-white transition-colors inline-flex items-center gap-1.5 font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] animate-ping"></span>
-              Free 7-Day Protocol
+              Start Free Assessment
             </Link>
             <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
             <Link to="/cart" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5" aria-label="Cart">
@@ -444,7 +443,7 @@ export function Footer() {
           <div className="col-span-1 md:col-span-2">
             <h3 className="text-xs sm:text-sm font-semibold text-white tracking-wider uppercase mb-4 sm:mb-6">Platform</h3>
             <ul className="space-y-3 sm:space-y-4">
-              <li><Link to="/free-week" className="text-sm sm:text-base text-[var(--color-ares-teal)] font-bold hover:text-white transition-colors">Free 7-Day Protocol</Link></li>
+              <li><Link to="/assessment" className="text-sm sm:text-base text-[var(--color-ares-teal)] font-bold hover:text-white transition-colors">Sensory Assessment</Link></li>
               <li><Link to="/ares-performance-system" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">The A.R.E.S. System</Link></li>
               <li><Link to="/athletes" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Elite Athletes</Link></li>
               <li><Link to="/parents" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Parents & Youth</Link></li>

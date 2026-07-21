@@ -174,8 +174,8 @@ export default function App() {
                 <Route path="/shop/success" element={<ShopSuccessPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/read/:bookId" element={<ReaderPage />} />
-                <Route path="/vision-challenge" element={<VisionChallengePage />} />
-                <Route path="/free-week" element={<Navigate to="/vision-challenge" replace />} />
+                <Route path="/vision-challenge" element={<Navigate to="/assessment" replace />} />
+                <Route path="/free-week" element={<Navigate to="/assessment" replace />} />
                 <Route path="/shop/:slug" element={<ProductPage />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/login" element={<LoginPage />} />

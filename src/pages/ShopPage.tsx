@@ -129,24 +129,24 @@ export default function ShopPage() {
           })}
         </div>
 
-        {/* Not Ready To Buy Exit Ramp Banner */}
+        {/* Exit Ramp Banner */}
         <div className="max-w-6xl mx-auto px-4 pb-16">
           <div className="rounded-2xl border border-[var(--color-ares-teal)]/40 bg-[var(--color-ares-charcoal)] p-8 sm:p-10 text-center">
             <div className="inline-flex items-center px-3 py-1 bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] text-xs font-bold tracking-widest rounded-full uppercase mb-4">
-              Not ready to buy yet?
+              Unsure which training program fits your needs?
             </div>
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-              Start with our Free 7-Day At-Home Protocol
+              Take the Online Sensory Assessment
             </h2>
             <p className="text-[var(--color-ares-muted)] max-w-2xl mx-auto mb-6">
-              Get instant access to two drills a day right in your browser. Build your visual foundation at home, or book a 90-minute evaluation at our Carmel clinic.
+              Run our 3-drill interactive diagnostic to map your visual reaction latency, or schedule a full 90-minute evaluation at our Carmel facility.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
-                to="/free-week"
+                to="/assessment"
                 className="inline-flex items-center justify-center gap-2 bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] font-bold px-7 py-3 rounded-xl hover:opacity-90 transition-opacity uppercase tracking-wide text-sm"
               >
-                Get Free 7-Day Protocol <ArrowRight className="w-4 h-4" />
+                Start Assessment <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/book/evaluation"

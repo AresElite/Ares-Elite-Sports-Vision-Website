@@ -150,8 +150,8 @@ export function BlogPostPage() {
                 Join the elite organizations already using A.R.E.S. to redefine human performance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
-                <Button variant="primary" href="/free-week" className="w-full sm:w-auto bg-[var(--color-ares-teal)] text-[#0A0B14]">
-                  Start Free 7-Day Protocol
+                <Button variant="primary" href="/assessment" className="w-full sm:w-auto bg-[var(--color-ares-teal)] text-[#0A0B14]">
+                  Start Free Assessment
                 </Button>
                 <Button variant="outline" href="/book/evaluation" className="w-full sm:w-auto">
                   Schedule Evaluation ($449)
@@ -159,15 +159,15 @@ export function BlogPostPage() {
               </div>
             </div>
             
-            {/* Free At-Home End-cap Banner */}
+            {/* Online Latency Assessment End-cap Banner */}
             <div className="mt-12 rounded-2xl border border-[var(--color-ares-teal)]/40 bg-[var(--color-ares-charcoal)] p-8 text-center">
-              <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest font-bold block mb-2">Want the at-home version?</span>
-              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Start with our Free 7-Day Protocol</h3>
+              <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest font-bold block mb-2">Expose Visual Bottlenecks</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Map Your Visual Latency Baseline</h3>
               <p className="text-white/70 max-w-xl mx-auto mb-6 text-sm">
-                Two drills a day right in your browser. Build your visual foundation at home before your clinic evaluation.
+                Run our 3-drill interactive diagnostic right in your browser to benchmark your decision speed, or schedule a full clinic evaluation.
               </p>
-              <Link to="/free-week" className="inline-flex items-center gap-2 bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity uppercase text-xs tracking-wider">
-                Get Free 7-Day Protocol →
+              <Link to="/assessment" className="inline-flex items-center gap-2 bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity uppercase text-xs tracking-wider">
+                Start Online Assessment →
               </Link>
             </div>
 

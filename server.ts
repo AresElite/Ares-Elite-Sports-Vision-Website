@@ -318,7 +318,7 @@ function getStripe(): Stripe {
 const athleteParentSequence = [
   {
     day: 0,
-    subject: (firstName: string) => `Welcome to the A.R.E.S. 7-Day Protocol, ${firstName}`,
+    subject: (firstName: string) => `Your A.R.E.S. Visual Performance Profile, ${firstName}`,
     body: (firstName: string, sport: string, bottleneck?: string | null) => {
       const bottleneckIntro = bottleneck 
         ? `Based on your assessment, your visual system shows signs of a ${bottleneck}.` 
@@ -326,15 +326,15 @@ const athleteParentSequence = [
       
       return `Hi ${firstName},
 
-Great job starting your visual-performance journey with Ares Elite Sports Vision.
+Great job completing the online A.R.E.S. sensory assessment.
 
 ${bottleneckIntro}
 
-Your free 7-Day Vision Protocol is unlocked and ready in your portal. Over the next 7 days, you will run two drills a day designed to sharpen target acquisition, tracking accuracy, and focus.
+While online drills measure initial reaction latency, a true baseline requires our 75-minute diagnostic battery on tactile reaction boards, eye-tracking systems, and strobe-occlusion tech at our Carmel HQ.
 
-Access Your Free 7-Day Protocol: ${APP_URL}/free-week
+Book your 90-minute Sports Vision Performance Evaluation ($449) to lock in your baseline:
 
-Start your daily drills today, and look for Day 1 tomorrow.
+Schedule Performance Evaluation ($449): ${APP_URL}/book/evaluation
 
 Best regards,
 

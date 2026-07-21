@@ -261,14 +261,14 @@ export function FaqPage() {
 
           {/* End-Cap Banner */}
           <div className="mt-16 rounded-2xl border border-[var(--color-ares-teal)]/40 bg-[var(--color-ares-charcoal)] p-8 sm:p-10 text-center">
-            <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest font-bold block mb-2">Ready to start training?</span>
-            <h3 className="text-2xl font-bold text-white mb-3">Want the at-home version?</h3>
+            <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest font-bold block mb-2">Expose Visual Latency</span>
+            <h3 className="text-2xl font-bold text-white mb-3">Map Your Visual Processing Speed</h3>
             <p className="text-white/70 max-w-xl mx-auto mb-6 text-sm">
-              Take our free 7-Day At-Home Vision Protocol — two drills a day right in your browser to build your visual baseline.
+              Run our 3-drill interactive diagnostic right in your browser to benchmark your decision speed, or schedule a 90-minute evaluation at our Carmel facility.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/free-week" className="inline-flex items-center justify-center gap-2 bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity uppercase text-xs tracking-wider">
-                Start Free 7-Day Protocol →
+              <Link to="/assessment" className="inline-flex items-center justify-center gap-2 bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity uppercase text-xs tracking-wider">
+                Start Online Assessment →
               </Link>
               <Link to="/book/evaluation" className="inline-flex items-center justify-center gap-2 border border-[var(--color-ares-purple)] text-white font-bold px-6 py-3 rounded-xl hover:bg-[var(--color-ares-purple)]/20 transition-all uppercase text-xs tracking-wider">
                 Book Clinic Evaluation ($449)
