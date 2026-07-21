@@ -150,16 +150,28 @@ export function BlogPostPage() {
                 Join the elite organizations already using A.R.E.S. to redefine human performance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
-                <Button variant="primary" href="/book/consultation" className="w-full sm:w-auto">
-                  Book Discovery Call
+                <Button variant="primary" href="/free-week" className="w-full sm:w-auto bg-[var(--color-ares-teal)] text-[#0A0B14]">
+                  Start Free 7-Day Protocol
                 </Button>
                 <Button variant="outline" href="/book/evaluation" className="w-full sm:w-auto">
-                  Schedule Evaluation
+                  Schedule Evaluation ($449)
                 </Button>
               </div>
             </div>
             
-            <div className="mt-16 flex justify-center">
+            {/* Free At-Home End-cap Banner */}
+            <div className="mt-12 rounded-2xl border border-[var(--color-ares-teal)]/40 bg-[var(--color-ares-charcoal)] p-8 text-center">
+              <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest font-bold block mb-2">Want the at-home version?</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Start with our Free 7-Day Protocol</h3>
+              <p className="text-white/70 max-w-xl mx-auto mb-6 text-sm">
+                Two drills a day right in your browser. Build your visual foundation at home before your clinic evaluation.
+              </p>
+              <Link to="/free-week" className="inline-flex items-center gap-2 bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity uppercase text-xs tracking-wider">
+                Get Free 7-Day Protocol →
+              </Link>
+            </div>
+
+            <div className="mt-12 flex justify-center">
               <Link to="/blog" className="text-white/40 hover:text-[var(--color-ares-teal)] transition-colors font-mono text-xs uppercase tracking-widest flex items-center group">
                 <ArrowLeft className="w-3 h-3 mr-2 group-hover:-translate-x-1 transition-transform" />
                 Explore more articles

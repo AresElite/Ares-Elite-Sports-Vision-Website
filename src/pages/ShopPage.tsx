@@ -5,6 +5,7 @@ import { Pill, Glasses, Target, BookOpen, ArrowRight, Check, Package, Shirt } fr
 import {
   PRODUCTS,
   CATEGORY_LABELS,
+  LIVE_PRODUCT_IDS,
   productsByCategory,
   type Product,
   type ProductCategory,
@@ -69,7 +70,7 @@ export default function ShopPage() {
     <>
       <SEO
         title="Performance Shop | Ares Elite Sports Vision"
-        description="Vision-training programs for youth and developing athletes, plus supplements, eyewear, and training tools — curated by Ares Elite Sports Vision."
+        description="Vision-training programs for youth and developing athletes, plus supplements, books, and digital drill packages — curated by Ares Elite Sports Vision."
         path="/shop"
       />
       <div className="bg-[var(--color-ares-bg)] min-h-screen">
@@ -82,12 +83,12 @@ export default function ShopPage() {
             Gear up your vision
           </h1>
           <p className="text-[var(--color-ares-muted)] max-w-2xl mx-auto mt-4">
-            Vision training built for youth and developing athletes — plus the supplements,
-            eyewear, and tools we trust. Curated and stocked by Ares Elite Sports Vision.
+            Vision training built for youth and developing athletes — digital drill programs, interactive books,
+            NSF-certified supplements, and official apparel. Curated by Ares Elite Sports Vision.
           </p>
           <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mt-6 text-sm text-[var(--color-ares-muted)]">
             <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-[var(--color-ares-teal)]" /> NSF-certified options</span>
-            <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-[var(--color-ares-teal)]" /> Secure Stripe checkout</span>
+            <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-[var(--color-ares-teal)]" /> Instant digital delivery</span>
             <span className="inline-flex items-center gap-1.5"><Check className="w-4 h-4 text-[var(--color-ares-teal)]" /> Practitioner-curated</span>
           </div>
         </section>
@@ -128,10 +129,39 @@ export default function ShopPage() {
           })}
         </div>
 
+        {/* Not Ready To Buy Exit Ramp Banner */}
+        <div className="max-w-6xl mx-auto px-4 pb-16">
+          <div className="rounded-2xl border border-[var(--color-ares-teal)]/40 bg-[var(--color-ares-charcoal)] p-8 sm:p-10 text-center">
+            <div className="inline-flex items-center px-3 py-1 bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] text-xs font-bold tracking-widest rounded-full uppercase mb-4">
+              Not ready to buy yet?
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3">
+              Start with our Free 7-Day At-Home Protocol
+            </h2>
+            <p className="text-[var(--color-ares-muted)] max-w-2xl mx-auto mb-6">
+              Get instant access to two drills a day right in your browser. Build your visual foundation at home, or book a 90-minute evaluation at our Carmel clinic.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link
+                to="/free-week"
+                className="inline-flex items-center justify-center gap-2 bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] font-bold px-7 py-3 rounded-xl hover:opacity-90 transition-opacity uppercase tracking-wide text-sm"
+              >
+                Get Free 7-Day Protocol <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                to="/book/evaluation"
+                className="inline-flex items-center justify-center gap-2 border border-[var(--color-ares-purple)] text-white font-bold px-7 py-3 rounded-xl hover:bg-[var(--color-ares-purple)]/20 transition-all uppercase tracking-wide text-sm"
+              >
+                Book Clinic Evaluation ($449)
+              </Link>
+            </div>
+          </div>
+        </div>
+
         <p className="text-center text-xs text-[var(--color-ares-muted)] max-w-3xl mx-auto px-4 pb-16">
           Supplement statements have not been evaluated by the FDA and are not intended to diagnose,
-          treat, cure, or prevent any disease. {PRODUCTS.length} products · sold by Ares Elite Sports
-          Vision, LLC.
+          treat, cure, or prevent any disease. {PRODUCTS.filter((p) => LIVE_PRODUCT_IDS.has(p.id)).length} products
+          · sold by Ares Elite Sports Vision, LLC.
         </p>
       </div>
     </>

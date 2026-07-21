@@ -2,7 +2,7 @@ import { SEO } from '../components/SEO';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { Loader2, Lock, ArrowLeft } from 'lucide-react';
-import { GATED_BOOKS, getProduct } from '../data/products';
+import { GATED_BOOKS, GATED_DOWNLOADS, getProduct } from '../data/products';
 
 export default function ReaderPage() {
   const { bookId = '' } = useParams<{ bookId: string }>();
@@ -41,7 +41,17 @@ export default function ReaderPage() {
           >
             <ArrowLeft className="w-4 h-4" /> Shop
           </Link>
-          <span className="text-sm text-[var(--color-ares-muted)]">{product?.name}</span>
+          <div className="flex items-center gap-4">
+            {book && GATED_DOWNLOADS[book.productId] && (
+              <a
+                href={`/api/download/${book.productId}?session_id=${encodeURIComponent(sessionId)}`}
+                className="text-sm font-bold text-[var(--color-ares-teal)] hover:opacity-80 transition-opacity"
+              >
+                Download PDF
+              </a>
+            )}
+            <span className="text-sm text-[var(--color-ares-muted)]">{product?.name}</span>
+          </div>
         </div>
         <iframe
           title={product?.name || 'A.R.E.S. Book'}

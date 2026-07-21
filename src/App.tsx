@@ -36,7 +36,7 @@ const ProductPage = lazy(() => import('./pages/ProductPage'));
 const ShopSuccessPage = lazy(() => import('./pages/ShopSuccessPage'));
 const CartPage = lazy(() => import('./pages/CartPage'));
 const ReaderPage = lazy(() => import('./pages/ReaderPage'));
-const FreeWeekPage = lazy(() => import('./pages/FreeWeekPage'));
+const VisionChallengePage = lazy(() => import('./pages/FreeWeekPage'));
 
 // New Service Pages
 const SportsVisionPerformanceEvaluationPage = lazy(() => import('./pages/SportsVisionPerformanceEvaluationPage').then(m => ({ default: m.SportsVisionPerformanceEvaluationPage })));
@@ -174,7 +174,8 @@ export default function App() {
                 <Route path="/shop/success" element={<ShopSuccessPage />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/read/:bookId" element={<ReaderPage />} />
-                <Route path="/free-week" element={<FreeWeekPage />} />
+                <Route path="/vision-challenge" element={<VisionChallengePage />} />
+                <Route path="/free-week" element={<Navigate to="/vision-challenge" replace />} />
                 <Route path="/shop/:slug" element={<ProductPage />} />
                 <Route path="/admin/dashboard" element={<AdminDashboard />} />
                 <Route path="/login" element={<LoginPage />} />
