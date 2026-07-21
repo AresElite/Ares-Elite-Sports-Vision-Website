@@ -162,7 +162,7 @@ export function ContactPage() {
             Ready to unlock your visual-cognitive potential? Fill out the form below and Dr. Joe LaPlaca will be in touch.
           </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-10 pb-10 border-b border-[var(--color-ares-border)]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8 pb-8 border-b border-[var(--color-ares-border)]">
             <div>
               <h3 className="text-[var(--color-ares-teal)] font-bold mb-2">Email</h3>
               <a href="mailto:info@areselitesportsvision.com" className="text-white/80 hover:text-white transition-colors text-sm">info@areselitesportsvision.com</a>
@@ -172,9 +172,19 @@ export function ContactPage() {
               <a href="tel:+17739811447" className="text-white/80 hover:text-white transition-colors text-sm">+1 (773) 981-1447</a>
             </div>
             <div>
-              <h3 className="text-[var(--color-ares-teal)] font-bold mb-2">Location</h3>
-              <p className="text-white/80 text-sm">510 W. Carmel Dr.<br />Carmel, IN 46032</p>
+              <h3 className="text-[var(--color-ares-teal)] font-bold mb-2">Carmel Headquarters</h3>
+              <p className="text-white/80 text-sm leading-relaxed">
+                510 W. Carmel Dr., 2nd Floor<br />
+                (Inside Elemental Fitness)<br />
+                Carmel, IN 46032
+              </p>
             </div>
+          </div>
+
+          {/* Arrival & Parking Guidance */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 mb-10 text-xs text-white/80 leading-relaxed">
+            <span className="font-bold text-[var(--color-ares-teal)] uppercase tracking-wider block mb-1 font-mono">Arrival & Parking Note</span>
+            We are located inside the Elemental Fitness facility on the 2nd Floor. Ample free parking is available directly in front of the main building entrance.
           </div>
 
           {status === 'success' ? (

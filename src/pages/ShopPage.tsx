@@ -19,7 +19,7 @@ const CATEGORY_ICON: Record<ProductCategory, ReactNode> = {
   merch: <Shirt className="w-5 h-5" />,
 };
 
-const CATEGORY_ORDER: ProductCategory[] = ['bundles', 'supplements', 'eyewear', 'tools', 'digital', 'merch'];
+const CATEGORY_ORDER: ProductCategory[] = ['bundles', 'supplements', 'digital', 'merch'];
 
 function priceLabel(p: Product) {
   if (p.purchase === 'free') return 'Free';
