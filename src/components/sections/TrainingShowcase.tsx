@@ -113,7 +113,7 @@ export function TrainingShowcase() {
                 {/* Video Container */}
                 <div className="relative aspect-video w-full bg-black">
                   <iframe 
-                    src="https://www.youtube.com/embed/U2VTKv5Imf0?autoplay=1"
+                    src="https://www.youtube.com/embed/EBUfMFxkNks?autoplay=1"
                     title="A.R.E.S. Training Reel"
                     className="absolute inset-0 w-full h-full border-0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

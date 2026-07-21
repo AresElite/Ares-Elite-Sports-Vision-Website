@@ -307,7 +307,7 @@ export function SystemSection() {
         <div className="mt-20 sm:mt-32 max-w-4xl mx-auto">
           <ScrollReveal direction="up" distance={40}>
              <VideoEmbed 
-               src="https://www.youtube.com/embed/U2VTKv5Imf0" 
+               src="https://www.youtube.com/embed/EBUfMFxkNks" 
                title="The A.R.E.S. Performance Loop" 
              />
           </ScrollReveal>
