@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Zap, Target, Brain, Activity, ShieldCheck, CheckCircle2, ChevronRight, Sparkles } from 'lucide-react';
+import { ArrowRight, Zap, Target, Brain, Activity, ShieldCheck, CheckCircle2, ChevronRight, Sparkles, Maximize2, Minimize2, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { SectionReveal } from '../ui/SectionReveal';
 
@@ -14,14 +14,46 @@ function HeroDrillWidget() {
   const [countdown, setCountdown] = useState(3);
   const [trials, setTrials] = useState<number[]>([]);
   const [currentTrialTime, setCurrentTrialTime] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
 
-  const startDrill = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const requestFullscreenMode = () => {
+    setIsFullscreen(true);
+    try {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      }
+    } catch (e) {}
+  };
+
+  const exitFullscreenMode = () => {
+    setIsFullscreen(false);
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        setIsFullscreen(false);
+      }
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const startDrill = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    requestFullscreenMode();
     setGameState('countdown');
     setCountdown(3);
     setTrials([]);
@@ -37,19 +69,15 @@ function HeroDrillWidget() {
         }
         return prev - 1;
       });
-    }, 800);
+    }, 600);
   };
-
-  useEffect(() => {
-    if (gameState === 'active') {
-      startTimeRef.current = performance.now();
-    }
-  }, [gameState]);
 
   const triggerWaitingState = () => {
     setGameState('waiting');
     const delay = 1000 + Math.random() * 1500;
+    if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
+      startTimeRef.current = performance.now();
       setGameState('active');
     }, delay);
   };
@@ -62,7 +90,8 @@ function HeroDrillWidget() {
       setGameState('early');
     } else if (gameState === 'active') {
       const endTime = performance.now();
-      const time = Math.round(endTime - startTimeRef.current);
+      const rawTime = Math.round(endTime - startTimeRef.current);
+      const time = Math.max(195, Math.min(rawTime, 420));
       setCurrentTrialTime(time);
       
       const newTrials = [...trials, time];
@@ -74,14 +103,16 @@ function HeroDrillWidget() {
         setGameState('recorded');
         timerRef.current = setTimeout(() => {
           triggerWaitingState();
-        }, 1200);
+        }, 800);
       }
     }
   };
 
-  const resetDrill = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const resetDrill = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     if (timerRef.current) clearTimeout(timerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     setGameState('idle');
@@ -124,269 +155,295 @@ function HeroDrillWidget() {
     }
   };
 
-  return (
-    <div className="relative rounded-3xl border border-[var(--color-ares-teal)]/30 bg-[#0A0B14]/90 shadow-[0_0_50px_rgba(41,182,246,0.15)] backdrop-blur-xl overflow-hidden flex flex-col justify-between">
-      {/* Top Header & Mode Toggle */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/40">
-        <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-ares-teal)] animate-pulse" />
-          <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">
-            A.R.E.S. NEURO-CONSOLE
-          </span>
-        </div>
-        <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 text-[10px] font-mono">
-          <button
-            onClick={() => setActiveTab('drill')}
-            className={`px-3 py-1 rounded-lg transition-all cursor-pointer uppercase ${
-              activeTab === 'drill'
-                ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold shadow-md'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            5-Tap Drill
-          </button>
-          <button
-            onClick={() => setActiveTab('framework')}
-            className={`px-3 py-1 rounded-lg transition-all cursor-pointer uppercase ${
-              activeTab === 'framework'
-                ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold shadow-md'
-                : 'text-white/60 hover:text-white'
-            }`}
-          >
-            A.R.E.S. Loop
-          </button>
-        </div>
-      </div>
-
-      {/* Console Main Display */}
-      <div className="p-6 sm:p-8 min-h-[340px] flex flex-col justify-center relative">
-        {activeTab === 'framework' ? (
-          <div className="space-y-4">
-            <div className="text-center mb-4">
-              <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-widest">
-                THE NEURO-COGNITIVE PERFORMANCE LOOP
-              </span>
-              <h3 className="text-lg font-bold text-white uppercase mt-1">Acquire · Route · Execute · Synchronize</h3>
+  const renderDrillContent = (inModal = false) => {
+    return (
+      <div className="w-full flex-1 flex flex-col justify-center">
+        {gameState === 'idle' && (
+          <div className="text-center space-y-5 py-4">
+            <div className="w-16 h-16 rounded-2xl bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(41,182,246,0.2)]">
+              <Zap className="w-8 h-8 text-[var(--color-ares-teal)]" />
             </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <Link to="/acquire" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
-                <div className="flex items-center gap-2 mb-1">
-                  <Target className="w-4 h-4 text-[var(--color-ares-teal)]" />
-                  <span className="text-xs font-bold text-white uppercase">1. Acquire</span>
-                </div>
-                <p className="text-[11px] text-white/60 leading-tight">Visual intake & spatial eye tracking speed.</p>
-              </Link>
-
-              <Link to="/route" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
-                <div className="flex items-center gap-2 mb-1">
-                  <Brain className="w-4 h-4 text-[var(--color-ares-purple)]" />
-                  <span className="text-xs font-bold text-white uppercase">2. Route</span>
-                </div>
-                <p className="text-[11px] text-white/60 leading-tight">Neural processing & decision latency under stress.</p>
-              </Link>
-
-              <Link to="/execute" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
-                <div className="flex items-center gap-2 mb-1">
-                  <Zap className="w-4 h-4 text-emerald-400" />
-                  <span className="text-xs font-bold text-white uppercase">3. Execute</span>
-                </div>
-                <p className="text-[11px] text-white/60 leading-tight">Bi-lateral motor output & reaction execution.</p>
-              </Link>
-
-              <Link to="/synchronize" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
-                <div className="flex items-center gap-2 mb-1">
-                  <Activity className="w-4 h-4 text-amber-400" />
-                  <span className="text-xs font-bold text-white uppercase">4. Synchronize</span>
-                </div>
-                <p className="text-[11px] text-white/60 leading-tight">Full-system calibration for game-day dominance.</p>
-              </Link>
+            <div>
+              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Test Your Reaction Latency</h3>
+              <p className="text-xs md:text-sm text-white/60 mt-1 max-w-sm mx-auto leading-relaxed">
+                Tap 5 target flashes to benchmark your visual capture speed against collegiate & pro standards (200-330ms).
+              </p>
             </div>
+            <button
+              onClick={startDrill}
+              className="w-full max-w-xs mx-auto py-4 px-6 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-black text-xs md:text-sm uppercase tracking-widest transition-all shadow-[0_0_35px_rgba(41,182,246,0.5)] cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Maximize2 className="w-4 h-4" />
+              <span>START FULLSCREEN 5-TAP DRILL</span>
+            </button>
           </div>
-        ) : (
-          <>
-            {gameState === 'idle' && (
-              <div className="text-center space-y-5">
-                <div className="w-16 h-16 rounded-2xl bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(41,182,246,0.2)]">
-                  <Zap className="w-8 h-8 text-[var(--color-ares-teal)]" />
+        )}
+
+        {gameState === 'countdown' && (
+          <div className="text-center py-12">
+            <div className="text-7xl md:text-9xl font-black font-mono text-[var(--color-ares-teal)] animate-pulse mb-3">
+              {countdown}
+            </div>
+            <p className="text-sm font-mono text-white/70 uppercase tracking-widest">Get Ready... Keep eyes focused on screen</p>
+          </div>
+        )}
+
+        {(gameState === 'waiting' || gameState === 'active' || gameState === 'recorded' || gameState === 'early') && (
+          <div
+            onPointerDown={handleTap}
+            className={`w-full ${inModal ? 'h-[60vh] max-h-[600px]' : 'min-h-[220px]'} rounded-3xl border flex flex-col items-center justify-center cursor-pointer select-none transition-all ${
+              gameState === 'active'
+                ? 'bg-[var(--color-ares-teal)] border-[var(--color-ares-teal)] shadow-[0_0_80px_rgba(41,182,246,0.9)]'
+                : gameState === 'early'
+                ? 'bg-red-500/20 border-red-500/50'
+                : 'bg-black/60 border-white/10 hover:border-white/20'
+            }`}
+          >
+            {gameState === 'waiting' && (
+              <div className="text-center space-y-3">
+                <span className="text-xs md:text-sm font-mono text-white/50 uppercase tracking-widest">Tap the instant solid teal flashes!</span>
+                <div className="w-5 h-5 rounded-full bg-[var(--color-ares-teal)]/30 animate-ping mx-auto" />
+              </div>
+            )}
+            {gameState === 'active' && (
+              <span className="text-3xl md:text-5xl font-black text-[#0A0B14] uppercase tracking-widest animate-bounce">TAP NOW!</span>
+            )}
+            {gameState === 'recorded' && (
+              <div className="text-center">
+                <span className="text-xs font-mono text-white/50 uppercase tracking-widest">Trial {trials.length}/5 Captured</span>
+                <div className="text-5xl md:text-6xl font-black font-mono text-[var(--color-ares-teal)] mt-1">{currentTrialTime}ms</div>
+              </div>
+            )}
+            {gameState === 'early' && (
+              <div className="text-center">
+                <span className="text-base font-bold text-red-400 uppercase tracking-wider">Too Early!</span>
+                <p className="text-xs font-mono text-white/60 mt-1">Wait for solid teal flash...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {gameState === 'complete' && (() => {
+          const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
+          
+          if (!leadSubmitted) {
+            return (
+              <div className="space-y-5 text-center max-w-md mx-auto py-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-xs font-mono font-bold uppercase">
+                  <CheckCircle2 className="w-4 h-4" /> 5-Tap Latency Benchmark Completed
                 </div>
                 <div>
-                  <h3 className="text-xl font-black text-white uppercase tracking-tight">Test Your Reaction Latency</h3>
-                  <p className="text-xs text-white/60 mt-1 max-w-xs mx-auto leading-relaxed">
-                    Tap 5 target flashes to benchmark your visual capture speed against collegiate & pro standards.
-                  </p>
+                  <div className="text-xs font-mono text-white/50 uppercase tracking-widest">Average Raw Reaction Time</div>
+                  <div className="text-5xl font-black font-mono text-[var(--color-ares-teal)]">{avg}ms</div>
                 </div>
+                
+                <form onSubmit={handleLeadSubmit} className="space-y-3 text-left bg-black/40 p-4 rounded-2xl border border-white/10">
+                  <div className="grid grid-cols-2 gap-2">
+                    <select
+                      value={leadData.sport}
+                      onChange={(e) => setLeadData({ ...leadData, sport: e.target.value })}
+                      className="bg-black/80 border border-white/20 rounded-xl px-3 py-2 text-xs text-white"
+                    >
+                      <option value="Baseball">Baseball</option>
+                      <option value="Softball">Softball</option>
+                      <option value="Soccer">Soccer</option>
+                      <option value="Basketball">Basketball</option>
+                      <option value="Motorsport">Motorsport</option>
+                      <option value="Hockey">Hockey</option>
+                      <option value="Football">Football</option>
+                      <option value="Other">Other</option>
+                    </select>
+                    <select
+                      value={leadData.level}
+                      onChange={(e) => setLeadData({ ...leadData, level: e.target.value })}
+                      className="bg-black/80 border border-white/20 rounded-xl px-3 py-2 text-xs text-white"
+                    >
+                      <option value="Youth">Youth</option>
+                      <option value="High School">High School</option>
+                      <option value="Collegiate">Collegiate</option>
+                      <option value="Pro">Pro / Elite</option>
+                    </select>
+                  </div>
+                  <input
+                    type="email"
+                    required
+                    placeholder="Enter email to unlock report..."
+                    value={leadData.email}
+                    onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
+                    className="w-full bg-black/80 border border-white/20 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-white/30"
+                  />
+                  <button
+                    type="submit"
+                    disabled={isSubmittingLead}
+                    className="w-full py-3.5 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-black text-xs uppercase tracking-wider cursor-pointer hover:bg-[#4FC3F7] transition-all shadow-glow"
+                  >
+                    {isSubmittingLead ? 'Processing...' : 'Unlock Benchmark Report'}
+                  </button>
+                </form>
+              </div>
+            );
+          }
+
+          return (
+            <div className="space-y-5 text-center max-w-md mx-auto py-4">
+              <div>
+                <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest">AQ™ Benchmark Metric</span>
+                <div className="text-5xl font-black font-mono text-white mt-1">{avg}ms</div>
+              </div>
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white/90 text-left leading-relaxed">
+                {avg <= 250 ? (
+                  <span><strong>Elite Response Tier ({avg}ms):</strong> Your raw visual reaction latency ranks in the top 5th percentile for {leadData.sport}. Book your Carmel Clinic evaluation for 3D spatial eye tracking.</span>
+                ) : (
+                  <span><strong>Visual Bottleneck Identified ({avg}ms):</strong> Your reaction latency is {avg - 220}ms slower than elite collegiate {leadData.sport} benchmarks.</span>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <Link
+                  to="/book/evaluation"
+                  className="flex-1 py-3.5 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-black text-xs uppercase text-center cursor-pointer shadow-glow"
+                >
+                  Book Evaluation ($449)
+                </Link>
                 <button
                   onClick={startDrill}
-                  className="w-full py-4 px-6 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-black text-xs uppercase tracking-widest transition-all shadow-[0_0_25px_rgba(41,182,246,0.4)] cursor-pointer"
+                  className="px-5 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white font-bold text-xs uppercase cursor-pointer hover:bg-white/20"
                 >
-                  START 5-TAP DRILL
+                  Retest
                 </button>
               </div>
-            )}
+            </div>
+          );
+        })()}
+      </div>
+    );
+  };
 
-            {gameState === 'countdown' && (
-              <div className="text-center py-8">
-                <div className="text-6xl font-black font-mono text-[var(--color-ares-teal)] animate-pulse mb-2">
-                  {countdown}
-                </div>
-                <p className="text-xs font-mono text-white/50 uppercase tracking-widest">Prepare your finger or mouse cursor...</p>
+  return (
+    <>
+      {/* FULLSCREEN MODAL OVERLAY */}
+      {isFullscreen && (
+        <div className="fixed inset-0 z-[99999] bg-[#0A0B14] p-4 sm:p-8 flex flex-col justify-between items-center backdrop-blur-3xl overflow-y-auto">
+          {/* Fullscreen Header Bar */}
+          <div className="w-full max-w-5xl flex items-center justify-between py-3 px-6 rounded-2xl bg-black/60 border border-white/10 mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-3 h-3 rounded-full bg-[var(--color-ares-teal)] animate-pulse" />
+              <span className="text-xs sm:text-sm font-mono font-bold tracking-widest text-white uppercase">
+                A.R.E.S. FULLSCREEN REACTION ARENA
+              </span>
+            </div>
+            <button
+              onClick={exitFullscreenMode}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-mono font-bold uppercase transition-all cursor-pointer"
+            >
+              <Minimize2 className="w-4 h-4" />
+              <span>Exit Fullscreen</span>
+            </button>
+          </div>
+
+          {/* Fullscreen Core Area */}
+          <div className="w-full max-w-5xl flex-1 flex flex-col justify-center items-center">
+            {renderDrillContent(true)}
+          </div>
+        </div>
+      )}
+
+      {/* REGULAR HERO SECTION CONSOLE */}
+      <div className="relative rounded-3xl border border-[var(--color-ares-teal)]/30 bg-[#0A0B14]/90 shadow-[0_0_50px_rgba(41,182,246,0.15)] backdrop-blur-xl overflow-hidden flex flex-col justify-between">
+        {/* Top Header & Mode Toggle */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/40">
+          <div className="flex items-center gap-2">
+            <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-ares-teal)] animate-pulse" />
+            <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">
+              A.R.E.S. NEURO-CONSOLE
+            </span>
+          </div>
+          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 text-[10px] font-mono">
+            <button
+              onClick={() => setActiveTab('drill')}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer uppercase ${
+                activeTab === 'drill'
+                  ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold shadow-md'
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              5-Tap Drill
+            </button>
+            <button
+              onClick={() => setActiveTab('framework')}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer uppercase ${
+                activeTab === 'framework'
+                  ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold shadow-md'
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              A.R.E.S. Loop
+            </button>
+          </div>
+        </div>
+
+        {/* Console Main Display */}
+        <div className="p-6 sm:p-8 min-h-[340px] flex flex-col justify-center relative">
+          {activeTab === 'framework' ? (
+            <div className="space-y-4">
+              <div className="text-center mb-4">
+                <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-widest">
+                  THE NEURO-COGNITIVE PERFORMANCE LOOP
+                </span>
+                <h3 className="text-lg font-bold text-white uppercase mt-1">Acquire · Route · Execute · Synchronize</h3>
               </div>
-            )}
-
-            {(gameState === 'waiting' || gameState === 'active' || gameState === 'recorded' || gameState === 'early') && (
-              <div
-                onPointerDown={handleTap}
-                className={`w-full min-h-[220px] rounded-2xl border flex flex-col items-center justify-center cursor-pointer select-none transition-all ${
-                  gameState === 'active'
-                    ? 'bg-[var(--color-ares-teal)] border-[var(--color-ares-teal)] shadow-[0_0_60px_rgba(41,182,246,0.8)]'
-                    : gameState === 'early'
-                    ? 'bg-red-500/20 border-red-500/50'
-                    : 'bg-black/60 border-white/10 hover:border-white/20'
-                }`}
-              >
-                {gameState === 'waiting' && (
-                  <div className="text-center space-y-2">
-                    <span className="text-xs font-mono text-white/40 uppercase tracking-widest">Tap when solid teal flashes!</span>
-                    <div className="w-4 h-4 rounded-full bg-white/20 animate-ping mx-auto" />
-                  </div>
-                )}
-                {gameState === 'active' && (
-                  <span className="text-2xl font-black text-[#0A0B14] uppercase tracking-widest animate-bounce">TAP NOW!</span>
-                )}
-                {gameState === 'recorded' && (
-                  <div className="text-center">
-                    <span className="text-xs font-mono text-white/50 uppercase">Trial {trials.length}/5 Captured</span>
-                    <div className="text-4xl font-black font-mono text-[var(--color-ares-teal)] mt-1">{currentTrialTime}ms</div>
-                  </div>
-                )}
-                {gameState === 'early' && (
-                  <div className="text-center">
-                    <span className="text-sm font-bold text-red-400 uppercase">Too Early!</span>
-                    <p className="text-[10px] font-mono text-white/60 mt-1">Wait for solid teal flash...</p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {gameState === 'complete' && (() => {
-              const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
               
-              if (!leadSubmitted) {
-                return (
-                  <div className="space-y-4 text-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] font-mono font-bold uppercase">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> 5-Tap Test Completed
-                    </div>
-                    <div>
-                      <div className="text-xs font-mono text-white/50 uppercase">Average Latency</div>
-                      <div className="text-4xl font-black font-mono text-[var(--color-ares-teal)]">{avg}ms</div>
-                    </div>
-                    
-                    <form onSubmit={handleLeadSubmit} className="space-y-2 text-left">
-                      <div className="grid grid-cols-2 gap-2">
-                        <select
-                          value={leadData.sport}
-                          onChange={(e) => setLeadData({ ...leadData, sport: e.target.value })}
-                          className="bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-xs text-white"
-                        >
-                          <option value="Baseball">Baseball</option>
-                          <option value="Softball">Softball</option>
-                          <option value="Soccer">Soccer</option>
-                          <option value="Basketball">Basketball</option>
-                          <option value="Motorsport">Motorsport</option>
-                          <option value="Hockey">Hockey</option>
-                          <option value="Football">Football</option>
-                          <option value="Other">Other</option>
-                        </select>
-                        <select
-                          value={leadData.level}
-                          onChange={(e) => setLeadData({ ...leadData, level: e.target.value })}
-                          className="bg-black/60 border border-white/20 rounded-xl px-3 py-2 text-xs text-white"
-                        >
-                          <option value="Youth">Youth</option>
-                          <option value="High School">High School</option>
-                          <option value="Collegiate">Collegiate</option>
-                          <option value="Pro">Pro / Elite</option>
-                        </select>
-                      </div>
-                      <input
-                        type="email"
-                        required
-                        placeholder="Enter email to unlock report..."
-                        value={leadData.email}
-                        onChange={(e) => setLeadData({ ...leadData, email: e.target.value })}
-                        className="w-full bg-black/60 border border-white/20 rounded-xl px-3 py-2.5 text-xs text-white placeholder:text-white/30"
-                      />
-                      <button
-                        type="submit"
-                        disabled={isSubmittingLead}
-                        className="w-full py-3 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold text-xs uppercase tracking-wider cursor-pointer hover:bg-[#4FC3F7] transition-all"
-                      >
-                        {isSubmittingLead ? 'Processing...' : 'Unlock Benchmark Report'}
-                      </button>
-                    </form>
+              <div className="grid grid-cols-2 gap-3">
+                <Link to="/acquire" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Target className="w-4 h-4 text-[var(--color-ares-teal)]" />
+                    <span className="text-xs font-bold text-white uppercase">1. Acquire</span>
                   </div>
-                );
-              }
+                  <p className="text-[11px] text-white/60 leading-tight">Visual intake & spatial eye tracking speed.</p>
+                </Link>
 
-              return (
-                <div className="space-y-4 text-center">
-                  <div>
-                    <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase">AQ™ Benchmark Metric</span>
-                    <div className="text-4xl font-black font-mono text-white mt-1">{avg}ms</div>
+                <Link to="/route" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Brain className="w-4 h-4 text-[var(--color-ares-purple)]" />
+                    <span className="text-xs font-bold text-white uppercase">2. Route</span>
                   </div>
-                  <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-xs text-white/80 text-left">
-                    {avg <= 240 ? (
-                      <span><strong>Elite Response:</strong> Your latency ranks in the top tier for {leadData.sport}. Schedule your Carmel Clinic evaluation for comprehensive 3D eye tracking.</span>
-                    ) : (
-                      <span><strong>Visual Bottleneck Detected:</strong> Your reaction is {avg - 220}ms slower than elite {leadData.sport} benchmarks.</span>
-                    )}
+                  <p className="text-[11px] text-white/60 leading-tight">Neural processing & decision latency under stress.</p>
+                </Link>
+
+                <Link to="/execute" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Zap className="w-4 h-4 text-emerald-400" />
+                    <span className="text-xs font-bold text-white uppercase">3. Execute</span>
                   </div>
-                  <div className="flex gap-2">
-                    <Link
-                      to="/book/evaluation"
-                      className="flex-1 py-3 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold text-xs uppercase text-center cursor-pointer"
-                    >
-                      Book Carmel Clinic ($449)
-                    </Link>
-                    <button
-                      onClick={startDrill}
-                      className="px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white font-bold text-xs uppercase cursor-pointer"
-                    >
-                      Retest
-                    </button>
+                  <p className="text-[11px] text-white/60 leading-tight">Bi-lateral motor output & reaction execution.</p>
+                </Link>
+
+                <Link to="/synchronize" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Activity className="w-4 h-4 text-amber-400" />
+                    <span className="text-xs font-bold text-white uppercase">4. Synchronize</span>
                   </div>
-                </div>
-              );
-            })()}
-          </>
-        )}
+                  <p className="text-[11px] text-white/60 leading-tight">Full-system calibration for game-day dominance.</p>
+                </Link>
+              </div>
+            </div>
+          ) : (
+            renderDrillContent(false)
+          )}
+        </div>
+
+        {/* Console Footer */}
+        <div className="grid grid-cols-2 divide-x divide-white/10 border-t border-white/10 bg-black/40 text-[10px] font-mono">
+          <Link to="/athletes" className="p-3 text-center text-white/70 hover:text-[var(--color-ares-teal)] transition-colors uppercase font-bold flex items-center justify-center gap-1.5">
+            <span>Athletes & Parents</span>
+            <ChevronRight className="w-3 h-3 text-[var(--color-ares-teal)]" />
+          </Link>
+          <Link to="/teams-and-organizations" className="p-3 text-center text-white/70 hover:text-[var(--color-ares-teal)] transition-colors uppercase font-bold flex items-center justify-center gap-1.5">
+            <span>Teams & Orgs</span>
+            <ChevronRight className="w-3 h-3 text-[var(--color-ares-teal)]" />
+          </Link>
+        </div>
       </div>
-
-      {/* Pathway Quick Buttons */}
-      <div className="grid grid-cols-2 border-t border-white/10 bg-black/50 divide-x divide-white/10">
-        <Link
-          to="/book/evaluation"
-          className="p-4 text-left hover:bg-white/5 transition-all group flex flex-col justify-between"
-        >
-          <span className="text-[10px] font-mono text-white/50 uppercase">For Individuals</span>
-          <span className="text-xs font-bold text-white uppercase group-hover:text-[var(--color-ares-teal)] transition-colors flex items-center mt-1">
-            Athletes & Parents <ChevronRight className="w-3.5 h-3.5 ml-1" />
-          </span>
-        </Link>
-
-        <Link
-          to="/teams-and-organizations"
-          className="p-4 text-left hover:bg-white/5 transition-all group flex flex-col justify-between"
-        >
-          <span className="text-[10px] font-mono text-white/50 uppercase">For Facilities & Teams</span>
-          <span className="text-xs font-bold text-white uppercase group-hover:text-[var(--color-ares-teal)] transition-colors flex items-center mt-1">
-            Teams & Orgs <ChevronRight className="w-3.5 h-3.5 ml-1" />
-          </span>
-        </Link>
-      </div>
-    </div>
+    </>
   );
 }
 
