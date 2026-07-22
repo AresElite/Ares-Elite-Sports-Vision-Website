@@ -444,25 +444,19 @@ export function Hero({ isReady = true }: HeroProps) {
               Cut reaction latency, accelerate decision velocity under fatigue, and eliminate cognitive bottlenecks. Ares finds the hidden milliseconds that decide games.
             </p>
 
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full justify-center xl:justify-start max-w-md">
-              <Link 
-                to="/book/evaluation" 
-                className="flex-1 inline-flex items-center justify-center px-8 py-4 bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] rounded-2xl transition-all shadow-[0_0_30px_rgba(41,182,246,0.4)] hover:shadow-[0_0_40px_rgba(41,182,246,0.6)] font-black tracking-wider uppercase text-sm cursor-pointer"
-              >
-                BOOK CLINIC EVALUATION ($449)
-              </Link>
+            {/* Hero Primary Action */}
+            <div className="flex flex-col items-center xl:items-start w-full max-w-md">
               <Link 
                 to="/assessment" 
-                className="flex-1 inline-flex items-center justify-center px-8 py-4 bg-white/5 hover:bg-white/10 border border-white/20 text-white rounded-2xl transition-all font-bold tracking-wider uppercase text-sm backdrop-blur-md cursor-pointer"
+                className="w-full inline-flex items-center justify-center px-8 py-4 bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] rounded-2xl transition-all shadow-[0_0_30px_rgba(41,182,246,0.4)] hover:shadow-[0_0_40px_rgba(41,182,246,0.6)] font-black tracking-wider uppercase text-sm cursor-pointer"
               >
-                FREE 5-MINUTE ASSESSMENT
+                START 5-MINUTE ASSESSMENT
               </Link>
+              
+              <p className="text-white/60 text-xs mt-3 font-mono text-center xl:text-left">
+                In-person testing: <Link to="/book/evaluation" className="text-[var(--color-ares-teal)] font-bold hover:underline">Book 90-Min Carmel Clinic Evaluation ($449)</Link>
+              </p>
             </div>
-
-            <p className="text-white/40 text-xs mt-3 font-mono">
-              ★ 80-90 Minute In-Person Evaluation at Carmel Clinic | Free 5-Minute Performance Assessment
-            </p>
           </motion.div>
 
           {/* Right Interactive HUD Console */}
