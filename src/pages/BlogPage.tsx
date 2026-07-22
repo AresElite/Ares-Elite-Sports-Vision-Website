@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SEO } from '../components/SEO';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Calendar, Clock, ChevronDown, ExternalLink } from 'lucide-react';
+import { ArrowRight, Calendar, Clock, ChevronDown, ExternalLink, FileText, Download, Award, Sparkles, TrendingUp } from 'lucide-react';
 import { SectionReveal } from '../components/ui/SectionReveal';
 import { blogPosts } from '../data/blog';
 import { articles as researchArticles, sections as researchSections, filters as researchFilters, categoryColors } from '../data/research';
+import { whitePapers, WhitePaper } from '../data/whitepapers';
+import { WhitePaperModal } from '../components/ui/WhitePaperModal';
 
 function ResearchCard({ article }: { article: typeof researchArticles[0] }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -75,7 +77,7 @@ function ResearchCard({ article }: { article: typeof researchArticles[0] }) {
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-auto pt-6 border-t border-[var(--color-ares-border)]">
         <button 
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase text-white/60 hover:text-[var(--color-ares-teal)] transition-colors"
+          className="flex items-center text-[10px] sm:text-xs font-bold tracking-[0.2em] uppercase text-white/60 hover:text-[var(--color-ares-teal)] transition-colors cursor-pointer"
         >
           <ChevronDown className={`w-4 h-4 mr-2 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
           {isOpen ? 'Hide Details' : 'Read More'}
@@ -101,8 +103,9 @@ function ResearchCard({ article }: { article: typeof researchArticles[0] }) {
 }
 
 export function BlogPage() {
-  const [activeTab, setActiveTab] = useState<'journal' | 'research'>('journal');
+  const [activeTab, setActiveTab] = useState<'journal' | 'whitepapers' | 'research'>('whitepapers');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [selectedWhitePaper, setSelectedWhitePaper] = useState<WhitePaper | null>(null);
 
   const filteredResearch = researchArticles.filter(article => 
     activeFilter === 'all' ? true : article.categories.includes(activeFilter)
@@ -112,7 +115,7 @@ export function BlogPage() {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
     "name": "The A.R.E.S. Library",
-    "description": "Explore the science of elite human performance, neuro-cognitive training, and sports vision research.",
+    "description": "Explore official white papers, case studies, and sports vision research.",
     "url": "https://areselitesports.vision/resources",
     "provider": {
       "@type": "LocalBusiness",
@@ -123,10 +126,15 @@ export function BlogPage() {
   return (
     <div className="min-h-dvh bg-[var(--color-ares-bg)] text-white pt-24 sm:pt-32 pb-24 relative overflow-x-clip">
       <SEO 
-        title="The A.R.E.S. Library | Research, Insights & Neurocognitive Performance"
-        description="Explore the science of elite human performance, neuro-cognitive training, and sports vision research. Access our library of peer-reviewed articles and performance journal."
+        title="The A.R.E.S. Library | White Papers, Case Studies & Research"
+        description="Access official Ares Elite white papers, longitudinal case studies (Noah West 5-Year Study, Andretti Program), and peer-reviewed sports vision research."
         path="/resources"
         schema={collectionSchema}
+      />
+
+      <WhitePaperModal 
+        paper={selectedWhitePaper} 
+        onClose={() => setSelectedWhitePaper(null)} 
       />
 
       {/* Background Elements */}
@@ -139,43 +147,113 @@ export function BlogPage() {
         <SectionReveal>
           <div className="text-center mb-12 sm:mb-16">
             <div className="inline-flex items-center px-3 py-1 rounded-full border border-[var(--color-ares-teal)]/30 bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] text-[10px] sm:text-xs font-bold tracking-[0.2em] mb-8 uppercase">
-              RESEARCH & INSIGHTS
+              OFFICIAL RESEARCH & CASE STUDIES
             </div>
             <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-8 leading-[1.1] text-balance">
               The A.R.E.S. <span className="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-ares-teal)] to-[var(--color-ares-white)]">Library</span>
             </h1>
             <p className="text-lg sm:text-xl text-white/60 max-w-2xl mx-auto font-light leading-relaxed text-balance mb-12">
-              Explore the science of human performance, neuro-cognitive training, and the future of sports vision.
+              Explore official A.R.E.S. white papers, longitudinal athlete case studies, and peer-reviewed sports vision research.
             </p>
 
             {/* Tab Switcher */}
             <div className="inline-flex bg-white/5 border border-[var(--color-ares-border)] rounded-full p-1 mb-8">
               <button
+                onClick={() => setActiveTab('whitepapers')}
+                className={`px-5 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer ${
+                  activeTab === 'whitepapers' 
+                    ? 'bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] shadow-[0_0_20px_rgba(0,210,182,0.3)]' 
+                    : 'text-white/60 hover:text-white'
+                }`}
+              >
+                White Papers & Case Studies
+              </button>
+              <button
                 onClick={() => setActiveTab('journal')}
-                className={`px-6 sm:px-8 py-3 rounded-full text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                className={`px-5 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer ${
                   activeTab === 'journal' 
                     ? 'bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] shadow-[0_0_20px_rgba(0,210,182,0.3)]' 
                     : 'text-white/60 hover:text-white'
                 }`}
               >
-                The Journal
+                Journal
               </button>
               <button
                 onClick={() => setActiveTab('research')}
-                className={`px-6 sm:px-8 py-3 rounded-full text-sm font-bold tracking-widest uppercase transition-all duration-300 ${
+                className={`px-5 sm:px-7 py-3 rounded-full text-xs sm:text-sm font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer ${
                   activeTab === 'research' 
                     ? 'bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] shadow-[0_0_20px_rgba(0,210,182,0.3)]' 
                     : 'text-white/60 hover:text-white'
                 }`}
               >
-                Research
+                Academic Research
               </button>
             </div>
           </div>
         </SectionReveal>
 
         <AnimatePresence mode="wait">
-          {activeTab === 'journal' ? (
+          {activeTab === 'whitepapers' ? (
+            <motion.div
+              key="whitepapers"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-12"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10">
+                {whitePapers.map((paper) => (
+                  <SectionReveal key={paper.id}>
+                    <div className="h-full bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-8 sm:p-10 flex flex-col transition-all duration-500 hover:border-[var(--color-ares-teal)]/50 hover:shadow-[0_0_50px_rgba(41,182,246,0.15)] relative overflow-hidden group">
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-[var(--color-ares-teal)]/0 to-transparent group-hover:via-[var(--color-ares-teal)]/50 transition-all duration-500" />
+                      
+                      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+                        <span className="text-[10px] font-bold font-mono uppercase tracking-widest px-3 py-1 rounded-full border bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] border-[var(--color-ares-teal)]/30">
+                          {paper.category}
+                        </span>
+                        <span className="text-xs font-mono text-white/50 uppercase">
+                          {paper.date}
+                        </span>
+                      </div>
+
+                      <h2 className="text-2xl sm:text-3xl font-black text-white mb-3 group-hover:text-[var(--color-ares-teal)] transition-colors leading-tight tracking-tight uppercase">
+                        {paper.title}
+                      </h2>
+
+                      <p className="text-xs sm:text-sm text-white/70 font-light mb-6 leading-relaxed line-clamp-3">
+                        {paper.subtitle}
+                      </p>
+
+                      {/* Key Metric Chips */}
+                      <div className="grid grid-cols-3 gap-2 mb-8 p-4 rounded-xl bg-black/40 border border-white/10 text-center font-mono">
+                        {paper.coverMetrics.map((cm, idx) => (
+                          <div key={idx}>
+                            <div className="text-xs sm:text-sm font-bold text-[var(--color-ares-teal)] truncate">{cm.value}</div>
+                            <div className="text-[9px] text-white/50 uppercase truncate mt-0.5">{cm.label}</div>
+                          </div>
+                        ))}
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-white/50 mb-8 font-light leading-relaxed line-clamp-4 flex-1">
+                        {paper.summary}
+                      </p>
+
+                      <div className="flex items-center justify-between gap-4 pt-6 border-t border-[var(--color-ares-border)] mt-auto">
+                        <button
+                          onClick={() => setSelectedWhitePaper(paper)}
+                          className="w-full py-3.5 px-6 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-black text-xs uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(41,182,246,0.3)] cursor-pointer flex items-center justify-center gap-2"
+                        >
+                          <FileText className="w-4 h-4" />
+                          <span>READ FULL WHITE PAPER</span>
+                        </button>
+                      </div>
+                    </div>
+                  </SectionReveal>
+                ))}
+              </div>
+            </motion.div>
+          ) : activeTab === 'journal' ? (
             <motion.div
               key="journal"
               initial={{ opacity: 0, y: 20 }}
