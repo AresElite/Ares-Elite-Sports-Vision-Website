@@ -1,11 +1,16 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { SEO } from '../components/SEO';
-import { ArrowLeft, ArrowRight, TrendingDown, TrendingUp, Award, FileText } from 'lucide-react';
+import { ArrowLeft, ArrowRight, TrendingDown, TrendingUp, Award, FileText, Sparkles, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { ScrollReveal } from '../components/ui/ScrollReveal';
+import { whitePapers, WhitePaper } from '../data/whitepapers';
+import { WhitePaperModal } from '../components/ui/WhitePaperModal';
 
 export function ResultsPage() {
+  const [selectedWhitePaper, setSelectedWhitePaper] = useState<WhitePaper | null>(null);
+
   return (
     <>
       <SEO 
@@ -22,6 +27,11 @@ export function ResultsPage() {
           },
           "description": "Case studies, pre/post performance metrics, and research on sports vision training efficacy."
         }}
+      />
+
+      <WhitePaperModal 
+        paper={selectedWhitePaper} 
+        onClose={() => setSelectedWhitePaper(null)} 
       />
       
       <div className="min-h-screen bg-[var(--color-ares-bg)] pt-24 pb-20 px-6 sm:px-8 relative overflow-hidden">
@@ -57,8 +67,59 @@ export function ResultsPage() {
                 At Ares Elite Sports Vision, we don't speak in vague generalizations. We measure everything. Over a standard 6-week neurocognitive training block, our athletes consistently achieve improvements in dynamic processing speed, peripheral target capture, and motor response coordination.
               </p>
               <p className="text-white/70 leading-relaxed text-base sm:text-lg relative z-10">
-                Below are the average performance gains measured across our database of competitive, collegiate, and professional athletes.
+                Below are our official white papers and longitudinal case studies documenting verified performance outcomes.
               </p>
+            </section>
+
+            {/* Featured White Papers Showcase */}
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest block font-bold">RESEARCH DOCUMENTS</span>
+                  <h3 className="text-2xl font-bold text-white uppercase">Official White Papers & Case Studies</h3>
+                </div>
+                <Link to="/resources" className="text-xs font-mono text-white/60 hover:text-[var(--color-ares-teal)] uppercase tracking-widest hidden sm:block">
+                  View All Library →
+                </Link>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {whitePapers.map((paper) => (
+                  <div key={paper.id} className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-6 sm:p-8 flex flex-col justify-between hover:border-[var(--color-ares-teal)]/50 transition-all group">
+                    <div>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] border border-[var(--color-ares-teal)]/30">
+                          {paper.category}
+                        </span>
+                        <span className="text-[10px] font-mono text-white/40 uppercase">{paper.date}</span>
+                      </div>
+                      <h4 className="text-xl font-bold text-white mb-2 uppercase group-hover:text-[var(--color-ares-teal)] transition-colors leading-tight">
+                        {paper.title}
+                      </h4>
+                      <p className="text-xs text-white/60 font-light mb-6 line-clamp-3 leading-relaxed">
+                        {paper.subtitle}
+                      </p>
+
+                      <div className="grid grid-cols-3 gap-2 p-3 rounded-xl bg-black/40 border border-white/10 text-center font-mono mb-6">
+                        {paper.coverMetrics.map((cm, idx) => (
+                          <div key={idx}>
+                            <div className="text-xs font-bold text-[var(--color-ares-teal)] truncate">{cm.value}</div>
+                            <div className="text-[8px] text-white/40 uppercase truncate mt-0.5">{cm.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => setSelectedWhitePaper(paper)}
+                      className="w-full py-3 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-black text-xs uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>Read Document</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
             </section>
 
             {/* Performance Stats */}
