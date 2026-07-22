@@ -9,10 +9,28 @@ import { VideoEmbed } from '../components/ui/VideoEmbed';
 
 export function TechnologyPage() {
   const [activeTab, setActiveTab] = useState<0 | 1 | 2>(0);
-  const emrImages = [
-    '/EMR Screenshot 1.jpeg',
-    '/EMR Screenshot 2.jpeg',
-    '/EMR Screenshot 3.jpeg'
+  const emrScreenshots = [
+    {
+      label: 'Admin Dashboard',
+      badge: 'Evaluation Floor HUD',
+      title: 'Real-Time Evaluation & Floor Management',
+      description: 'Centralized admin control panel tracking active athlete rosters (426+ enrolled), appointment throughput, live evaluation queues, and weekly performance completion metrics.',
+      src: '/images/emr/emr-admin-dashboard.jpg'
+    },
+    {
+      label: 'Custom Training Suite',
+      badge: 'Drill Builder Engine',
+      title: '42+ Neuro-Vision Drill Configuration Engine',
+      description: 'Custom drill builder allowing clinicians and performance coaches to filter 42+ proprietary neuro-vision drills by category, difficulty level, platform, and athlete baseline targets.',
+      src: '/images/emr/emr-custom-training.png'
+    },
+    {
+      label: 'Secure Portal Access',
+      badge: 'Gated Authentication',
+      title: 'Gated Client & Practitioner EMR Portal',
+      description: 'Role-based authentication login screen securing medical-grade evaluation data, baseline tracking histories, and personalized athlete training portals.',
+      src: '/images/emr/emr-login.png'
+    }
   ];
 
   return (
@@ -98,62 +116,78 @@ export function TechnologyPage() {
             </section>
 
             {/* EMR Showcase Row */}
-            <section className="bg-gradient-to-br from-[var(--color-ares-charcoal)] to-transparent border border-white/5 rounded-2xl p-8 md:p-12">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <section className="bg-gradient-to-br from-[var(--color-ares-charcoal)] via-[#0A0B14] to-black border border-[var(--color-ares-teal)]/30 rounded-3xl p-8 md:p-12 shadow-[0_0_50px_rgba(41,182,246,0.1)]">
+              <div className="flex flex-col gap-8">
                 <div>
-                  <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-6 uppercase">
-                    Data-Driven Upgrades
+                  <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-[var(--color-ares-teal)] block mb-2">
+                    PROPRIETARY SOFTWARE STACK EXCLUSIVE
+                  </span>
+                  <h2 className="text-2xl md:text-4xl font-display font-black text-white uppercase tracking-tight">
+                    The A.R.E.S. Custom EMR Architecture
                   </h2>
-                  <p className="text-white/70 leading-relaxed mb-6 text-base sm:text-lg">
-                    Our custom EMR gives coaches, trainers, and athletes an instant visual report of sensory performance. No spreadsheets or vague summaries. You get clean charts illustrating exactly how your Choice Reaction Time is dropping and how your tracking accuracy is climbing.
-                  </p>
-                  <p className="text-white/70 leading-relaxed font-bold text-base sm:text-lg mb-8">
-                    This is the standard of performance analytics that elite collegiate programs and professional motorsports rosters demand.
+                  <p className="text-white/70 leading-relaxed text-base sm:text-lg mt-4 max-w-3xl">
+                    Built ground-up specifically for high-performance sports vision and neuro-cognitive athletic development. Below are live interface captures from the active A.R.E.S. clinical platform.
                   </p>
                 </div>
-                <div className="relative flex justify-center">
-                  <div className="dark w-full max-w-lg bg-[#1a1b23] rounded-[2rem] border-[4px] border-[#2b2b36] p-2 sm:p-3 shadow-2xl relative z-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                    {/* Camera Notch/Bezel detail */}
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#000] rounded-full mt-3"></div>
-                    
-                    {/* Inner Screen */}
-                    <div className="w-full bg-[var(--color-ares-charcoal)] rounded-[1.2rem] border border-black/50 overflow-hidden relative flex flex-col">
-                      {/* Fake App Header */}
-                      <div className="bg-[var(--color-ares-bg)] px-6 py-4 flex justify-between items-center border-b border-[var(--color-ares-border)]">
+
+                {/* Tabbed Navigation */}
+                <div className="flex flex-wrap gap-3 border-b border-white/10 pb-4">
+                  {emrScreenshots.map((item, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveTab(idx as any)}
+                      className={`px-5 py-3 rounded-2xl text-xs font-mono font-bold tracking-wider uppercase transition-all flex items-center gap-2 cursor-pointer ${
+                        activeTab === idx 
+                          ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] shadow-lg shadow-[var(--color-ares-teal)]/20' 
+                          : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10 border border-white/10'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${activeTab === idx ? 'bg-[#0A0B14]' : 'bg-[var(--color-ares-teal)]'}`}></span>
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Screenshot Display Console */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                  {/* Left Metadata & Explanation */}
+                  <div className="lg:col-span-4 flex flex-col justify-center">
+                    <div className="inline-flex items-center px-3 py-1 rounded-full bg-[var(--color-ares-purple)]/20 border border-[var(--color-ares-purple)]/40 text-[var(--color-ares-purple)] text-[10px] font-mono font-bold uppercase tracking-widest mb-4 w-fit">
+                      {emrScreenshots[activeTab].badge}
+                    </div>
+                    <h3 className="text-xl md:text-2xl font-bold text-white mb-3">
+                      {emrScreenshots[activeTab].title}
+                    </h3>
+                    <p className="text-white/70 leading-relaxed text-sm sm:text-base">
+                      {emrScreenshots[activeTab].description}
+                    </p>
+                  </div>
+
+                  {/* Right High-Res Laptop Preview Frame */}
+                  <div className="lg:col-span-8 relative">
+                    <div className="w-full bg-[#161722] rounded-2xl border border-white/10 p-2 sm:p-3 shadow-2xl overflow-hidden group">
+                      {/* Window Controls Header */}
+                      <div className="bg-[#0D0E15] px-4 py-3 rounded-t-xl flex justify-between items-center border-b border-white/5 mb-2">
                         <div className="flex items-center gap-2">
-                           <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                           <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                           <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                          <div className="w-2.5 h-2.5 rounded-full bg-red-500/80"></div>
+                          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></div>
+                          <div className="w-2.5 h-2.5 rounded-full bg-green-500/80"></div>
                         </div>
-                        <div className="text-[10px] font-mono text-white/40 tracking-widest uppercase">A.R.E.S. EMR Portal</div>
-                        <div className="w-8"></div>
+                        <div className="text-[10px] font-mono text-[var(--color-ares-teal)] tracking-widest uppercase font-bold flex items-center gap-2">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] animate-pulse"></span>
+                          ARES-EMR-LIVE-CONSOLE :: {emrScreenshots[activeTab].label}
+                        </div>
+                        <div className="w-10"></div>
                       </div>
 
-                      {/* Tabbed Selectors */}
-                      <div className="bg-[#0e111a] px-4 py-3 flex justify-center gap-2 border-b border-[var(--color-ares-border)]">
-                        {['Overview', 'Acquisition Stats', 'Cognitive Load'].map((label, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setActiveTab(idx as any)}
-                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase transition-all ${
-                              activeTab === idx 
-                                ? 'bg-[var(--color-ares-teal)] text-black shadow-lg shadow-[var(--color-ares-teal)]/20' 
-                                : 'bg-white/5 text-white/50 hover:text-white hover:bg-white/10'
-                            }`}
-                          >
-                            {label}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Dashboard Image Viewport */}
-                      <div className="relative aspect-[4/3] bg-black overflow-hidden flex items-center justify-center">
+                      {/* Image Frame */}
+                      <div className="relative rounded-xl overflow-hidden bg-black aspect-[16/9] flex items-center justify-center border border-white/5">
                         <AnimatePresence mode="wait">
                           <motion.img
                             key={activeTab}
-                            src={emrImages[activeTab]}
-                            alt={`A.R.E.S. EMR Screenshot ${activeTab + 1}`}
-                            initial={{ opacity: 0, scale: 0.95 }}
+                            src={emrScreenshots[activeTab].src}
+                            alt={emrScreenshots[activeTab].title}
+                            initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 1.02 }}
                             transition={{ duration: 0.3 }}
