@@ -225,35 +225,60 @@ export function TechnologyPage() {
               </div>
             </section>
 
-            {/* Performance Suite Hardware Gallery */}
+            {/* Performance Suite Gallery */}
             <section className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-2xl p-8 md:p-12">
-              <h2 className="text-2xl md:text-3xl font-display font-bold text-white mb-6 uppercase">
-                The A.R.E.S. Performance Suite
-              </h2>
+              <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                <div>
+                  <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-[var(--color-ares-purple)] block mb-2">
+                    PROPRIETARY NEURO-VISION SUITE
+                  </span>
+                  <h2 className="text-2xl md:text-3xl font-display font-bold text-white uppercase">
+                    The A.R.E.S. Performance Suite
+                  </h2>
+                </div>
+                <div className="text-xs font-mono text-[var(--color-ares-teal)] bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 px-3 py-1.5 rounded-full w-fit">
+                  25 Proprietary Modules Enabled
+                </div>
+              </div>
+
               <p className="text-white/70 leading-relaxed mb-10 max-w-3xl text-base sm:text-lg">
-                Training sensory processing requires specialized equipment. Our facility features virtual reality spatial trackers, high-speed eye tracking cameras, strobe occlusion optics, and multi-target spatial coordination boards designed to stress-test your visual routing system.
+                The A.R.E.S. Performance Suite is our core neuro-cognitive software system. Designed specifically for sports vision specialists, athletic trainers, and performance coaches, it delivers 25+ specialized visual capture, decision velocity, and spatial tracking drills.
               </p>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
-                  { src: '/A.R.E.S. Performance Suite 1.jpeg', title: 'VR Target Capture', desc: 'Isolating dynamic peripheral targets under fatigue.' },
-                  { src: '/A.R.E.S. Performance Suite 2.jpeg', title: 'Strobe Occlusion Optics', desc: 'Slowing visual frame rates to force cognitive prediction.' },
-                  { src: '/A.R.E.S. Performance Suite 3.jpeg', title: 'Spatial Target Boards', desc: 'Decomposing eye-to-hand reaction latency.' }
+                  { 
+                    src: '/images/performance-suite/performance-suite-modules.png', 
+                    title: '25-Module Neuro-Vision Grid', 
+                    desc: 'Full suite array featuring Choice Reaction, Cognitive Crossfire, Dual Stream Sync, Eye-Hand Coordination, Flanker, Focus Frenzy, Go/No-Go, MOT Dual Task, Neural Phase Lock, and Occlusion Horizon.' 
+                  },
+                  { 
+                    src: '/images/performance-suite/cognitive-crossfire-protocol.png', 
+                    title: 'Drill Protocol & Parametric Controls', 
+                    desc: 'Tactical protocol configuration engine with neural tier scaling (1–315), strobe mode integration, weighted hands, cardio load modifiers, and central task controls.' 
+                  },
+                  { 
+                    src: '/images/performance-suite/mot-level-35-trial.png', 
+                    title: 'Multiple Object Tracking Arena', 
+                    desc: 'Real-time multi-target tracking arena running physics-based elastic collision bounce technology with custom target colors and latency/accuracy scoring.' 
+                  }
                 ].map((item, i) => (
                   <div key={i} className="group bg-[var(--color-ares-bg)] rounded-xl border border-white/5 overflow-hidden hover:border-[var(--color-ares-purple)] transition-all flex flex-col">
-                    <div className="relative overflow-hidden aspect-[16/10]">
+                    <div className="relative overflow-hidden aspect-[16/10] bg-black flex items-center justify-center">
                       <img 
                         src={item.src} 
                         alt={item.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                       />
-                      <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded text-[9px] font-mono tracking-widest text-[var(--color-ares-purple)] uppercase border border-[var(--color-ares-purple)]/30">
-                        Suite 0{i + 1}
+                      <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md px-2.5 py-1 rounded text-[9px] font-mono tracking-widest text-[var(--color-ares-purple)] uppercase border border-[var(--color-ares-purple)]/30">
+                        Suite Module 0{i + 1}
                       </div>
                     </div>
                     <div className="p-5 flex-1 flex flex-col justify-between">
-                      <h4 className="text-white font-bold text-lg mb-2 group-hover:text-[var(--color-ares-purple)] transition-colors">{item.title}</h4>
-                      <p className="text-xs text-white/50 leading-relaxed font-light">{item.desc}</p>
+                      <div>
+                        <h4 className="text-white font-bold text-lg mb-2 group-hover:text-[var(--color-ares-purple)] transition-colors">{item.title}</h4>
+                        <p className="text-xs text-white/60 leading-relaxed">{item.desc}</p>
+                      </div>
                     </div>
                   </div>
                 ))}
