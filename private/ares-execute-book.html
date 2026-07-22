@@ -822,6 +822,7 @@ function AudiobookBar({ chapter, segments }) {
   useEffect(() => {
     if (!supported) return;
     const ss = window.speechSynthesis;
+    ss.cancel();
     const loadVoices = () => {
       const all = ss.getVoices();
       const en = all.filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
