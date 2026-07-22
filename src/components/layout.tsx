@@ -113,11 +113,6 @@ export function Navbar() {
               Book Tele-Training
             </Link>
             <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
-            <Link to="/assessment" className="text-[var(--color-ares-teal)] hover:text-white transition-colors inline-flex items-center gap-1.5 font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] animate-ping"></span>
-              Start Free Assessment
-            </Link>
-            <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
             <Link to="/cart" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5" aria-label="Cart">
               <ShoppingCart className="w-3.5 h-3.5" />
               Cart{cartCount > 0 ? ` (${cartCount})` : ''}
@@ -188,33 +183,24 @@ export function Navbar() {
             </div>
           </nav>
 
-          {/* Top Right: Utility & CTA */}
+          {/* Top Right: Utility & Single Primary CTA */}
           <div className="pointer-events-auto flex items-center gap-2 sm:gap-4 shrink-0">
             {/* Theme Toggle Button */}
             <button
               onClick={toggleTheme}
-              className="p-2 sm:p-2.5 rounded-lg bg-[var(--color-ares-charcoal)]/80 hover:bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] text-[var(--color-ares-white)] hover:text-[var(--color-ares-teal)] transition-colors cursor-pointer"
+              className="p-2 sm:p-2.5 rounded-xl bg-[var(--color-ares-charcoal)]/80 hover:bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] text-white hover:text-[var(--color-ares-teal)] transition-colors cursor-pointer"
               aria-label="Toggle theme"
             >
               {isLightMode ? <Moon className="w-4 h-4 sm:w-5 h-5" /> : <Sun className="w-4 h-4 sm:w-5 h-5" />}
             </button>
 
-            <div className="hidden xl:flex flex-col items-end mr-2">
-              <a href="tel:+17739811447" className="text-[var(--color-ares-teal)] hover:text-[var(--color-ares-teal)]/80 text-xs font-bold tracking-wider transition-colors">
-                Call Us
-              </a>
-            </div>
-            
-            <Link 
-              to="/assessment" 
-              className="hidden sm:flex items-center justify-center bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] text-xs md:text-sm font-bold tracking-widest uppercase px-4 py-2.5 md:py-3 rounded-lg transition-all shadow-glow"
-            >
-              <span>Start Free Assessment</span>
-            </Link>
+            <a href="tel:+17739811447" className="hidden xl:block text-[var(--color-ares-teal)] hover:text-white text-xs font-bold font-mono tracking-wider transition-colors mr-1">
+              (773) 981-1447
+            </a>
 
             <Link 
               to="/book/evaluation" 
-              className="hidden sm:flex items-center justify-center border border-[var(--color-ares-purple)] text-white hover:bg-[var(--color-ares-purple)]/20 text-xs md:text-sm font-bold tracking-widest uppercase px-4 py-2.5 md:py-3 rounded-lg transition-all"
+              className="hidden sm:flex items-center justify-center bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] text-xs md:text-sm font-black tracking-widest uppercase px-5 py-2.5 md:py-3 rounded-xl transition-all shadow-[0_0_20px_rgba(41,182,246,0.3)]"
             >
               <span>Book Evaluation</span>
             </Link>
