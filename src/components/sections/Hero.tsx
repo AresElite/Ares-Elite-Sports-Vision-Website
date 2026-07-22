@@ -9,7 +9,6 @@ interface HeroProps {
 }
 
 function HeroDrillWidget() {
-  const [activeTab, setActiveTab] = useState<'drill' | 'framework'>('drill');
   const [gameState, setGameState] = useState<'idle' | 'countdown' | 'waiting' | 'active' | 'recorded' | 'complete' | 'early'>('idle');
   const [countdown, setCountdown] = useState(3);
   const [trials, setTrials] = useState<number[]>([]);
@@ -349,86 +348,22 @@ function HeroDrillWidget() {
 
       {/* REGULAR HERO SECTION CONSOLE */}
       <div className="relative rounded-3xl border border-[var(--color-ares-teal)]/30 bg-[#0A0B14]/90 shadow-[0_0_50px_rgba(41,182,246,0.15)] backdrop-blur-xl overflow-hidden flex flex-col justify-between">
-        {/* Top Header & Mode Toggle */}
+        {/* Top Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 bg-black/40">
           <div className="flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-ares-teal)] animate-pulse" />
             <span className="text-xs font-mono font-bold tracking-widest text-white uppercase">
-              A.R.E.S. NEURO-CONSOLE
+              A.R.E.S. REACTION CONSOLE
             </span>
           </div>
-          <div className="flex bg-white/5 p-1 rounded-xl border border-white/10 text-[10px] font-mono">
-            <button
-              onClick={() => setActiveTab('drill')}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer uppercase ${
-                activeTab === 'drill'
-                  ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold shadow-md'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              5-Tap Drill
-            </button>
-            <button
-              onClick={() => setActiveTab('framework')}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer uppercase ${
-                activeTab === 'framework'
-                  ? 'bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold shadow-md'
-                  : 'text-white/60 hover:text-white'
-              }`}
-            >
-              A.R.E.S. Loop
-            </button>
+          <div className="text-[10px] font-mono text-[var(--color-ares-teal)] bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 px-2.5 py-1 rounded-lg font-bold uppercase">
+            5-Tap Benchmark
           </div>
         </div>
 
         {/* Console Main Display */}
         <div className="p-6 sm:p-8 min-h-[340px] flex flex-col justify-center relative">
-          {activeTab === 'framework' ? (
-            <div className="space-y-4">
-              <div className="text-center mb-4">
-                <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-widest">
-                  THE NEURO-COGNITIVE PERFORMANCE LOOP
-                </span>
-                <h3 className="text-lg font-bold text-white uppercase mt-1">Acquire · Route · Execute · Synchronize</h3>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-3">
-                <Link to="/acquire" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Target className="w-4 h-4 text-[var(--color-ares-teal)]" />
-                    <span className="text-xs font-bold text-white uppercase">1. Acquire</span>
-                  </div>
-                  <p className="text-[11px] text-white/60 leading-tight">Visual intake & spatial eye tracking speed.</p>
-                </Link>
-
-                <Link to="/route" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Brain className="w-4 h-4 text-[var(--color-ares-purple)]" />
-                    <span className="text-xs font-bold text-white uppercase">2. Route</span>
-                  </div>
-                  <p className="text-[11px] text-white/60 leading-tight">Neural processing & decision latency under stress.</p>
-                </Link>
-
-                <Link to="/execute" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Zap className="w-4 h-4 text-emerald-400" />
-                    <span className="text-xs font-bold text-white uppercase">3. Execute</span>
-                  </div>
-                  <p className="text-[11px] text-white/60 leading-tight">Bi-lateral motor output & reaction execution.</p>
-                </Link>
-
-                <Link to="/synchronize" className="p-3.5 rounded-2xl bg-white/5 border border-white/10 hover:border-[var(--color-ares-teal)]/50 transition-all group">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Activity className="w-4 h-4 text-amber-400" />
-                    <span className="text-xs font-bold text-white uppercase">4. Synchronize</span>
-                  </div>
-                  <p className="text-[11px] text-white/60 leading-tight">Full-system calibration for game-day dominance.</p>
-                </Link>
-              </div>
-            </div>
-          ) : (
-            renderDrillContent(false)
-          )}
+          {renderDrillContent(false)}
         </div>
 
         {/* Console Footer */}
