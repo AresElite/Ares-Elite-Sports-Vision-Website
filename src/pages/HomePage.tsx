@@ -22,15 +22,6 @@ const NeuralBackgroundCanvas = lazy(() =>
 );
 
 export function HomePage() {
-  const [introComplete, setIntroComplete] = useState(() => {
-    return sessionStorage.getItem('introComplete') === 'true';
-  });
-
-  const handleIntroComplete = useCallback(() => {
-    setIntroComplete(true);
-    sessionStorage.setItem('introComplete', 'true');
-  }, []);
-
   const homeSchema = {
     "@context": "https://schema.org",
     "@type": ["SportsActivityLocation", "OptometricBusiness"],
@@ -77,19 +68,9 @@ export function HomePage() {
         path="/"
         schema={homeSchema}
       />
-
-      <AnimatePresence>
-        {!introComplete && (
-          <CinematicIntro onComplete={handleIntroComplete} />
-        )}
-      </AnimatePresence>
-      
-      <Suspense fallback={null}>
-        <NeuralBackgroundCanvas />
-      </Suspense>
       
       <main className="relative z-10">
-        <Hero isReady={introComplete} />
+        <Hero isReady={true} />
         {/* Why 20/20 Is Not Enough */}
         <ProblemSection />
         {/* The A.R.E.S. Performance Loop */}
