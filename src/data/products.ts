@@ -58,11 +58,11 @@ export const PRODUCTS: Product[] = [
     category: 'bundles',
     tagline: 'The entire performance loop: Acquire, Route, Execute, Synchronize',
     description:
-      'All four books of the A.R.E.S. Performance Loop in one purchase — the complete architecture of athletic vision from the first photon to integrated, repeatable performance. ACQUIRE (seeing), ROUTE (deciding), EXECUTE (moving), and SYNCHRONIZE (holding it together under pressure). Each opens in its own interactive reader, unlocked instantly.',
+      'All four books of the A.R.E.S. Performance Loop in one purchase — the full story of athletic vision, from the first flash of light to smooth, game-speed performance. ACQUIRE (seeing), ROUTE (deciding), EXECUTE (moving), and SYNCHRONIZE (holding it together under pressure). Each opens in its own interactive reader, unlocked instantly.',
     price: 129,
     compareAt: 156,
     features: [
-      'ACQUIRE — Book 1: First Light, photon to optic chiasm',
+      'ACQUIRE — Book 1: how the eyes catch what matters',
       'ROUTE — Book 2: The Decision Architecture',
       'EXECUTE — Book 3: The Motor Output Architecture',
       'SYNCHRONIZE — Book 4: The Integration Architecture',
@@ -150,8 +150,8 @@ export const PRODUCTS: Product[] = [
     price: 85,
     features: [
       '90 softgels — 3-month supply',
-      'Lutein · Zeaxanthin · Meso-Zeaxanthin (10:10:2) + 300 mg DHA/EPA',
-      'Supports contrast sensitivity & glare recovery',
+      'Eye-protecting plant pigments + 300 mg omega-3 (DHA/EPA)',
+      'Helps with glare recovery and seeing low-contrast targets',
       'Save 10% with practice code 12129 at checkout on MacuHealth.com',
     ],
     badges: ['Practitioner Recommended', 'Code 12129 · 10% Off'],
@@ -293,14 +293,14 @@ export const PRODUCTS: Product[] = [
     slug: 'acquire-book',
     name: 'ACQUIRE — The A.R.E.S. Performance Loop, Book 1',
     category: 'digital',
-    tagline: 'Photon to decision: how elite athletes acquire what matters',
+    tagline: 'How elite athletes see what matters — before anyone else',
     description:
-      'The first book in the A.R.E.S. Performance Loop series — a multimodal digital book on ACQUIRE, the visual-acquisition stage where raw light becomes an actionable read. Learn the science of how elite athletes capture and route visual information faster than their opponents, with interactive chapters you read on any device. Instant access after purchase.',
+      'Book 1 of the A.R.E.S. Performance Loop. ACQUIRE is about seeing — how the eyes catch the ball, the defender, the gap, and turn it into something the brain can act on. Learn how the best athletes pick up what matters faster than their opponents, in short interactive chapters you can read, watch, and tap through on any device. Instant access after purchase.',
     price: 39,
     features: [
-      'Multimodal digital book (read on any device)',
+      'Interactive book — read, watch, and tap through on any device',
       'The complete ACQUIRE stage of the A.R.E.S. Loop',
-      'From "photon to decision" — the science made practical',
+      'The science of seeing, made practical',
       'Instant access after purchase',
     ],
     badges: ['Flagship Book'],
@@ -317,10 +317,10 @@ export const PRODUCTS: Product[] = [
     category: 'digital',
     tagline: 'The decision architecture: why athletes who see correctly still decide too late',
     description:
-      'Book 2 of the A.R.E.S. Performance Loop. ROUTE is the decision stage — everything that happens between seeing and acting. Inside: the decision pipeline stage by stage, the speed-accuracy tradeoff, Hick\'s Law, the basal ganglia go/stop pathways, working memory under cognitive load, and how elite athletes route what they see into the right decision faster. A multimodal, interactive digital book.',
+      'Book 2 of the A.R.E.S. Performance Loop. ROUTE is the decision stage — everything that happens between seeing and acting. Learn why more options make you slower, how the brain picks "go" and holds "stop," why pressure shrinks your working memory, and how the best athletes turn what they see into the right decision faster. An interactive digital book you read, watch, and tap through.',
     price: 39,
     features: [
-      'Multimodal interactive book (read on any device)',
+      'Interactive book — read, watch, and tap through on any device',
       'The complete ROUTE stage of the A.R.E.S. Loop',
       'Decision speed, Hick\'s Law & working memory under load',
       'Instant access after purchase',
@@ -337,12 +337,12 @@ export const PRODUCTS: Product[] = [
     slug: 'execute-book',
     name: 'EXECUTE — The A.R.E.S. Performance Loop, Book 3',
     category: 'digital',
-    tagline: 'The motor output architecture: decision release to muscle contraction',
+    tagline: 'Where the right read becomes the right move',
     description:
-      'Book 3 of the A.R.E.S. Performance Loop. EXECUTE is where the decision becomes movement — motor planning, corticospinal drive, timing, and the mechanics that turn a correct read into precise, repeatable action. This is the stage where great decisions either show up on the field or die on the way to the muscle. A multimodal, interactive digital book.',
+      'Book 3 of the A.R.E.S. Performance Loop. EXECUTE is where the decision becomes movement — how the brain plans a motion, fires it to the muscle, and times it just right to turn a correct read into a precise, repeatable action. This is where great decisions either show up on the field or die on the way to the muscle. An interactive digital book you read, watch, and tap through.',
     price: 39,
     features: [
-      'Multimodal interactive book (read on any device)',
+      'Interactive book — read, watch, and tap through on any device',
       'The complete EXECUTE stage of the A.R.E.S. Loop',
       'Motor planning, drive, timing & movement precision',
       'Instant access after purchase',
@@ -359,12 +359,12 @@ export const PRODUCTS: Product[] = [
     slug: 'synchronize-book',
     name: 'SYNCHRONIZE — The A.R.E.S. Performance Loop, Book 4',
     category: 'digital',
-    tagline: 'The integration architecture: why optimized athletes still fall apart',
+    tagline: 'Why great athletes still fall apart — and how to fix it',
     description:
-      'Book 4 of the A.R.E.S. Performance Loop. SYNCHRONIZE is where it all has to work together — acquisition, decision, and execution integrated into one loop that holds up under fatigue, pressure, and game speed. This is why athletes with elite individual pieces still break down in competition, and how to fix it. A multimodal, interactive digital book.',
+      'Book 4 of the A.R.E.S. Performance Loop. SYNCHRONIZE is where it all has to work together — acquisition, decision, and execution integrated into one loop that holds up under fatigue, pressure, and game speed. This is why athletes with elite individual pieces still break down in competition, and how to fix it. An interactive digital book you read, watch, and tap through.',
     price: 39,
     features: [
-      'Multimodal interactive book (read on any device)',
+      'Interactive book — read, watch, and tap through on any device',
       'The complete SYNCHRONIZE stage of the A.R.E.S. Loop',
       'Integration under fatigue, pressure & game speed',
       'Instant access after purchase',

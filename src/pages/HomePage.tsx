@@ -6,6 +6,7 @@ import { MeasurementSection } from '../components/sections/Measurement';
 import { ICPSection } from '../components/sections/ICP';
 import { PerformanceResults } from '../components/sections/PerformanceResults';
 import { TrainingShowcase } from '../components/sections/TrainingShowcase';
+import { AresAcademySection } from '../components/sections/AresAcademySection';
 import { TestimonialsSection } from '../components/sections/Testimonials';
 import { CTASection } from '../components/sections/CTA';
 import { SEO } from '../components/SEO';
@@ -101,6 +102,8 @@ export function HomePage() {
         <PerformanceResults />
         {/* Training Progression */}
         <TrainingShowcase />
+        {/* Global Ares Academy Remote Tele-Training */}
+        <AresAcademySection />
         {/* Trust */}
         <TestimonialsSection />
         <CTASection />

@@ -1,23 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown, Sun, Moon, ShoppingCart } from 'lucide-react';
+import { X, ChevronDown, Sun, Moon, ShoppingCart, ShoppingBag, Sparkles, ArrowRight, Zap, Award, Globe, Video } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/Button';
 import { useCart } from '../lib/cart';
-
-const DotMatrix = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="5" cy="5" r="2" />
-    <circle cx="12" cy="5" r="2" />
-    <circle cx="19" cy="5" r="2" />
-    <circle cx="5" cy="12" r="2" />
-    <circle cx="12" cy="12" r="2" />
-    <circle cx="19" cy="12" r="2" />
-    <circle cx="5" cy="19" r="2" />
-    <circle cx="12" cy="19" r="2" />
-    <circle cx="19" cy="19" r="2" />
-  </svg>
-);
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,34 +30,39 @@ export function Navbar() {
 
   const navCategories = [
     {
-      title: "PERFORMANCE",
+      title: "01. PERFORMANCE SHOP & GEAR",
       links: [
-        { label: "Sensory Assessment", path: "/assessment" },
-        { label: "Elite Athletes", path: "/athletes" },
+        { label: "Performance Shop", path: "/shop", badge: "Equip & Gear" },
+        { label: "Purchase Packages", path: "/book/packages", badge: "Training & Evals" },
+        { label: "View Cart", path: "/cart", badge: cartCount > 0 ? `${cartCount} Items` : undefined }
+      ]
+    },
+    {
+      title: "02. ARES ACADEMY & TRAINING",
+      links: [
+        { label: "Ares Academy (Remote)", path: "/ares-academy", badge: "Tele-Training" },
+        { label: "Sports Vision Training", path: "/sports-vision-training" },
+        { label: "In-Office Evaluation", path: "/book/evaluation", badge: "$449 Carmel" },
+        { label: "The A.R.E.S. System", path: "/ares-performance-system" },
+        { label: "Concussion Baseline", path: "/concussion-baseline-testing" }
+      ]
+    },
+    {
+      title: "03. ATHLETES & TEAMS",
+      links: [
+        { label: "Elite & Pro Athletes", path: "/athletes" },
         { label: "Parents & Youth", path: "/parents" },
         { label: "Pro & Motorsports", path: "/pro-sports" },
-        { label: "Officials & Referees", path: "/officials" },
+        { label: "Teams & Facilities", path: "/teams-and-organizations" },
         { label: "By Sport Hub", path: "/sports" }
       ]
     },
     {
-      title: "PLATFORMS & TECH",
+      title: "04. RESEARCH & COMPANY",
       links: [
-        { label: "Sensory Assessment", path: "/assessment" },
-        { label: "The A.R.E.S. System", path: "/ares-performance-system" },
-        { label: "Coaches Protocol", path: "/coaches" },
-        { label: "Teams & Facilities", path: "/teams-and-organizations" },
-        { label: "Technology & Data", path: "/technology-and-data" },
-        { label: "Purchase Packages", path: "/book/packages" },
-        { label: "Performance Shop", path: "/shop" },
-        { label: "A.R.E.S. Certification", path: "/certification" }
-      ]
-    },
-    {
-      title: "OUTCOMES & COMPANY",
-      links: [
+        { label: "A.R.E.S. Library", path: "/resources", badge: "White Papers" },
         { label: "Results & Case Studies", path: "/results" },
-        { label: "Research & Insights", path: "/resources" },
+        { label: "A.R.E.S. Certification", path: "/certification" },
         { label: "Speaking & Keynotes", path: "/speaking" },
         { label: "Who We Are", path: "/identity" },
         { label: "Training FAQ", path: "/faq" }
@@ -99,27 +90,46 @@ export function Navbar() {
       {/* Hybrid HUD Header (Desktop & Mobile Top Elements) */}
       <header className="fixed top-0 left-0 right-0 z-50 pointer-events-none safe-top bg-[var(--color-ares-bg)]/80 backdrop-blur-md border-b border-[var(--color-ares-border)]">
         
-        {/* Minimal Luxury Notification Bar */}
-        <div className="w-full bg-[var(--color-ares-charcoal)] border-b border-[var(--color-ares-border)] py-1.5 px-4 flex justify-center items-center pointer-events-auto">
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 text-[10px] sm:text-xs font-mono tracking-widest uppercase">
-            <span className="text-[var(--color-ares-muted)] font-bold">Active Clients:</span>
-            <Link to="/book/in-office" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5">
+        {/* Top HUD Notification Bar */}
+        <div className="w-full bg-[var(--color-ares-charcoal)] border-b border-[var(--color-ares-border)] py-1.5 px-4 sm:px-8 flex justify-between items-center pointer-events-auto text-[10px] sm:text-xs font-mono tracking-widest uppercase">
+          {/* Active Clients Links */}
+          <div className="flex items-center gap-2 sm:gap-4 overflow-x-auto no-scrollbar py-0.5">
+            <span className="text-[var(--color-ares-muted)] font-bold shrink-0">Active Clients:</span>
+            <Link to="/book/in-office" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5 shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)]"></span>
-              Book In-Office
+              <span>Book In-Office</span>
             </Link>
-            <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
-            <Link to="/book/tele-training" className="text-white hover:text-[var(--color-ares-purple)] transition-colors inline-flex items-center gap-1.5">
+            <span className="text-[var(--color-ares-border)] shrink-0">|</span>
+            <Link to="/book/tele-training" className="text-white hover:text-[var(--color-ares-purple)] transition-colors inline-flex items-center gap-1.5 shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-purple)]"></span>
-              Book Tele-Training
+              <span>Book Tele-Training</span>
             </Link>
-            <span className="text-[var(--color-ares-border)] hidden sm:inline">|</span>
-            <Link to="/cart" className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-1.5" aria-label="Cart">
-              <ShoppingCart className="w-3.5 h-3.5" />
-              Cart{cartCount > 0 ? ` (${cartCount})` : ''}
+            <span className="text-[var(--color-ares-border)] shrink-0">|</span>
+            <Link to="/shop" className="text-[var(--color-ares-teal)] hover:text-white font-bold transition-colors inline-flex items-center gap-1.5 shrink-0">
+              <ShoppingBag className="w-3 h-3 text-[var(--color-ares-teal)]" />
+              <span>Shop Performance Gear</span>
+            </Link>
+          </div>
+
+          {/* Far Right Cart Link */}
+          <div className="shrink-0 ml-4 pl-4 border-l border-white/10 flex items-center">
+            <Link 
+              to="/cart" 
+              className="text-white hover:text-[var(--color-ares-teal)] transition-colors inline-flex items-center gap-2 font-bold bg-white/5 hover:bg-white/10 px-3 py-0.5 rounded-full border border-white/10" 
+              aria-label="Shopping Cart"
+            >
+              <ShoppingCart className="w-3.5 h-3.5 text-[var(--color-ares-teal)]" />
+              <span>Cart</span>
+              {cartCount > 0 && (
+                <span className="w-4 h-4 rounded-full bg-[var(--color-ares-teal)] text-[#0A0B14] font-black text-[9px] flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Link>
           </div>
         </div>
 
+        {/* Main Navigation Bar */}
         <div className="max-w-[1400px] mx-auto px-4 sm:px-6 py-2 sm:py-3 flex items-center justify-between">
           
           {/* Top Left: Logo */}
@@ -139,44 +149,86 @@ export function Navbar() {
           {/* Top Center: Desktop Navigation Dropdown Menu */}
           <nav className="hidden lg:flex items-center gap-8 pointer-events-auto relative">
             <div className="relative group flex items-center">
-              <button className="flex items-center gap-1.5 text-[11px] font-bold tracking-[0.15em] text-white/80 hover:text-white transition-colors uppercase outline-none py-4 cursor-pointer">
-                Menu <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180" />
+              <button className="flex items-center gap-2 text-xs font-bold tracking-[0.15em] text-white/90 hover:text-[var(--color-ares-teal)] transition-colors uppercase outline-none py-3 px-4 rounded-xl hover:bg-white/5 cursor-pointer">
+                <span>Menu</span>
+                <ChevronDown className="w-4 h-4 transition-transform duration-300 group-hover:rotate-180 text-[var(--color-ares-teal)]" />
               </button>
               
               {/* Unified Mega Menu */}
-              <div className="absolute top-[80%] left-1/2 -translate-x-1/2 w-[850px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-4 group-hover:translate-y-0 z-50">
-                {/* Invisible bridge to prevent hover gap issues */}
-                <div className="absolute -top-8 left-0 right-0 h-8 bg-transparent"></div>
+              <div className="absolute top-[85%] left-1/2 -translate-x-1/2 w-[980px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-3 group-hover:translate-y-0 z-50">
+                {/* Invisible bridge */}
+                <div className="absolute -top-6 left-0 right-0 h-6 bg-transparent"></div>
                 
-                <div className="bg-[var(--color-ares-charcoal)]/95 backdrop-blur-xl border border-[var(--color-ares-border)] rounded-2xl p-10 shadow-[0_0_60px_rgba(0,0,0,0.8)] overflow-hidden relative">
+                <div className="bg-[var(--color-ares-charcoal)]/95 backdrop-blur-2xl border border-[var(--color-ares-teal)]/30 rounded-3xl p-8 shadow-[0_0_80px_rgba(0,0,0,0.9)] overflow-hidden relative">
                   {/* Decorative ambient lighting */}
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-[var(--color-ares-teal)]/10 rounded-full blur-[80px] pointer-events-none" />
-                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-[var(--color-ares-purple)]/10 rounded-full blur-[80px] pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-72 h-72 bg-[var(--color-ares-teal)]/10 rounded-full blur-[100px] pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 w-72 h-72 bg-[var(--color-ares-purple)]/10 rounded-full blur-[100px] pointer-events-none" />
                   
-                  <div className="grid grid-cols-3 gap-12 relative z-10">
-                    {navCategories.map(category => (
+                  {/* Top Bar Banner inside Menu */}
+                  <div className="flex items-center justify-between pb-6 mb-8 border-b border-white/10 relative z-10">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[var(--color-ares-teal)] animate-ping" />
+                      <span className="text-xs font-mono font-bold uppercase text-white tracking-widest">
+                        A.R.E.S. NAVIGATION CONSOLE
+                      </span>
+                    </div>
+                    <Link to="/assessment" className="text-xs font-mono font-bold text-[var(--color-ares-teal)] hover:text-white uppercase tracking-wider flex items-center gap-1.5">
+                      <span>Start 5-Min Assessment</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+
+                  <div className="grid grid-cols-4 gap-8 relative z-10">
+                    {navCategories.map((category) => (
                       <div key={category.title} className="flex flex-col">
-                        <div className="flex items-center gap-2 mb-6 pb-2 border-b border-[var(--color-ares-border)]">
-                          <div className="w-1.5 h-1.5 bg-[var(--color-ares-teal)] rounded-full animate-pulse"></div>
-                          <h3 className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-[var(--color-ares-muted)] uppercase">
+                        <div className="mb-4 pb-2 border-b border-white/10">
+                          <h3 className="text-[10px] font-mono tracking-[0.2em] text-[var(--color-ares-teal)] font-bold uppercase">
                             {category.title}
                           </h3>
                         </div>
-                        <ul className="space-y-5">
-                          {category.links.map(link => (
+                        <ul className="space-y-3.5">
+                          {category.links.map((link) => (
                             <li key={link.label}>
                               <Link 
                                 to={link.path} 
-                                className="text-base font-bold text-white hover:text-[var(--color-ares-teal)] transition-colors flex items-center gap-3 group/link"
+                                className="group/link text-xs font-bold text-white/90 hover:text-[var(--color-ares-teal)] transition-colors flex items-center justify-between gap-2"
                               >
-                                <span className="w-0 h-[2px] bg-[var(--color-ares-teal)] transition-all duration-300 group-hover/link:w-4"></span>
-                                <span className="whitespace-nowrap">{link.label}</span>
+                                <span className="truncate group-hover/link:translate-x-1 transition-transform">{link.label}</span>
+                                {link.badge && (
+                                  <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-[var(--color-ares-teal)]/10 text-[var(--color-ares-teal)] border border-[var(--color-ares-teal)]/30 shrink-0">
+                                    {link.badge}
+                                  </span>
+                                )}
                               </Link>
                             </li>
                           ))}
                         </ul>
                       </div>
                     ))}
+                  </div>
+
+                  {/* Featured Remote Academy Spotlight Card Banner */}
+                  <div className="mt-8 pt-6 border-t border-white/10 bg-gradient-to-r from-[var(--color-ares-teal)]/15 via-black/60 to-[var(--color-ares-purple)]/15 p-5 rounded-2xl border border-white/10 flex items-center justify-between gap-4 relative z-10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-xl bg-[var(--color-ares-teal)]/20 border border-[var(--color-ares-teal)]/40 flex items-center justify-center shrink-0">
+                        <Globe className="w-5 h-5 text-[var(--color-ares-teal)]" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-white uppercase">Ares Academy Remote Program</span>
+                          <span className="text-[9px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Don't Live in IN?</span>
+                        </div>
+                        <p className="text-[11px] text-white/70 font-light mt-0.5">
+                          Train from anywhere. Complete tech & equipment kit shipped to your door + tele-training sessions included ($499/mo & $1599/mo).
+                        </p>
+                      </div>
+                    </div>
+                    <Link
+                      to="/ares-academy"
+                      className="px-5 py-2.5 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-black text-xs uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer shadow-glow"
+                    >
+                      Explore Academy
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -208,13 +260,12 @@ export function Navbar() {
             {/* Mobile/Tablet Menu Toggle */}
             <button
               onClick={() => setIsOpen(true)}
-              className="flex lg:hidden items-center justify-center bg-[var(--color-ares-charcoal)]/90 backdrop-blur-xl border border-[var(--color-ares-border)] p-2.5 rounded-lg text-white hover:text-[var(--color-ares-teal)] transition-colors"
+              className="flex lg:hidden items-center justify-center bg-[var(--color-ares-charcoal)]/90 backdrop-blur-xl border border-[var(--color-ares-border)] p-2.5 rounded-lg text-white hover:text-[var(--color-ares-teal)] transition-colors cursor-pointer"
               aria-label="Open menu"
             >
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
             </button>
           </div>
-
         </div>
       </header>
 
@@ -267,35 +318,38 @@ export function Navbar() {
               <div className="flex flex-col gap-2 mt-12 sm:mt-0 w-full max-w-2xl mx-auto">
                 {/* Quick Action Hub for High-Conversion Links */}
                 <div className="mb-6 bg-white/5 border border-white/10 rounded-2xl p-5">
-                  <h3 className="text-[10px] font-mono tracking-[0.2em] text-[var(--color-ares-teal)] uppercase mb-4">Quick Actions</h3>
+                  <h3 className="text-[10px] font-mono tracking-[0.2em] text-[var(--color-ares-teal)] font-bold uppercase mb-4">Quick Actions</h3>
                   <div className="grid grid-cols-2 gap-3">
+                    <Link 
+                      to="/shop" 
+                      onClick={() => setIsOpen(false)}
+                      className="py-3 px-4 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] text-xs font-black uppercase tracking-wider text-center hover:bg-[#4FC3F7] transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <span>Performance Shop</span>
+                    </Link>
+                    <Link 
+                      to="/ares-academy" 
+                      onClick={() => setIsOpen(false)}
+                      className="py-3 px-4 rounded-xl bg-gradient-to-r from-[var(--color-ares-teal)]/20 to-[var(--color-ares-purple)]/20 border border-[var(--color-ares-teal)]/40 text-white text-xs font-bold uppercase tracking-wider text-center hover:bg-white/10 transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Globe className="w-3.5 h-3.5 text-[var(--color-ares-teal)]" />
+                      <span>Ares Academy</span>
+                    </Link>
                     <Link 
                       to="/book/evaluation" 
                       onClick={() => setIsOpen(false)}
                       className="py-3 px-4 rounded-xl bg-[var(--color-ares-purple)] text-white text-xs font-bold uppercase tracking-wider text-center hover:bg-[var(--color-ares-purple)]/90 transition-colors"
                     >
-                      Book Eval
+                      Book Eval ($449)
                     </Link>
                     <Link 
-                      to="/book/packages" 
+                      to="/cart" 
                       onClick={() => setIsOpen(false)}
-                      className="py-3 px-4 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] text-xs font-bold uppercase tracking-wider text-center hover:bg-[#4FC3F7] transition-colors"
+                      className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-wider text-center hover:bg-white/10 transition-colors flex items-center justify-center gap-1.5"
                     >
-                      Packages
-                    </Link>
-                    <Link 
-                      to="/book/in-office" 
-                      onClick={() => setIsOpen(false)}
-                      className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-wider text-center hover:bg-white/10 transition-colors"
-                    >
-                      In-Office
-                    </Link>
-                    <Link 
-                      to="/book/tele-training" 
-                      onClick={() => setIsOpen(false)}
-                      className="py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold uppercase tracking-wider text-center hover:bg-white/10 transition-colors"
-                    >
-                      Tele-Session
+                      <ShoppingCart className="w-3.5 h-3.5 text-[var(--color-ares-teal)]" />
+                      <span>Cart ({cartCount})</span>
                     </Link>
                   </div>
                 </div>
@@ -376,7 +430,7 @@ export function Navbar() {
               >
                 <div className="flex items-center gap-4">
                   <img src="/logo.png" alt="A.R.E.S." className="h-8 sm:h-10 opacity-50" />
-                  <span className="text-[10px] font-mono text-white/50 tracking-widest uppercase">A.R.E.S. Elite Sports Vision // Active</span>
+                  <span className="text-[10px] font-mono text-white/50 tracking-widest uppercase">Ares Elite Sports Vision // Active</span>
                 </div>
                 <span className="text-[10px] font-mono text-[var(--color-ares-teal)] tracking-widest uppercase">Milliseconds Matter™</span>
               </motion.div>
