@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { useState, useCallback, Suspense, lazy } from 'react';
 import { Hero } from '../components/sections/Hero';
 import { ProblemSection } from '../components/sections/Problem';
 import { SystemSection } from '../components/sections/System';
@@ -26,10 +26,10 @@ export function HomePage() {
     return sessionStorage.getItem('introComplete') === 'true';
   });
 
-  const handleIntroComplete = () => {
+  const handleIntroComplete = useCallback(() => {
     setIntroComplete(true);
     sessionStorage.setItem('introComplete', 'true');
-  };
+  }, []);
 
   const homeSchema = {
     "@context": "https://schema.org",
