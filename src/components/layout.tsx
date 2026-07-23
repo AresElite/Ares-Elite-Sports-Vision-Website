@@ -107,7 +107,7 @@ export function Navbar() {
             <span className="text-[var(--color-ares-border)] shrink-0">|</span>
             <Link to="/shop" className="text-[var(--color-ares-teal)] hover:text-white font-bold transition-colors inline-flex items-center gap-1.5 shrink-0">
               <ShoppingBag className="w-3 h-3 text-[var(--color-ares-teal)]" />
-              <span>Shop Performance Gear</span>
+              <span>Shop</span>
             </Link>
           </div>
 
