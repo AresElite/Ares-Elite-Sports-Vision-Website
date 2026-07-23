@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown';
 import { SectionReveal } from '../components/ui/SectionReveal';
 import { Button } from '../components/ui/Button';
 import { blogPosts } from '../data/blog';
+import { AssessmentEndCap } from '../components/AssessmentEndCap';
 
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -179,6 +180,7 @@ export function BlogPostPage() {
             </div>
           </footer>
         </SectionReveal>
+        <AssessmentEndCap />
       </div>
     </div>
   );

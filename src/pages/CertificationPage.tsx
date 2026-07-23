@@ -143,36 +143,61 @@ export function CertificationPage() {
             </div>
           </div>
 
-          {/* Practitioner Testimonial / Social Proof */}
-          <div className="my-16 bg-gradient-to-br from-[var(--color-ares-charcoal)]/90 via-[#0A0B14] to-black/80 backdrop-blur-md border border-[var(--color-ares-teal)]/40 rounded-3xl p-8 md:p-12 shadow-[0_0_40px_rgba(41,182,246,0.15)] relative overflow-hidden">
-            <div className="absolute -top-12 -right-12 w-64 h-64 bg-[var(--color-ares-teal)]/10 rounded-full blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-[var(--color-ares-purple)]/10 rounded-full blur-3xl pointer-events-none" />
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 rounded-2xl bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 text-[var(--color-ares-teal)]">
-                  <Quote className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-[var(--color-ares-teal)] block">
-                    PRACTITIONER ENDORSEMENT & SOCIAL PROOF
-                  </span>
-                  <h3 className="text-xl font-bold text-white uppercase">Clinical Excellence in Practice</h3>
+          {/* Practitioner & Performance Leader Endorsements / Social Proof */}
+          <div className="my-16 space-y-8">
+            <div className="flex items-center gap-3">
+              <div className="p-3 rounded-2xl bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 text-[var(--color-ares-teal)]">
+                <Quote className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[10px] font-mono font-bold tracking-[0.2em] uppercase text-[var(--color-ares-teal)] block">
+                  PRACTITIONER & PERFORMANCE LEADER ENDORSEMENTS
+                </span>
+                <h3 className="text-2xl font-bold text-white uppercase">Trusted by Clinical & Performance Pioneers</h3>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Paul Fair Testimonial */}
+              <div className="bg-gradient-to-br from-[var(--color-ares-charcoal)]/90 via-[#0A0B14] to-black/80 backdrop-blur-md border border-[var(--color-ares-teal)]/40 rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-[0_0_40px_rgba(41,182,246,0.15)] relative overflow-hidden">
+                <div className="absolute -top-12 -right-12 w-48 h-48 bg-[var(--color-ares-teal)]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-6 flex-1 flex flex-col justify-between">
+                  <blockquote className="text-sm sm:text-base text-white/90 font-medium leading-relaxed italic border-l-2 border-[var(--color-ares-teal)] pl-4">
+                    "Every aspect of the A.R.E.S. Certification has been thoughtfully developed, backed by evidence and science, and presented in a way that is both practical and immediately applicable to real-world athlete development. After more than 18 years working across high school, collegiate, and professional sport, this is one of the most comprehensive and valuable certifications I’ve experienced. Dr. Joe is building something truly special, and we’re excited to integrate the A.R.E.S. system into the athletes we serve."
+                  </blockquote>
+
+                  <div className="flex items-center gap-4 pt-4 border-t border-white/10 mt-auto">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-ares-teal)] to-[var(--color-ares-purple)] flex items-center justify-center font-bold text-white text-base shadow-md shrink-0">
+                      PF
+                    </div>
+                    <div>
+                      <div className="text-base font-bold text-white">Paul Fair</div>
+                      <div className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-wider">
+                        Founder & CEO · GRIT Sports Performance
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <blockquote className="text-lg md:text-xl text-white/90 font-medium leading-relaxed italic mb-8 border-l-2 border-[var(--color-ares-teal)] pl-6">
-                "The ARES certification process was a valuable and well-structured experience from start to finish. Over the course of the three-day program, I gained a thorough understanding of the ARES philosophy, learned how to perform and implement the various training drills, and developed the skills needed to help athletes improve their visual performance and reach their full potential. The hands-on instruction, knowledgeable staff, and supportive learning environment made the experience both engaging and practical. I truly appreciated the professionalism throughout the certification journey and would highly recommend the ARES certification to any healthcare or performance professional looking to integrate sports vision training into their practice."
-              </blockquote>
+              {/* Dr. Theresa Zaker Testimonial */}
+              <div className="bg-gradient-to-br from-[var(--color-ares-charcoal)]/90 via-[#0A0B14] to-black/80 backdrop-blur-md border border-[var(--color-ares-teal)]/40 rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-[0_0_40px_rgba(41,182,246,0.15)] relative overflow-hidden">
+                <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-[var(--color-ares-purple)]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="relative z-10 space-y-6 flex-1 flex flex-col justify-between">
+                  <blockquote className="text-sm sm:text-base text-white/90 font-medium leading-relaxed italic border-l-2 border-[var(--color-ares-purple)] pl-4">
+                    "The ARES certification process was a valuable and well-structured experience from start to finish. Over the course of the three-day program, I gained a thorough understanding of the ARES philosophy, learned how to perform and implement the various training drills, and developed the skills needed to help athletes improve their visual performance and reach their full potential. The hands-on instruction, knowledgeable staff, and supportive learning environment made the experience both engaging and practical. I truly appreciated the professionalism throughout the certification journey and would highly recommend the ARES certification to any healthcare or performance professional looking to integrate sports vision training into their practice."
+                  </blockquote>
 
-              <div className="flex items-center gap-4 pt-4 border-t border-white/10">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-ares-teal)] to-[var(--color-ares-purple)] flex items-center justify-center font-bold text-white text-lg shadow-md">
-                  TZ
-                </div>
-                <div>
-                  <div className="text-base font-bold text-white">Dr. Theresa Zaker</div>
-                  <div className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-wider">
-                    Zaker Family Optometry · A.R.E.S. Certified Practitioner
+                  <div className="flex items-center gap-4 pt-4 border-t border-white/10 mt-auto">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--color-ares-purple)] to-[var(--color-ares-teal)] flex items-center justify-center font-bold text-white text-base shadow-md shrink-0">
+                      TZ
+                    </div>
+                    <div>
+                      <div className="text-base font-bold text-white">Dr. Theresa Zaker</div>
+                      <div className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-wider">
+                        Zaker Family Optometry · A.R.E.S. Certified Practitioner
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -200,9 +225,10 @@ export function CertificationPage() {
               </div>
             </div>
 
-            <h3 className="text-center text-xs font-bold tracking-[0.3em] uppercase text-[var(--color-ares-teal)] mb-8">[Registered Certified Clinicians & Coaches]</h3>
+            <h3 className="text-center text-xs font-bold tracking-[0.3em] uppercase text-[var(--color-ares-teal)] mb-8">[Registered Certified Clinicians & Performance Leaders]</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
               {[
+                { name: "Paul Fair", title: "GRIT Sports Performance", src: "/A.R.E.S. Certification Badge.png" },
                 { name: "Dr. Theresa Zaker", title: "Zaker Family Optometry", src: "/A.R.E.S. Certification Badge.png" },
                 { name: "Blair Julian", title: "CPVT Level 1", src: "/A.R.E.S Certification - CVPT - Blair Julian.png" },
                 { name: "Cameron Gray", title: "CPVT Provider", src: "/A.R.E.S. Certification - Cameron Gray - CPVT.png" },
