@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Globe, Package, CheckCircle2, ArrowRight, Video, Zap, ShieldCheck } from 'lucide-react';
+import { Globe, Package, CheckCircle2, ArrowRight, Video, Zap, ShieldCheck, Tablet, Cpu } from 'lucide-react';
 import { ScrollReveal } from '../ui/ScrollReveal';
 
 export function AresAcademySection() {
@@ -31,7 +31,7 @@ export function AresAcademySection() {
                 </h2>
 
                 <p className="text-base sm:text-lg text-white/80 font-light leading-relaxed">
-                  Once your initial evaluation is completed, <strong className="text-white font-bold">all of your training does not need to be performed in-office</strong>. Through the Ares Academy Program, we provide all the specialized equipment, technology licenses, and tele-training sessions required for peak performance from anywhere in the world.
+                  Once your initial evaluation is completed, <strong className="text-white font-bold">all of your training does not need to be performed in-office</strong>. Through the Ares Academy Program, we provide all the specialized equipment, proprietary tech applications, and tele-training sessions with an A.R.E.S. Certified Trainer for peak performance from anywhere in the world.
                 </p>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
@@ -41,7 +41,7 @@ export function AresAcademySection() {
                       <span className="text-[10px] font-mono text-white/50 uppercase">6-Mo Commit</span>
                     </div>
                     <div className="text-2xl font-black font-mono text-white">$499 <span className="text-xs font-normal text-white/60">/mo</span></div>
-                    <p className="text-[11px] text-white/60 font-light">Equipment kit shipped + monthly tele-coaching session included.</p>
+                    <p className="text-[11px] text-white/60 font-light">Equipment kit shipped + monthly tele-training session included.</p>
                   </div>
 
                   <div className="p-4 rounded-2xl bg-white/5 border border-[var(--color-ares-purple)]/40 space-y-1.5">
@@ -84,12 +84,12 @@ export function AresAcademySection() {
 
                 <ul className="space-y-4 text-xs sm:text-sm">
                   {[
-                    "VR Headset & Pre-Loaded 3D Spatial Software",
-                    "Stroboscopic Glasses & Visual Intake Optics",
-                    "FitLight & Reactive Light Stimulus Pods",
-                    "Senaptec Vision Software License",
+                    "VR Training Applications & Custom Spatial Environments",
+                    "Tablet-Based A.R.E.S. Performance Suite Access",
+                    "Stroboscopic Vision Glasses & Visual Intake Tools",
+                    "Tele-Training Sessions with an A.R.E.S. Certified Trainer",
                     "Telemetry EMR Portal Progress Tracking",
-                    "Tele-Training Sessions with Dr. LaPlaca"
+                    "Customized Weekly Protocol Calibrations"
                   ].map((item, idx) => (
                     <li key={idx} className="flex items-center gap-3 text-white/90">
                       <CheckCircle2 className="w-4 h-4 text-[var(--color-ares-teal)] shrink-0" />

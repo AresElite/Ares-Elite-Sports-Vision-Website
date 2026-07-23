@@ -1,5 +1,5 @@
 import { SEO } from '../components/SEO';
-import { ArrowLeft, ArrowRight, Zap, CheckCircle2, Globe, Video, ShieldCheck, Cpu, Package, PhoneCall, Sparkles, Award } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Zap, CheckCircle2, Globe, Video, ShieldCheck, Cpu, Package, Tablet, Sparkles, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { ScrollReveal } from '../components/ui/ScrollReveal';
@@ -13,7 +13,7 @@ export function AresAcademyPage() {
       "@type": "LocalBusiness",
       "name": "Ares Elite Sports Vision"
     },
-    "description": "Remote tele-training sports vision program for athletes worldwide. Complete equipment, tech kit, and tele-coaching sessions included.",
+    "description": "Remote tele-training sports vision program for athletes worldwide. Includes VR training applications, tablet-based A.R.E.S. Performance Suite, equipment, and tele-training sessions with an A.R.E.S. Certified Trainer.",
     "educationalProgramMode": "Blended / Remote"
   };
 
@@ -21,7 +21,7 @@ export function AresAcademyPage() {
     <>
       <SEO 
         title="Ares Academy | Remote Sports Vision Training & Tele-Coaching"
-        description="Don't live in Indiana? Train from anywhere with the Ares Academy Remote Program. Complete equipment kit & tele-coaching included ($499/mo & $1599/mo)."
+        description="Don't live in Indiana? Train from anywhere with the Ares Academy Remote Program. Includes VR training apps, tablet-based A.R.E.S. Performance Suite, equipment & tele-training with an A.R.E.S. Certified Trainer."
         path="/ares-academy"
         schema={academySchema}
       />
@@ -49,7 +49,7 @@ export function AresAcademyPage() {
             </h1>
 
             <p className="text-lg sm:text-xl text-white/80 font-light leading-relaxed text-balance">
-              Once your initial evaluation is completed, <strong className="text-white font-bold">all of your vision training does not need to be performed in-office</strong> if you do not live in Indiana. Train from anywhere in the world with full equipment, tech, and tele-coaching included.
+              Once your initial evaluation is completed, <strong className="text-white font-bold">all of your vision training does not need to be performed in-office</strong> if you do not live in Indiana. Train from anywhere in the world with full equipment, tech, and tele-training sessions included.
             </p>
           </div>
 
@@ -64,14 +64,14 @@ export function AresAcademyPage() {
                   World-Class Sports Vision. Shipped Directly to You.
                 </h2>
                 <p className="text-sm sm:text-base text-white/70 leading-relaxed font-light">
-                  We empower competitive, collegiate, and professional athletes outside of Indiana to access Dr. Joseph LaPlaca’s elite visual-neurocognitive training protocols remotely. We provide all the specialized equipment, technology licenses, and tele-training sessions required for peak game-day execution.
+                  We empower competitive, collegiate, and professional athletes outside of Indiana to access elite visual-neurocognitive training protocols remotely. We provide all the specialized equipment, proprietary software applications, and tele-training sessions with an A.R.E.S. Certified Trainer for peak game-day execution.
                 </p>
               </div>
 
               <div className="md:col-span-4 bg-white/5 border border-white/10 p-6 rounded-2xl text-center space-y-3 font-mono">
                 <Package className="w-8 h-8 text-[var(--color-ares-teal)] mx-auto" />
-                <div className="text-xs font-bold text-white uppercase">Complete Hardware Kit Included</div>
-                <p className="text-[11px] text-white/50 leading-tight">VR Headset, Stroboscopic Glasses, Reactive Light Modules & Software</p>
+                <div className="text-xs font-bold text-white uppercase">Complete Hardware & Tech Suite</div>
+                <p className="text-[11px] text-white/50 leading-tight">VR Headset & Apps, Stroboscopic Glasses, & Tablet A.R.E.S. Performance Suite</p>
               </div>
             </div>
           </div>
@@ -107,7 +107,7 @@ export function AresAcademyPage() {
                       Elite Program
                     </h3>
                     <p className="text-xs text-white/60 font-light mb-6">
-                      Structured remote training with complete hardware kit & monthly tele-coaching reviews.
+                      Structured remote training with complete equipment kit & monthly tele-coaching reviews.
                     </p>
 
                     <div className="mb-8 p-6 rounded-2xl bg-black/60 border border-white/10 text-center font-mono">
@@ -119,11 +119,11 @@ export function AresAcademyPage() {
                       <div className="font-mono text-[10px] text-white/50 uppercase tracking-widest mb-2 font-bold">PROGRAM INCLUSIONS:</div>
                       {[
                         "Complete Home Visual-Neuro Equipment Kit Shipped Direct",
-                        "VR Cognitive Training Headset & Software Suite",
-                        "Stroboscopic Vision Glasses & Light Stimuli Modules",
-                        "Monthly Tele-Training Session with Dr. Joseph LaPlaca",
-                        "Custom Weekly Drill Progression via EMR Telemetry Portal",
-                        "Direct Coach Messaging & Video Technique Review",
+                        "Proprietary VR Training Applications & VR Headset Access",
+                        "Tablet-Based A.R.E.S. Performance Suite Access",
+                        "Stroboscopic Vision Training Glasses Included",
+                        "Monthly Tele-Training Session with an A.R.E.S. Certified Trainer",
+                        "Custom Weekly Drill Progression & Telemetry Tracking",
                         "Ideal for High School, Collegiate & Competitive Athletes"
                       ].map((feature, idx) => (
                         <div key={idx} className="flex items-start gap-3 text-white/90">
@@ -163,7 +163,7 @@ export function AresAcademyPage() {
                       Elite Custom Program
                     </h3>
                     <p className="text-xs text-white/60 font-light mb-6">
-                      Weekly 1-on-1 live tele-coaching, pro-grade hardware suite, & bespoke weekly protocol adjustments.
+                      Weekly 1-on-1 live tele-coaching with an A.R.E.S. Certified Trainer, full hardware kit & bespoke weekly protocol adjustments.
                     </p>
 
                     <div className="mb-8 p-6 rounded-2xl bg-black/60 border border-white/10 text-center font-mono">
@@ -174,12 +174,12 @@ export function AresAcademyPage() {
                     <div className="space-y-3.5 mb-8 text-xs sm:text-sm">
                       <div className="font-mono text-[10px] text-[var(--color-ares-purple)] uppercase tracking-widest mb-2 font-bold">PRO-TIER INCLUSIONS:</div>
                       {[
-                        "Pro-Grade Hardware & Sensor Suite Included Shipped to You",
-                        "Weekly 1-on-1 Live Tele-Coaching & Real-Time Supervision",
+                        "Complete Hardware Suite & Accessories Shipped to You",
+                        "VR Training Applications & Custom Spatial Environments",
+                        "Full Access to Tablet-Based A.R.E.S. Performance Suite",
+                        "Weekly 1-on-1 Live Tele-Training with an A.R.E.S. Certified Trainer",
                         "Priority Direct Coach Access & VIP Scheduling",
                         "Custom Weekly Protocol Calibration Based on Game Schedule",
-                        "Multi-Object & High-G Load Reactive Stress Protocols",
-                        "Unlimited EMR Telemetry Portal Access & Raw Data Analytics",
                         "Designed for Professional, Olympic & Motorsport Athletes"
                       ].map((feature, idx) => (
                         <div key={idx} className="flex items-start gap-3 text-white/90">
@@ -211,10 +211,10 @@ export function AresAcademyPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { title: "VR Cognitive Headset", desc: "Pre-configured VR headset loaded with 3D spatial eye-tracking & multi-object tracking software." },
+                { title: "VR Training Applications", desc: "Access to our custom VR software loaded with 3D spatial eye-tracking & multi-object tracking." },
+                { title: "A.R.E.S. Performance Suite", desc: "Our tablet-based visual-neuro platform for tracking visual decision speed & baseline metrics." },
                 { title: "Stroboscopic Glasses", desc: "Liquid crystal strobe lenses forcing faster visual intake & neural prediction." },
-                { title: "Reactive Light Modules", desc: "FitLight / reactive light stimulus pods for measuring physical motor response latency." },
-                { title: "Senaptec License", desc: "Full software license for table & tablet-based visual acuity, contrast, & perception drills." }
+                { title: "A.R.E.S. Certified Trainer", desc: "Live 1-on-1 tele-training sessions to guide your drills, technique, and cognitive progressions." }
               ].map((tech, i) => (
                 <div key={i} className="p-6 rounded-2xl bg-black/40 border border-white/10 space-y-2">
                   <Cpu className="w-6 h-6 text-[var(--color-ares-teal)] mb-2" />
@@ -253,7 +253,7 @@ export function AresAcademyPage() {
                 <div className="text-4xl font-mono font-black text-[var(--color-ares-teal)] mb-4">03</div>
                 <h3 className="text-lg font-bold text-white uppercase mb-2">Tele-Training Begins</h3>
                 <p className="text-xs text-white/70 leading-relaxed font-light">
-                  Connect 1-on-1 with Dr. LaPlaca and our performance team for tele-training sessions, telemetry tracking, and weekly drill updates.
+                  Connect 1-on-1 with an A.R.E.S. Certified Trainer for tele-training sessions, telemetry tracking, and weekly drill updates.
                 </p>
               </div>
             </div>
