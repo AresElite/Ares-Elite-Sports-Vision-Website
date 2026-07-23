@@ -73,11 +73,14 @@ function HeroDrillWidget() {
 
   const triggerWaitingState = () => {
     setGameState('waiting');
-    const delay = 1000 + Math.random() * 1500;
+    const delay = 1000 + Math.random() * 1800;
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
-      startTimeRef.current = performance.now();
-      setGameState('active');
+      // Record start time on the exact animation frame when the active flash is painted to eliminate render latency
+      requestAnimationFrame(() => {
+        startTimeRef.current = performance.now();
+        setGameState('active');
+      });
     }, delay);
   };
 
@@ -87,22 +90,27 @@ function HeroDrillWidget() {
     if (gameState === 'waiting') {
       if (timerRef.current) clearTimeout(timerRef.current);
       setGameState('early');
+      // Auto reset to waiting state on early tap
+      timerRef.current = setTimeout(() => {
+        triggerWaitingState();
+      }, 900);
     } else if (gameState === 'active') {
       const endTime = performance.now();
       const rawTime = Math.round(endTime - startTimeRef.current);
-      const time = Math.max(195, Math.min(rawTime, 420));
+      // Authentic human raw reaction time without artificial 420ms hard cap
+      const time = Math.max(165, Math.min(rawTime, 850));
       setCurrentTrialTime(time);
       
       const newTrials = [...trials, time];
       setTrials(newTrials);
 
-      if (newTrials.length >= 5) {
+      if (newTrials.length >= 10) {
         setGameState('complete');
       } else {
         setGameState('recorded');
         timerRef.current = setTimeout(() => {
           triggerWaitingState();
-        }, 800);
+        }, 650);
       }
     }
   };
@@ -142,7 +150,7 @@ function HeroDrillWidget() {
           firstName: `Reaction Lead (${leadData.sport})`,
           email: leadData.email,
           phone: leadData.phone,
-          notes: `Homepage 5-Tap Reaction Lead - Sport: ${leadData.sport}, Level: ${leadData.level}, Phone: ${leadData.phone || 'N/A'}`
+          notes: `Homepage 10-Tap Reaction Lead - Sport: ${leadData.sport}, Level: ${leadData.level}, Phone: ${leadData.phone || 'N/A'}`
         })
       }).catch(err => console.error("Lead API error:", err));
       setLeadSubmitted(true);
@@ -163,9 +171,9 @@ function HeroDrillWidget() {
               <Zap className="w-8 h-8 text-[var(--color-ares-teal)]" />
             </div>
             <div>
-              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Test Your Reaction Latency</h3>
+              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Test Your Raw Reaction Time</h3>
               <p className="text-xs md:text-sm text-white/60 mt-1 max-w-sm mx-auto leading-relaxed">
-                Tap 5 target flashes to benchmark your visual capture speed against collegiate & pro standards (200-330ms).
+                Tap 10 target flashes to benchmark your visual capture speed against collegiate & pro standards (200-330ms).
               </p>
             </div>
             <button
@@ -173,7 +181,7 @@ function HeroDrillWidget() {
               className="w-full max-w-xs mx-auto py-4 px-6 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-black text-xs md:text-sm uppercase tracking-widest transition-all shadow-[0_0_35px_rgba(41,182,246,0.5)] cursor-pointer flex items-center justify-center gap-2"
             >
               <Maximize2 className="w-4 h-4" />
-              <span>START FULLSCREEN 5-TAP DRILL</span>
+              <span>START FULLSCREEN 10-TAP DRILL</span>
             </button>
           </div>
         )}
@@ -209,7 +217,7 @@ function HeroDrillWidget() {
             )}
             {gameState === 'recorded' && (
               <div className="text-center">
-                <span className="text-xs font-mono text-white/50 uppercase tracking-widest">Trial {trials.length}/5 Captured</span>
+                <span className="text-xs font-mono text-white/50 uppercase tracking-widest">Trial {trials.length}/10 Captured</span>
                 <div className="text-5xl md:text-6xl font-black font-mono text-[var(--color-ares-teal)] mt-1">{currentTrialTime}ms</div>
               </div>
             )}
@@ -229,7 +237,7 @@ function HeroDrillWidget() {
             return (
               <div className="space-y-5 text-center max-w-md mx-auto py-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[10px] sm:text-xs font-mono font-bold uppercase">
-                  <CheckCircle2 className="w-4 h-4" /> 5-Tap Latency Benchmark Completed
+                  <CheckCircle2 className="w-4 h-4" /> 10-Tap Reaction Benchmark Completed
                 </div>
                 <div>
                   <div className="text-xs font-mono text-white/50 uppercase tracking-widest">Average Raw Reaction Time</div>
@@ -284,28 +292,38 @@ function HeroDrillWidget() {
           }
 
           return (
-            <div className="space-y-5 text-center max-w-md mx-auto py-4">
+            <div className="space-y-6 text-center py-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 text-[var(--color-ares-teal)] text-xs font-mono font-bold uppercase">
+                <Zap className="w-4 h-4" /> 10-Tap Reaction Benchmark Complete
+              </div>
+
               <div>
-                <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest">AQ™ Benchmark Metric</span>
-                <div className="text-5xl font-black font-mono text-white mt-1">{avg}ms</div>
+                <span className="text-xs font-mono text-white/50 uppercase tracking-widest">Average Raw Reaction Time</span>
+                <div className="text-6xl font-black font-mono text-[var(--color-ares-teal)] mt-1">{avg}ms</div>
+                <span className="text-xs text-emerald-400 font-mono font-bold mt-1 block">
+                  {avg < 230 ? '🔥 ELITE / PRO LEVEL (<230ms)' : avg < 280 ? '⚡ ADVANCED ATHLETIC SPEED (230-280ms)' : '📈 HIGH POTENTIAL FOR SPEED OPTIMIZATION'}
+                </span>
               </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-xs sm:text-sm text-white/90 text-left leading-relaxed">
-                {avg <= 250 ? (
-                  <span><strong>Elite Response Tier ({avg}ms):</strong> Your raw visual reaction latency ranks in the top 5th percentile for {leadData.sport}. Book your Carmel Clinic evaluation for 3D spatial eye tracking.</span>
-                ) : (
-                  <span><strong>Visual Bottleneck Identified ({avg}ms):</strong> Your reaction latency is {avg - 220}ms slower than elite collegiate {leadData.sport} benchmarks.</span>
-                )}
+
+              <div className="grid grid-cols-5 gap-1.5 p-3 rounded-xl bg-black/60 border border-white/10 font-mono text-xs">
+                {trials.map((t, idx) => (
+                  <div key={idx} className="p-2 rounded bg-white/5 border border-white/5">
+                    <div className="text-[9px] text-white/40 font-bold">#{idx + 1}</div>
+                    <div className="text-white font-bold">{t}ms</div>
+                  </div>
+                ))}
               </div>
-              <div className="flex gap-3">
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <Link
                   to="/book/evaluation"
-                  className="flex-1 py-3.5 rounded-xl bg-[var(--color-ares-teal)] text-[#0A0B14] font-black text-xs uppercase text-center cursor-pointer shadow-glow"
+                  className="flex-1 py-3.5 px-4 rounded-xl bg-[var(--color-ares-teal)] hover:bg-[#4FC3F7] text-[#0A0B14] font-black text-xs uppercase tracking-wider transition-all shadow-glow text-center cursor-pointer"
                 >
-                  Book Evaluation ($449)
+                  Book In-Clinic Eval ($449)
                 </Link>
                 <button
                   onClick={startDrill}
-                  className="px-5 py-3.5 rounded-xl bg-white/10 border border-white/20 text-white font-bold text-xs uppercase cursor-pointer hover:bg-white/20"
+                  className="py-3.5 px-4 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold text-xs uppercase tracking-wider transition-all cursor-pointer"
                 >
                   Retest
                 </button>
@@ -357,7 +375,7 @@ function HeroDrillWidget() {
             </span>
           </div>
           <div className="text-[10px] font-mono text-[var(--color-ares-teal)] bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 px-2.5 py-1 rounded-lg font-bold uppercase">
-            5-Tap Benchmark
+            10-Tap Benchmark
           </div>
         </div>
 
