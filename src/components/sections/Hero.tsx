@@ -9,15 +9,40 @@ interface HeroProps {
 }
 
 function HeroDrillWidget() {
-  const [gameState, setGameState] = useState<'idle' | 'countdown' | 'waiting' | 'active' | 'recorded' | 'complete' | 'early'>('idle');
-  const [countdown, setCountdown] = useState(3);
-  const [trials, setTrials] = useState<number[]>([]);
-  const [currentTrialTime, setCurrentTrialTime] = useState<number | null>(null);
+  const [drillState, setDrillState] = useState<'idle' | 'setup' | 'running' | 'completed'>('idle');
+  const [countdown, setCountdown] = useState<number | string | null>(null);
+  const [trialProgress, setTrialProgress] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const ASSESSMENT_TRIALS = 10;
+  const MIN_RT_MS = 120;
+  const DEBOUNCE_MS = 10;
+  const PURPLE_HEX = '#8B5CF6';
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const stimRef = useRef<HTMLDivElement>(null);
+  const flashOverlayRef = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<number | null>(null);
+  const countdownIntervalRef = useRef<number | null>(null);
   
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number>(0);
+  const stimTimeRef = useRef<number>(0);
+  const lastInteractionRef = useRef<number>(0);
+
+  const gameState = useRef({
+    running: false,
+    waitingForStim: false,
+    stimVisible: false,
+    trialCount: 0,
+    rts: [] as number[],
+    hits: 0,
+    misses: 0,
+    falseTaps: 0
+  });
+
+  const [leadSubmitted, setLeadSubmitted] = useState(false);
+  const [leadData, setLeadData] = useState({ sport: 'Baseball', level: 'High School', email: '', phone: '' });
+  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
   const requestFullscreenMode = () => {
     setIsFullscreen(true);
@@ -39,7 +64,7 @@ function HeroDrillWidget() {
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (!document.fullscreenElement && !(document as any).webkitFullscreenElement) {
         setIsFullscreen(false);
       }
     };
@@ -47,73 +72,146 @@ function HeroDrillWidget() {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
-  const startDrill = (e?: React.MouseEvent) => {
+  const triggerVisualFeedback = (type: 'hit' | 'early') => {
+    if (!flashOverlayRef.current) return;
+    const el = flashOverlayRef.current;
+    el.style.backgroundColor = type === 'hit' ? 'rgba(41, 152, 170, 0.25)' : 'rgba(239, 68, 68, 0.25)';
+    el.style.opacity = '1';
+    setTimeout(() => { if (el) el.style.opacity = '0'; }, 150);
+  };
+
+  const finishSession = useCallback(() => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    gameState.current.running = false;
+    gameState.current.waitingForStim = false;
+    gameState.current.stimVisible = false;
+    if (stimRef.current) stimRef.current.style.opacity = '0';
+    setDrillState('completed');
+  }, []);
+
+  const showStimulus = useCallback(() => {
+    if (!gameState.current.running || !stimRef.current || !containerRef.current) return;
+    const w = containerRef.current.clientWidth;
+    const h = containerRef.current.clientHeight;
+    
+    // Level 1 Config: size 120px, phase: central
+    const size = 120;
+    const left = (w - size) / 2;
+    const top = (h - size) / 2;
+
+    const el = stimRef.current;
+    el.style.width = `${size}px`;
+    el.style.height = `${size}px`;
+    el.style.transform = `translate3d(${left}px, ${top}px, 0)`;
+    el.style.opacity = '1';
+    
+    gameState.current.waitingForStim = false;
+    gameState.current.stimVisible = true;
+    stimTimeRef.current = performance.now();
+    
+    // Level 1 display duration: 1500ms
+    timerRef.current = window.setTimeout(() => { 
+      if (gameState.current.stimVisible) handleResult('miss', 0); 
+    }, 1500);
+  }, []);
+
+  const scheduleNext = useCallback(() => {
+    if (gameState.current.trialCount >= ASSESSMENT_TRIALS) { 
+      finishSession(); 
+      return; 
+    }
+    gameState.current.trialCount++;
+    setTrialProgress(gameState.current.trialCount);
+    gameState.current.waitingForStim = true;
+    gameState.current.stimVisible = false;
+    if (stimRef.current) stimRef.current.style.opacity = '0';
+    
+    // Level 1 Delay: random between 2000ms and 3000ms
+    const delay = Math.floor(Math.random() * (3000 - 2000) + 2000);
+    timerRef.current = window.setTimeout(() => showStimulus(), delay);
+  }, [finishSession, showStimulus]);
+
+  const handleResult = (type: 'hit' | 'miss' | 'false', rt: number) => {
+    gameState.current.stimVisible = false;
+    if (stimRef.current) stimRef.current.style.opacity = '0';
+    
+    if (type === 'hit') { 
+      gameState.current.hits++; 
+      gameState.current.rts.push(rt); 
+      triggerVisualFeedback('hit');
+    } else if (type === 'false') { 
+      gameState.current.falseTaps++; 
+      triggerVisualFeedback('early');
+    } else { 
+      gameState.current.misses++; 
+    }
+
+    scheduleNext();
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (typeof countdown === 'number' && countdown > 0) return;
+    const now = performance.now();
+    if (now - lastInteractionRef.current < DEBOUNCE_MS) return;
+    lastInteractionRef.current = now;
+    e.preventDefault();
+    if (!gameState.current.running) return;
+    
+    if (gameState.current.stimVisible) {
+      const rt = now - stimTimeRef.current;
+      if (rt < MIN_RT_MS) {
+        // Ignore physically impossible reaction guesses (<120ms).
+        return;
+      }
+      if (timerRef.current) clearTimeout(timerRef.current);
+      handleResult('hit', Math.round(rt));
+      return;
+    }
+    if (gameState.current.waitingForStim) {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      handleResult('false', 0);
+      return;
+    }
+  };
+
+  const startDrill = useCallback((e?: React.MouseEvent) => {
     if (e) {
       e.preventDefault();
       e.stopPropagation();
     }
     requestFullscreenMode();
-    setGameState('countdown');
+    setDrillState('running');
+    setTrialProgress(0);
     setCountdown(3);
-    setTrials([]);
-    setCurrentTrialTime(null);
+    
+    gameState.current = { 
+      running: true, 
+      waitingForStim: false, 
+      stimVisible: false, 
+      trialCount: 0, 
+      rts: [], 
+      hits: 0, 
+      misses: 0, 
+      falseTaps: 0 
+    };
 
+    let c = 3;
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-    countdownIntervalRef.current = setInterval(() => {
-      setCountdown(prev => {
-        if (prev <= 1) {
-          clearInterval(countdownIntervalRef.current!);
-          triggerWaitingState();
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 600);
-  };
-
-  const triggerWaitingState = () => {
-    setGameState('waiting');
-    const delay = 1000 + Math.random() * 1800;
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      // Record start time on the exact animation frame when the active flash is painted to eliminate render latency
-      requestAnimationFrame(() => {
-        startTimeRef.current = performance.now();
-        setGameState('active');
-      });
-    }, delay);
-  };
-
-  const handleTap = (e: React.PointerEvent | React.MouseEvent | React.TouchEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (gameState === 'waiting') {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      setGameState('early');
-      // Auto reset to waiting state on early tap
-      timerRef.current = setTimeout(() => {
-        triggerWaitingState();
-      }, 900);
-    } else if (gameState === 'active') {
-      const endTime = performance.now();
-      const rawTime = Math.round(endTime - startTimeRef.current);
-      // Authentic human raw reaction time without artificial 420ms hard cap
-      const time = Math.max(165, Math.min(rawTime, 850));
-      setCurrentTrialTime(time);
-      
-      const newTrials = [...trials, time];
-      setTrials(newTrials);
-
-      if (newTrials.length >= 10) {
-        setGameState('complete');
+    countdownIntervalRef.current = window.setInterval(() => {
+      c--;
+      if (c > 0) {
+        setCountdown(c);
+      } else if (c === 0) {
+        setCountdown("GO!");
+        startTimeRef.current = performance.now(); 
+        lastInteractionRef.current = 0; 
+        scheduleNext(); 
       } else {
-        setGameState('recorded');
-        timerRef.current = setTimeout(() => {
-          triggerWaitingState();
-        }, 650);
+        if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+        setCountdown(null);
       }
-    }
-  };
+    }, 1000);
+  }, [scheduleNext]);
 
   const resetDrill = (e?: React.MouseEvent) => {
     if (e) {
@@ -122,9 +220,10 @@ function HeroDrillWidget() {
     }
     if (timerRef.current) clearTimeout(timerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-    setGameState('idle');
-    setTrials([]);
-    setCurrentTrialTime(null);
+    gameState.current.running = false;
+    setDrillState('idle');
+    setCountdown(null);
+    setTrialProgress(0);
   };
 
   useEffect(() => {
@@ -133,10 +232,6 @@ function HeroDrillWidget() {
       if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     };
   }, []);
-
-  const [leadSubmitted, setLeadSubmitted] = useState(false);
-  const [leadData, setLeadData] = useState({ sport: 'Baseball', level: 'High School', email: '', phone: '' });
-  const [isSubmittingLead, setIsSubmittingLead] = useState(false);
 
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -163,9 +258,14 @@ function HeroDrillWidget() {
   };
 
   const renderDrillContent = (inModal = false) => {
+    const rts = gameState.current.rts;
+    const avg = rts.length ? Math.round(rts.reduce((a, b) => a + b, 0) / rts.length) : 0;
+    const fast = rts.length ? Math.round(Math.min(...rts)) : 0;
+    const slow = rts.length ? Math.round(Math.max(...rts)) : 0;
+
     return (
       <div className="w-full flex-1 flex flex-col justify-center">
-        {gameState === 'idle' && (
+        {drillState === 'idle' && (
           <div className="text-center space-y-5 py-4">
             <div className="w-16 h-16 rounded-2xl bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 flex items-center justify-center mx-auto shadow-[0_0_30px_rgba(41,182,246,0.2)]">
               <Zap className="w-8 h-8 text-[var(--color-ares-teal)]" />
@@ -173,7 +273,7 @@ function HeroDrillWidget() {
             <div>
               <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Test Your Raw Reaction Time</h3>
               <p className="text-xs md:text-sm text-white/60 mt-1 max-w-sm mx-auto leading-relaxed">
-                Tap 10 target flashes to benchmark your visual capture speed against collegiate & pro standards (200-330ms).
+                Tap the purple target onset across 10 trials to benchmark your raw reaction speed against elite benchmarks (200-330ms).
               </p>
             </div>
             <button
@@ -186,53 +286,58 @@ function HeroDrillWidget() {
           </div>
         )}
 
-        {gameState === 'countdown' && (
-          <div className="text-center py-12">
-            <div className="text-7xl md:text-9xl font-black font-mono text-[var(--color-ares-teal)] animate-pulse mb-3">
-              {countdown}
-            </div>
-            <p className="text-sm font-mono text-white/70 uppercase tracking-widest">Get Ready... Keep eyes focused on screen</p>
-          </div>
-        )}
-
-        {(gameState === 'waiting' || gameState === 'active' || gameState === 'recorded' || gameState === 'early') && (
-          <div
-            onPointerDown={handleTap}
-            className={`w-full ${inModal ? 'h-[60vh] max-h-[600px]' : 'min-h-[220px]'} rounded-3xl border flex flex-col items-center justify-center cursor-pointer select-none transition-all ${
-              gameState === 'active'
-                ? 'bg-[var(--color-ares-teal)] border-[var(--color-ares-teal)] shadow-[0_0_80px_rgba(41,182,246,0.9)]'
-                : gameState === 'early'
-                ? 'bg-red-500/20 border-red-500/50'
-                : 'bg-black/60 border-white/10 hover:border-white/20'
-            }`}
+        {drillState === 'running' && (
+          <div 
+            ref={containerRef}
+            onPointerDown={handlePointerDown}
+            className={`w-full ${inModal ? 'h-[65vh] max-h-[600px]' : 'min-h-[260px]'} relative rounded-3xl border border-white/10 bg-black overflow-hidden touch-none select-none cursor-pointer flex flex-col items-center justify-center`}
           >
-            {gameState === 'waiting' && (
-              <div className="text-center space-y-3">
-                <span className="text-xs md:text-sm font-mono text-white/50 uppercase tracking-widest">Tap the instant solid teal flashes!</span>
-                <div className="w-5 h-5 rounded-full bg-[var(--color-ares-teal)]/30 animate-ping mx-auto" />
+            {/* Flash Feedback Overlay */}
+            <div ref={flashOverlayRef} className="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-150 z-20" />
+
+            {/* Countdown Overlay */}
+            {countdown !== null && (
+              <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 backdrop-blur-sm pointer-events-none">
+                <div className="text-7xl md:text-9xl font-black font-mono text-[var(--color-ares-teal)] animate-pulse mb-2">
+                  {countdown}
+                </div>
+                <p className="text-xs font-mono text-white/70 uppercase tracking-widest">Focus on center of screen</p>
               </div>
             )}
-            {gameState === 'active' && (
-              <span className="text-3xl md:text-5xl font-black text-[#0A0B14] uppercase tracking-widest animate-bounce">TAP NOW!</span>
-            )}
-            {gameState === 'recorded' && (
-              <div className="text-center">
-                <span className="text-xs font-mono text-white/50 uppercase tracking-widest">Trial {trials.length}/10 Captured</span>
-                <div className="text-5xl md:text-6xl font-black font-mono text-[var(--color-ares-teal)] mt-1">{currentTrialTime}ms</div>
+
+            {/* Top Stats HUD */}
+            <div className="absolute top-4 inset-x-4 flex justify-between items-center z-30 pointer-events-none">
+              <div className="bg-black/70 backdrop-blur px-4 py-2 rounded-full border border-[var(--color-ares-teal)]/40 text-white font-mono flex items-center gap-2 shadow-glow text-xs sm:text-sm">
+                <Zap className="w-4 h-4 text-[var(--color-ares-teal)]" />
+                <span className="font-bold">Trial {trialProgress} / {ASSESSMENT_TRIALS}</span>
               </div>
-            )}
-            {gameState === 'early' && (
-              <div className="text-center">
-                <span className="text-base font-bold text-red-400 uppercase tracking-wider">Too Early!</span>
-                <p className="text-xs font-mono text-white/60 mt-1">Wait for solid teal flash...</p>
-              </div>
-            )}
+              <button 
+                onClick={resetDrill}
+                className="pointer-events-auto p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-colors cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Target Stimulus (Purple Central Target) */}
+            <div 
+              ref={stimRef} 
+              className="absolute rounded-full pointer-events-none opacity-0 transition-none z-10" 
+              style={{ 
+                backgroundColor: PURPLE_HEX, 
+                boxShadow: `0 0 40px ${PURPLE_HEX}, inset 0 0 20px rgba(255,255,255,0.4)`, 
+                willChange: 'transform' 
+              }} 
+            />
+
+            {/* Bottom Prompt */}
+            <div className="absolute bottom-6 w-full text-center text-white/40 text-[10px] sm:text-xs font-mono pointer-events-none uppercase tracking-[0.2em]">
+              Tap anywhere the moment the target appears
+            </div>
           </div>
         )}
 
-        {gameState === 'complete' && (() => {
-          const avg = Math.round(trials.reduce((a, b) => a + b, 0) / trials.length);
-          
+        {drillState === 'completed' && (() => {
           if (!leadSubmitted) {
             return (
               <div className="space-y-5 text-center max-w-md mx-auto py-4">
@@ -242,6 +347,10 @@ function HeroDrillWidget() {
                 <div>
                   <div className="text-xs font-mono text-white/50 uppercase tracking-widest">Average Raw Reaction Time</div>
                   <div className="text-5xl font-black font-mono text-[var(--color-ares-teal)]">{avg}ms</div>
+                  <div className="flex justify-center gap-4 text-xs font-mono text-white/60 mt-1">
+                    <span>Fastest: <strong className="text-white">{fast}ms</strong></span>
+                    <span>Slowest: <strong className="text-white">{slow}ms</strong></span>
+                  </div>
                 </div>
                 
                 <form onSubmit={handleLeadSubmit} className="space-y-3 text-left bg-black/40 p-4 rounded-2xl border border-white/10">
@@ -303,10 +412,15 @@ function HeroDrillWidget() {
                 <span className="text-xs text-emerald-400 font-mono font-bold mt-1 block">
                   {avg < 230 ? '🔥 ELITE / PRO LEVEL (<230ms)' : avg < 280 ? '⚡ ADVANCED ATHLETIC SPEED (230-280ms)' : '📈 HIGH POTENTIAL FOR SPEED OPTIMIZATION'}
                 </span>
+                <div className="flex justify-center gap-6 text-xs font-mono text-white/60 mt-2">
+                  <span>Fastest: <strong className="text-white">{fast}ms</strong></span>
+                  <span>Slowest: <strong className="text-white">{slow}ms</strong></span>
+                  {gameState.current.falseTaps > 0 && <span className="text-red-400">Early Taps: <strong>{gameState.current.falseTaps}</strong></span>}
+                </div>
               </div>
 
               <div className="grid grid-cols-5 gap-1.5 p-3 rounded-xl bg-black/60 border border-white/10 font-mono text-xs">
-                {trials.map((t, idx) => (
+                {rts.map((t, idx) => (
                   <div key={idx} className="p-2 rounded bg-white/5 border border-white/5">
                     <div className="text-[9px] text-white/40 font-bold">#{idx + 1}</div>
                     <div className="text-white font-bold">{t}ms</div>
