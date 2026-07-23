@@ -324,6 +324,8 @@ function HeroDrillWidget() {
               ref={stimRef} 
               className="absolute rounded-full pointer-events-none opacity-0 transition-none z-10" 
               style={{ 
+                top: 0,
+                left: 0,
                 backgroundColor: PURPLE_HEX, 
                 boxShadow: `0 0 40px ${PURPLE_HEX}, inset 0 0 20px rgba(255,255,255,0.4)`, 
                 willChange: 'transform' 
@@ -495,7 +497,25 @@ function HeroDrillWidget() {
 
         {/* Console Main Display */}
         <div className="p-6 sm:p-8 min-h-[340px] flex flex-col justify-center relative">
-          {renderDrillContent(false)}
+          {isFullscreen ? (
+            <div className="text-center space-y-4 py-8">
+              <div className="w-12 h-12 rounded-2xl bg-[var(--color-ares-teal)]/20 border border-[var(--color-ares-teal)]/40 flex items-center justify-center mx-auto animate-pulse">
+                <Maximize2 className="w-6 h-6 text-[var(--color-ares-teal)]" />
+              </div>
+              <div>
+                <h4 className="text-lg font-bold text-white uppercase tracking-wider">Fullscreen Arena Active</h4>
+                <p className="text-xs font-mono text-white/50 mt-1">Drill is currently running in Fullscreen overlay</p>
+              </div>
+              <button
+                onClick={exitFullscreenMode}
+                className="py-2.5 px-5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-mono font-bold uppercase transition-all cursor-pointer"
+              >
+                Close Arena Overlay
+              </button>
+            </div>
+          ) : (
+            renderDrillContent(false)
+          )}
         </div>
 
         {/* Console Footer */}
