@@ -47,6 +47,117 @@ export interface WhitePaper {
 
 export const whitePapers: WhitePaper[] = [
   {
+    id: 'the-recovery-blind-spot',
+    slug: 'the-recovery-blind-spot',
+    title: 'THE RECOVERY BLIND SPOT',
+    subtitle: 'Quantified visual-cognitive biomarkers in concussion evaluation and return to performance.',
+    category: 'White Paper',
+    type: 'Investor & Partner Briefing (July 2026)',
+    date: 'July 2026',
+    author: 'Dr. Joseph LaPlaca, O.D. — Founder & CEO',
+    location: 'Ares Elite Sports Vision (Carmel / Indianapolis, IN)',
+    summary: 'Return-to-play decisions still rest on symptom resolution — yet oculomotor and visual-processing systems remain impaired well after a patient feels recovered. AESV closes that gap with a quantified, self-referenced, longitudinal biomarker system built on a proprietary dataset of 410 clients.',
+    coverMetrics: [
+      { label: '2025 Concussion Mkt', value: '$7–8B', sublabel: 'Diagnostics & Assessment Segment' },
+      { label: 'Unique Clients', value: '410', sublabel: 'HIPAA Dataset (2018–2026)' },
+      { label: 'Dataset Fields', value: '36k+', sublabel: 'Measured Biomarker Data Points' }
+    ],
+    keyFindings: [
+      {
+        label: 'Saccades — DEM-III',
+        metric: '4 / 4',
+        change: '100% Cohort Improved',
+        description: 'Every trained concussion client with follow-up data improved on DEM-III saccadic tracking.'
+      },
+      {
+        label: 'Highest Adherence Gain',
+        metric: '+37.9%',
+        change: 'Client 323 (226 Sessions)',
+        description: 'Showed largest gains in choice-response (+37.9%) and decision-speed (+38.9%), surpassing published ceilings.'
+      },
+      {
+        label: 'Near-Far Quickness',
+        metric: '+27.3%',
+        change: 'Trained Cohort',
+        description: 'Directionally consistent improvement across near-far quickness & ocular tracking speed.'
+      },
+      {
+        label: 'Concussion Mkt Target',
+        metric: '$9–12.5B',
+        change: 'By 2030–2035',
+        description: 'AESV sits in the fastest-growing, highest-value diagnostics & assessment slice of the market.'
+      }
+    ],
+    sections: [
+      {
+        heading: 'Executive Summary · The Measurement Gap',
+        subheading: 'Cleared on Symptoms, Not Physiology',
+        content: [
+          'Return-to-play decisions still rest largely on symptom resolution — yet oculomotor, vestibular, and visual-processing systems frequently remain impaired after a patient reports feeling recovered. That is the precise interval in which re-injury risk is highest, and standard sideline and clinical tools were never built to detect this residual physiological deficit.',
+          'Consensus bodies now explicitly call for the quantitative oculomotor and VR-based biomarkers today\'s standard of care does not provide.',
+          'Ares Elite Sports Vision (AESV) operates a standardized, HIPAA-compliant evaluation that quantifies multiple oculomotor and neurocognitive domains, measures each patient against their own baseline, and tracks change longitudinally across a proprietary dataset of 410 unique clients (2018–2026). This converts recovery from a binary "cleared / not cleared" judgment into an objective performance trajectory.'
+        ],
+        highlights: [
+          'Quantified: Numerical scores where legacy tools rely on subjective self-report.',
+          'Self-Referenced: Sensitivity to detect deficits that a population norm would miss.',
+          'Longitudinal: Recovery trajectory and change tracked across repeated evaluations over time.',
+          'Dose-Controlled Progression: Training load is set with the Challenge Point framework (Guadagnoli & Lee, 2004) — held roughly 4–7% beyond current measured capacity to maximize adaptation without harmful overload.'
+        ]
+      },
+      {
+        heading: '01. The Problem · A Measurable Blind Spot in Concussion Care',
+        subheading: 'Why Symptoms Clear Before Physiology',
+        content: [
+          'Visual and oculomotor deficits are a consistent, measurable indicator of concussion severity — yet vision screening is still not a recommended standard component of concussion assessment (Koch & Neros, 2023; Dutta, 2023).',
+          'The neuroanatomy explains why a single symptom check is inadequate: concussive force diffuses across the brain\'s white-matter tracts, damaging the vergence-accommodation, saccadic, smooth-pursuit, and dorsal-stream systems at once (Adhan & Gunton, 2025). Recovery is distributed and uneven, and no single snapshot captures it.'
+        ],
+        highlights: [
+          'Symptoms Clear Before Physiology: A patient can report feeling fine while oculomotor and vestibular systems remain measurably impaired (Bernard-Demanze & Lacour, 2015). Returning an athlete on "feels fine" alone risks re-injury during peak vulnerability.',
+          'The Undiagnosed Problem Is Larger: A diagnosis-triggered model misses most neural burden. Subconcussive load alone produces measurable oculomotor decline across a single football season in players with zero diagnosed concussions (Zonner et al., 2019).',
+          '10–35% Persistent Symptoms: Concussed individuals suffer persistent symptoms — higher and slower recovery in adolescents.',
+          '~48% Report Head Trauma: Of surveyed college athletes report symptoms — widespread undiagnosed injury (Meehan, 2013).'
+        ]
+      },
+      {
+        heading: '04. Proof of Concept · Observational Case Series',
+        subheading: 'Corrected Outcomes Across Concussion Cohort',
+        content: [
+          'A small, observational case series — not a controlled trial. Every figure was independently recomputed from source measurements; six arithmetic errors were corrected, one impossible raw value was excluded pending verification, and zero-training results were separated out. Its purpose is to demonstrate the instrument and generate hypotheses.',
+          'Because metrics use different units and directions, each metric is converted via direction-corrected percent change: %ΔM* = d × (Mc2 − Mc1) ÷ |Mc1| × 100.'
+        ],
+        metricsTable: [
+          { metric: 'Saccades — DEM-I', baseline: '3/4 Improved', final: 'Client 323: +38.6%', improvement: 'Client 558: +14.6% · 596: +11.9%' },
+          { metric: 'Saccades — DEM-II', baseline: '3/4 Improved', final: 'Client 323: +45.7%', improvement: 'Client 596: +23.0% · 638: +14.8%' },
+          { metric: 'Saccades — DEM-III', baseline: '4/4 Improved (100%)', final: 'Client 323: +37.9%', improvement: 'Client 558: +17.6% · 638: +5.5%' },
+          { metric: 'Near-Far Quickness', baseline: '2/2 Improved (100%)', final: 'Client 596: +27.3%', improvement: 'Client 558: +13.2%' },
+          { metric: 'Response Time to Stimulus', baseline: '3/3 Improved (100%)', final: 'Client 638: +12.8%', improvement: 'Client 323: +9.8% · 558: +4.9%' },
+          { metric: 'Decision-Making Speed', baseline: '3/3 Improved (100%)', final: 'Client 323: +38.9%', improvement: 'Client 558: +10.4% · 638: +7.6%' }
+        ]
+      },
+      {
+        heading: 'From Clearance to Trajectory · The Defensible Moat',
+        subheading: 'Return to Performance & Strategic Value',
+        content: [
+          'The value of the model is the shift from binary clearance to an objective trajectory. Teams, clinicians, and athletes can see whether performance has returned to — or surpassed — the athlete\'s own pre-injury capacity, not merely whether symptoms have quieted.',
+          'Flags residual deficit after symptoms resolve, directly addressing premature return-to-play risk.',
+          'Extends to athletes with no formal diagnosis — addressing the subconcussive-load population diagnosis-triggered models miss entirely.'
+        ],
+        highlights: [
+          'Compounding Data Asset: 410-client, tens-of-thousands-of-field longitudinal dataset (2018–2026) — not easily replicable, compounding with every evaluation.',
+          'The Evaluation Is the Moat: A self-referenced instrument grows more valuable with data density; a competitor starting today starts from zero.',
+          'Scalable Without Dilution: Standardized protocol plus certification-gated deployment (Ares Academy) holds measurement quality constant as it expands.',
+          'Regulatory Tailwind: Return-to-play regulation and rising awareness push adoption — AESV is aligned with the direction of the standard of care.'
+        ]
+      }
+    ],
+    callToAction: {
+      title: 'Access the Full Biomarker Briefing',
+      text: 'Schedule a clinical data briefing or investor review with Dr. Joseph LaPlaca, O.D. regarding longitudinal datasets and partner integration.',
+      buttonText: 'Contact Dr. LaPlaca',
+      link: '/contact'
+    }
+  },
+  {
     id: 'noah-west-case-study',
     slug: 'noah-west-case-study',
     title: 'The Critical Role of Vision Training in Athletic Performance',
