@@ -264,7 +264,7 @@ export function FaqPage() {
             <span className="text-xs font-mono text-[var(--color-ares-teal)] uppercase tracking-widest font-bold block mb-2">Expose Visual Latency</span>
             <h3 className="text-2xl font-bold text-white mb-3">Map Your Visual Processing Speed</h3>
             <p className="text-white/70 max-w-xl mx-auto mb-6 text-sm">
-              Run our 3-drill interactive diagnostic right in your browser to benchmark your decision speed, or schedule a 90-minute evaluation at our Carmel facility.
+              Run our 3-drill interactive diagnostic right in your browser to benchmark your decision speed, or schedule a 75-minute evaluation at our Carmel facility.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/assessment" className="inline-flex items-center justify-center gap-2 bg-[var(--color-ares-teal)] text-[#0A0B14] font-bold px-6 py-3 rounded-xl hover:opacity-90 transition-opacity uppercase text-xs tracking-wider">
