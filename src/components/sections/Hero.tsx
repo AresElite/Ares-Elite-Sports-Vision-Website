@@ -538,7 +538,7 @@ export function Hero({ isReady = true }: HeroProps) {
   return (
     <SectionReveal 
       className="relative min-h-dvh flex items-center justify-center overflow-hidden pt-28 pb-28 lg:pt-32 lg:pb-32"
-      animate={isReady ? "visible" : "hidden"}
+      animate="visible"
     >
       {/* Background Video Layer */}
       <div className="absolute inset-0 z-0">
@@ -565,8 +565,8 @@ export function Hero({ isReady = true }: HeroProps) {
           {/* Main Left Content Column */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
-            animate={isReady ? { opacity: 1, x: 0 } : { opacity: 0, x: -40 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
             className="xl:col-span-7 text-center xl:text-left flex flex-col items-center xl:items-start"
           >
             {/* System Badge */}
@@ -606,8 +606,8 @@ export function Hero({ isReady = true }: HeroProps) {
           {/* Right Interactive HUD Console */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={isReady ? { opacity: 1, scale: 1, y: 0 } : { opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
             className="xl:col-span-5 w-full max-w-md mx-auto xl:max-w-none"
           >
             <HeroDrillWidget />
