@@ -110,7 +110,7 @@ export default function ShopSuccessPage() {
             <span className="text-[10px] font-mono text-[var(--color-ares-teal)] uppercase tracking-widest font-bold block mb-1">Take The Next Step</span>
             <h3 className="text-base font-bold text-white mb-1">Ready for an in-person diagnostic?</h3>
             <p className="text-xs text-[var(--color-ares-muted)] mb-4 leading-relaxed">
-              Book a 90-minute Performance Evaluation at our Carmel, IN headquarters to get your baseline telemetry dashboard.
+              Book a 75-minute Performance Evaluation at our Carmel, IN headquarters to get your baseline telemetry dashboard.
             </p>
             <Link
               to="/book/evaluation"

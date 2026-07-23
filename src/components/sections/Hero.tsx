@@ -464,7 +464,7 @@ export function Hero({ isReady = true }: HeroProps) {
               </Link>
               
               <p className="text-white/60 text-xs mt-3 font-mono text-center xl:text-left">
-                In-person testing: <Link to="/book/evaluation" className="text-[var(--color-ares-teal)] font-bold hover:underline">Book 90-Min Carmel Clinic Evaluation ($449)</Link>
+                In-person testing: <Link to="/book/evaluation" className="text-[var(--color-ares-teal)] font-bold hover:underline">Book 75-Min Carmel Clinic Evaluation ($449)</Link>
               </p>
             </div>
           </motion.div>

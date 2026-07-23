@@ -114,7 +114,7 @@ export function BookPage() {
         {/* Hero Headline */}
         <div className="bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] rounded-3xl p-8 sm:p-12 shadow-xl mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-ares-teal)]/10 border border-[var(--color-ares-teal)]/30 text-[var(--color-ares-teal)] text-xs font-mono uppercase tracking-widest mb-6 font-bold">
-            Book Your 90-Minute Evaluation
+            Book Your 75-Minute Evaluation
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-6 text-white uppercase tracking-tight leading-tight">
             A 75-minute A.R.E.S. Performance Evaluation that maps where your athlete is losing milliseconds and gives a clear training plan.

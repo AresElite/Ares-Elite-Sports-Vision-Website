@@ -139,7 +139,7 @@ export default function ShopPage() {
               Take the Online Sensory Assessment
             </h2>
             <p className="text-[var(--color-ares-muted)] max-w-2xl mx-auto mb-6">
-              Run our 3-drill interactive assessment to map your visual reaction latency, or schedule a full 90-minute evaluation at our Carmel facility.
+              Run our 3-drill interactive assessment to map your visual reaction latency, or schedule a full 75-minute evaluation at our Carmel facility.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
