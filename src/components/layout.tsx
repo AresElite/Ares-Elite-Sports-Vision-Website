@@ -247,9 +247,14 @@ export function Navbar() {
               {isLightMode ? <Moon className="w-4 h-4 sm:w-5 h-5" /> : <Sun className="w-4 h-4 sm:w-5 h-5" />}
             </button>
 
-            <a href="tel:+17739811447" className="hidden xl:block text-[var(--color-ares-teal)] hover:text-white text-xs font-bold font-mono tracking-wider transition-colors mr-1">
-              (773) 981-1447
-            </a>
+            <div className="hidden xl:flex flex-col items-end leading-tight mr-1">
+              <a href="tel:+17739811447" className="text-[var(--color-ares-teal)] hover:text-white text-xs font-bold font-mono tracking-wider transition-colors">
+                (773) 981-1447
+              </a>
+              <a href="mailto:info@areselitesportsvision.com" className="text-[var(--color-ares-muted)] hover:text-white text-[10px] font-mono tracking-wide transition-colors">
+                info@areselitesportsvision.com
+              </a>
+            </div>
 
             <Link 
               to="/book/evaluation" 

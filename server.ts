@@ -1944,7 +1944,7 @@ app.post("/api/resource-download", async (req, res) => {
       try {
         const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
         await resend.emails.send({
-          from: 'A.R.E.S. Website <onboarding@areselitesportsvision.com>',
+          from: 'A.R.E.S. Website <reports@screenfit.vision>',
           to: emailTo,
           subject: `New Resource Download: ${firstName} ${lastName || ''}`,
           html: `
@@ -2093,8 +2093,9 @@ app.post("/api/contact", async (req, res) => {
       try {
         const emailTo = ['info@areselitesportsvision.com'];
         await resend.emails.send({
-          from: 'A.R.E.S. Website <onboarding@areselitesportsvision.com>',
+          from: 'A.R.E.S. Website <reports@screenfit.vision>',
           to: emailTo,
+          replyTo: email,
           subject: `New Contact Request: ${firstName} ${lastName || ''}`,
           html: `
             <div style="font-family: Arial, sans-serif; background-color: #0e111a; color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #29b6f6; max-width: 600px;">
