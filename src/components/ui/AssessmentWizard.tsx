@@ -8,14 +8,17 @@ import { Button } from './Button';
 import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
 
-type WizardStep = 
-  | 'welcome' 
-  | 'survey' 
-  | 'transition_drills' 
-  | 'drill_raw' 
-  | 'drill_choice' 
-  | 'drill_recognition' 
-  | 'lead_capture' 
+type WizardStep =
+  | 'welcome'
+  | 'survey'
+  | 'transition_drills'
+  | 'intro_raw'
+  | 'drill_raw'
+  | 'intro_choice'
+  | 'drill_choice'
+  | 'intro_mot'
+  | 'drill_recognition'
+  | 'lead_capture'
   | 'success';
 
 interface Question {
@@ -73,6 +76,54 @@ function calculatePercentile(rawAvg: number, choiceAcc: number, motAcc: number, 
   return Math.max(5, Math.min(99, Math.round(physicalScore)));
 }
 
+function DrillIntro({
+  index, Icon, title, measures, why, steps, trials, accent, onStart,
+}: {
+  index: number;
+  Icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  measures: string;
+  why: string;
+  steps: string[];
+  trials: string;
+  accent: string;
+  onStart: () => void;
+}) {
+  return (
+    <div className="max-w-xl mx-auto w-full text-center">
+      <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-5" style={{ color: accent }}>
+        <Icon className="w-8 h-8" />
+      </div>
+      <span className="text-[10px] font-mono uppercase tracking-widest text-white/40">Drill {index} of 3 · {trials}</span>
+      <h2 className="text-2xl md:text-3xl font-black text-white uppercase mt-2 mb-4">{title}</h2>
+
+      <div className="text-left bg-white/5 border border-white/10 rounded-2xl p-5 mb-4">
+        <p className="text-[10px] font-mono uppercase tracking-widest mb-1" style={{ color: accent }}>What it measures</p>
+        <p className="text-white/80 text-sm leading-relaxed mb-4">{measures}</p>
+        <p className="text-[10px] font-mono uppercase tracking-widest mb-1" style={{ color: accent }}>Why it matters</p>
+        <p className="text-white/80 text-sm leading-relaxed">{why}</p>
+      </div>
+
+      <div className="text-left bg-black/30 border border-white/5 rounded-2xl p-5 mb-6">
+        <p className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-3">How to do it</p>
+        <ol className="space-y-2">
+          {steps.map((s, i) => (
+            <li key={i} className="flex items-start gap-3 text-white/80 text-sm leading-snug">
+              <span className="shrink-0 w-5 h-5 rounded-full bg-white/10 text-white text-[11px] font-bold flex items-center justify-center mt-0.5">{i + 1}</span>
+              <span>{s}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <Button variant="primary" onClick={onStart} className="px-10 py-4 font-bold tracking-wide">
+        I'm Ready — Start <ArrowRight className="ml-2 w-4 h-4" />
+      </Button>
+      <p className="text-white/30 text-[11px] font-mono mt-4 uppercase tracking-wider">The drill begins as soon as you tap Start</p>
+    </div>
+  );
+}
+
 interface AssessmentWizardProps {
   onClose?: () => void;
   isEmbedded?: boolean;
@@ -112,8 +163,10 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   const animFrameRef = useRef<number | null>(null);
   const motSelectStartTimeRef = useRef<number>(0);
 
-  const [leadForm, setLeadForm] = useState({ 
-    firstName: '', lastName: '', email: '', phone: '', sport: '', role: '', competitiveLevel: '', location: '', consent: true
+  const [leadForm, setLeadForm] = useState({
+    firstName: '', lastName: '', email: '', phone: '', sport: '', role: '', competitiveLevel: '', location: '',
+    primaryConcern: '', primaryConcernOther: '', urgency: '', desiredNextStep: '',
+    howHeard: '', howHeardOther: '', referralCode: '', isParentOrCoach: false, athleteName: '', consent: true
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -178,8 +231,8 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
       setRawTrial(prev => prev + 1);
       triggerRawNextTrial();
     } else {
-      nextStep('drill_choice');
-      startChoiceDrill();
+      setRawState('idle');
+      nextStep('intro_choice');
     }
   };
 
@@ -216,8 +269,8 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
         setChoiceTrial(prev => prev + 1);
         triggerChoiceNextTrial();
       } else {
-        nextStep('drill_recognition');
-        startMotDrill();
+        setChoiceState('idle');
+        nextStep('intro_mot');
       }
     }, 1000);
   };
@@ -240,9 +293,17 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     const targetIndices = new Set<number>();
     while (targetIndices.size < targetCount) targetIndices.add(Math.floor(Math.random() * ballCount));
 
+    // Spawn each ball in a spot that does NOT overlap any already-placed ball.
+    // Without this, balls (especially in the 6-ball trial) can start fused together.
+    const minSeparation = radius * 2 + 10;
     for (let i = 0; i < ballCount; i++) {
-      let x = radius + 20 + Math.random() * (width - 2 * radius - 40);
-      let y = radius + 20 + Math.random() * (height - 2 * radius - 40);
+      let x = 0, y = 0, placed = false, tries = 0;
+      while (!placed && tries < 300) {
+        x = radius + 20 + Math.random() * (width - 2 * radius - 40);
+        y = radius + 20 + Math.random() * (height - 2 * radius - 40);
+        placed = balls.every(b => Math.hypot(b.x - x, b.y - y) >= minSeparation);
+        tries++;
+      }
       const angle = Math.random() * Math.PI * 2;
       balls.push({ id: i, x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, radius, isTarget: targetIndices.has(i), isSelected: false });
     }
@@ -279,11 +340,21 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
             const b1 = motBallsRef.current[i];
             const b2 = motBallsRef.current[j];
             const dx = b2.x - b1.x, dy = b2.y - b1.y;
-            if (Math.hypot(dx, dy) < b1.radius + b2.radius) {
-              const nx = dx / Math.hypot(dx, dy), ny = dy / Math.hypot(dx, dy);
-              const p = 2 * (nx * (b1.vx - b2.vx) + ny * (b1.vy - b2.vy)) / 2;
-              b1.vx -= p * nx; b1.vy -= p * ny;
-              b2.vx += p * nx; b2.vy += p * ny;
+            const dist = Math.hypot(dx, dy) || 0.0001;
+            const minDist = b1.radius + b2.radius;
+            if (dist < minDist) {
+              const nx = dx / dist, ny = dy / dist;
+              // 1. Positional correction: push the two balls apart so they never fuse/overlap.
+              const overlap = (minDist - dist) / 2;
+              b1.x -= nx * overlap; b1.y -= ny * overlap;
+              b2.x += nx * overlap; b2.y += ny * overlap;
+              // 2. Velocity exchange ONLY if they are actually moving toward each other.
+              //    (Skipping this guard is what let overlapping balls lock together and spin.)
+              const relVel = (b1.vx - b2.vx) * nx + (b1.vy - b2.vy) * ny;
+              if (relVel > 0) {
+                b1.vx -= relVel * nx; b1.vy -= relVel * ny;
+                b2.vx += relVel * nx; b2.vy += relVel * ny;
+              }
             }
           }
         }
@@ -338,46 +409,114 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     const tealTrials = choiceTimes.filter(t => t.color === 'teal');
     const purpleAcc = purpleTrials.length > 0 ? Math.round((purpleTrials.filter(t => t.correct).length / purpleTrials.length) * 100) : 0;
     const tealAcc = tealTrials.length > 0 ? Math.round((tealTrials.filter(t => t.correct).length / tealTrials.length) * 100) : 0;
+    const purpleAvg = purpleTrials.length > 0 ? Math.round(purpleTrials.reduce((s, t) => s + t.time, 0) / purpleTrials.length) : 0;
+    const tealAvg = tealTrials.length > 0 ? Math.round(tealTrials.reduce((s, t) => s + t.time, 0) / tealTrials.length) : 0;
+    const rawFastest = rawTimes.length > 0 ? Math.min(...rawTimes) : 0;
+    const rawSlowest = rawTimes.length > 0 ? Math.max(...rawTimes) : 0;
     const recAcc = motResults.length > 0 ? Math.round((motResults.reduce((s, r) => s + r.correct, 0) / motResults.reduce((s, r) => s + r.totalTargets, 0)) * 100) : 0;
     const recAvg = motResults.length > 0 ? Math.round(motResults.reduce((s, r) => s + r.latency, 0) / motResults.length) : 0;
-    return { surveyScore: surveyAnswers.reduce((s, v) => s + (v || 0), 0), rawAvg, rawFalsePositives, purpleAcc, tealAcc, pesDiff: 0, recAvg, recAcc };
+    return { surveyScore: surveyAnswers.reduce((s, v) => s + (v || 0), 0), rawAvg, rawFastest, rawSlowest, rawFalsePositives, purpleAcc, tealAcc, purpleAvg, tealAvg, pesDiff: 0, recAvg, recAcc };
   };
 
   const handleSubmitLead = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
     const m = getCalculatedMetrics();
+    const quotient = calculatePercentile(m.rawAvg, (m.tealAcc + m.purpleAcc) / 2, m.recAcc, m.recAvg);
     const bottleneck = m.rawAvg > 260 ? 'Acquire Bottleneck' : (m.recAcc < 80 ? 'Route Bottleneck' : 'Execute Bottleneck');
     setBottleneckResult(bottleneck);
-    const payload = { ...leadForm, ...m, bottleneckProfile: bottleneck };
+
+    const ss = (k: string) => { try { return sessionStorage.getItem(k) || undefined; } catch { return undefined; } };
+
+    // Map front-end metric names to the exact fields the /api/submit-assessment endpoint expects,
+    // so the stored record and the emailed telemetry report are populated (not blank).
+    const payload = {
+      ...leadForm,
+      leadSource: 'Assessment',
+      landingPage: ss('landing_page') || '/',
+      utmSource: ss('utm_source'),
+      utmMedium: ss('utm_medium'),
+      utmCampaign: ss('utm_campaign'),
+      utmContent: ss('utm_content'),
+      utmTerm: ss('utm_term'),
+      questionnaireScore: m.surveyScore,
+      questionnaireData: JSON.stringify(surveyAnswers),
+      rawRtAvg: m.rawAvg,
+      rawRtFastest: m.rawFastest,
+      rawRtSlowest: m.rawSlowest,
+      rawRtFalsePositives: m.rawFalsePositives,
+      choiceRtPurpleAvg: m.purpleAvg,
+      choiceRtPurpleAcc: m.purpleAcc,
+      choiceRtTealAvg: m.tealAvg,
+      choiceRtTealAcc: m.tealAcc,
+      choiceRtPostErrorSlowing: 0,
+      recSpeedAvg: m.recAvg,
+      recSpeedAcc: m.recAcc,
+      aresQuotient: quotient,
+      bottleneckProfile: bottleneck,
+    };
     try {
-      await fetch('/api/submit-assessment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const resp = await fetch('/api/submit-assessment', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!resp.ok) throw new Error('bad status');
       nextStep('success');
-    } catch (err) { setSubmitError("Submission failed."); }
+    } catch (err) {
+      setSubmitError("Submission failed. Please check your connection and try again.");
+    }
     setIsSubmitting(false);
   };
 
   const metrics = getCalculatedMetrics();
   const userPct = calculatePercentile(metrics.rawAvg, (metrics.tealAcc + metrics.purpleAcc) / 2, metrics.recAcc, metrics.recAvg);
 
+  // Abbreviated A.R.E.S. Quotient banding for the on-screen results snapshot.
+  const quotientBand = (q: number) =>
+    q >= 90 ? { label: 'Elite', color: '#34d399' }
+    : q >= 75 ? { label: 'Advanced', color: 'var(--color-ares-teal)' }
+    : q >= 55 ? { label: 'Developing', color: '#fbbf24' }
+    : { label: 'Building', color: '#f59e0b' };
+  const band = (score: number) =>
+    score >= 85 ? { label: 'Elite', color: '#34d399' }
+    : score >= 70 ? { label: 'Strong', color: 'var(--color-ares-teal)' }
+    : score >= 55 ? { label: 'Developing', color: '#fbbf24' }
+    : { label: 'Building', color: '#f59e0b' };
+  // Per-pillar 0-100 sub-scores (Acquire / Route / Execute).
+  const acquireScore = metrics.rawAvg <= 0 ? 50 : Math.max(10, Math.min(99, Math.round(
+    metrics.rawAvg <= 210 ? 95 : metrics.rawAvg >= 400 ? 25 : 95 - ((metrics.rawAvg - 210) / (400 - 210)) * 70
+  )));
+  const routeScore = Math.max(10, Math.min(99, Math.round((metrics.purpleAcc + metrics.tealAcc) / 2)));
+  const executeScore = Math.max(10, Math.min(99, Math.round(metrics.recAcc)));
+  const pillars = [
+    { key: 'ACQUIRE', sub: 'See it first', score: acquireScore },
+    { key: 'ROUTE', sub: 'Decide right', score: routeScore },
+    { key: 'EXECUTE', sub: 'Track & act', score: executeScore },
+  ];
+  const focusPillar = pillars.reduce((min, p) => (p.score < min.score ? p : min), pillars[0]);
+
   return (
     <div className={`relative w-full ${isEmbedded ? 'max-w-4xl p-6 md:p-10 bg-[var(--color-ares-charcoal)]/90 backdrop-blur-xl border border-[var(--color-ares-border)] rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.5)]' : 'h-full flex flex-col justify-center'}`}>
-      {(step === 'drill_raw' || step === 'drill_choice' || step === 'drill_recognition') && (
-        <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-white/5">
-          <div className="flex-1 flex items-center gap-2">
-            <div className={`h-1.5 flex-1 rounded-full ${step === 'drill_raw' ? 'bg-[var(--color-ares-purple)]' : 'bg-emerald-500'}`} />
-            <span className="text-[10px] uppercase font-mono">1. Raw Speed</span>
+      {(step === 'intro_raw' || step === 'drill_raw' || step === 'intro_choice' || step === 'drill_choice' || step === 'intro_mot' || step === 'drill_recognition') && (() => {
+        const order = ['intro_raw', 'drill_raw', 'intro_choice', 'drill_choice', 'intro_mot', 'drill_recognition'];
+        const pos = order.indexOf(step);
+        const doneOr = (drillStart: number) => pos > drillStart + 1;
+        const activeOr = (drillStart: number) => pos === drillStart || pos === drillStart + 1;
+        return (
+          <div className="flex items-center justify-between gap-4 mb-8 pb-4 border-b border-white/5">
+            <div className="flex-1 flex items-center gap-2">
+              <div className={`h-1.5 flex-1 rounded-full ${activeOr(0) ? 'bg-[var(--color-ares-purple)]' : (doneOr(0) ? 'bg-emerald-500' : 'bg-white/10')}`} />
+              <span className="text-[10px] uppercase font-mono">1. Raw Speed</span>
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <div className={`h-1.5 flex-1 rounded-full ${activeOr(2) ? 'bg-[var(--color-ares-teal)]' : (doneOr(2) ? 'bg-emerald-500' : 'bg-white/10')}`} />
+              <span className="text-[10px] uppercase font-mono">2. Choice</span>
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <div className={`h-1.5 flex-1 rounded-full ${activeOr(4) ? 'bg-[var(--color-ares-purple)]' : 'bg-white/10'}`} />
+              <span className="text-[10px] uppercase font-mono">3. Tracking</span>
+            </div>
           </div>
-          <div className="flex-1 flex items-center gap-2">
-            <div className={`h-1.5 flex-1 rounded-full ${step === 'drill_choice' ? 'bg-[var(--color-ares-teal)]' : (step === 'drill_recognition' ? 'bg-emerald-500' : 'bg-white/10')}`} />
-            <span className="text-[10px] uppercase font-mono">2. Choice</span>
-          </div>
-          <div className="flex-1 flex items-center gap-2">
-            <div className={`h-1.5 flex-1 rounded-full ${step === 'drill_recognition' ? 'bg-[var(--color-ares-purple)]' : 'bg-white/10'}`} />
-            <span className="text-[10px] uppercase font-mono">3. Tracking</span>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {step === 'welcome' && (
         <div className="text-center max-w-2xl mx-auto">
@@ -389,21 +528,126 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
       )}
 
       {step === 'survey' && (
-        <div className="max-w-2xl mx-auto">
-          <h3 className="text-xl font-bold text-white mb-8">{QUESTIONS[currentQuestionIndex].text}</h3>
-          <div className="grid grid-cols-5 gap-4">
-            {[1, 2, 3, 4, 5].map(v => (
-              <button key={v} onClick={() => handleAnswerSurvey(v)} className="p-4 rounded-xl bg-white/5 hover:bg-[var(--color-ares-teal)]/20 border border-white/10 text-white font-bold transition-all">{v}</button>
-            ))}
+        <div className="max-w-2xl mx-auto w-full">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-white/40">
+              Question {currentQuestionIndex + 1} / {QUESTIONS.length}
+            </span>
+            {currentQuestionIndex > 0 && (
+              <button onClick={handlePrevQuestion} className="text-[10px] font-mono uppercase tracking-widest text-white/40 hover:text-white transition-colors">
+                ← Back
+              </button>
+            )}
           </div>
+          <div className="h-1 w-full bg-white/5 rounded-full mb-8 overflow-hidden">
+            <div className="h-full bg-[var(--color-ares-teal)] transition-all" style={{ width: `${((currentQuestionIndex + 1) / QUESTIONS.length) * 100}%` }} />
+          </div>
+
+          <h3 className="text-xl md:text-2xl font-bold text-white mb-8 leading-snug">{QUESTIONS[currentQuestionIndex].text}</h3>
+
+          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-widest text-white/40 mb-3 px-1">
+            <span>0 — Never</span>
+            <span>10 — Always</span>
+          </div>
+          <div className="grid grid-cols-11 gap-1.5 sm:gap-2">
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(v => {
+              const selected = surveyAnswers[currentQuestionIndex] === v;
+              return (
+                <button
+                  key={v}
+                  onClick={() => handleAnswerSurvey(v)}
+                  className={`py-3 sm:py-4 rounded-lg border text-sm sm:text-base font-bold transition-all ${
+                    selected
+                      ? 'bg-[var(--color-ares-teal)] border-[var(--color-ares-teal)] text-[var(--color-ares-bg)]'
+                      : 'bg-white/5 hover:bg-[var(--color-ares-teal)]/20 border-white/10 text-white'
+                  }`}
+                >
+                  {v}
+                </button>
+              );
+            })}
+          </div>
+          <p className="text-white/30 text-[11px] font-mono mt-4 text-center uppercase tracking-wider">Tap a number to continue</p>
         </div>
       )}
 
       {step === 'transition_drills' && (
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-white mb-6">NEURO-MOTOR DRILLS</h2>
-          <Button variant="primary" onClick={() => { nextStep('drill_raw'); startRawDrill(); }}>Begin Drills</Button>
+        <div className="max-w-xl mx-auto text-center">
+          <Target className="w-16 h-16 text-[var(--color-ares-teal)] mx-auto mb-6" />
+          <h2 className="text-3xl font-black text-white mb-4 uppercase">3 Quick Performance Drills</h2>
+          <p className="text-white/60 mb-8 leading-relaxed">
+            Next you'll run three short, interactive drills that measure how fast you see, decide, and track. Each one starts with a quick explanation and a Start button, so you can begin when you're ready. Use a mouse or your finger, and give it your best effort — it takes about 3 minutes.
+          </p>
+          <div className="grid grid-cols-3 gap-3 mb-8 text-left">
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <Timer className="w-5 h-5 text-[var(--color-ares-purple)] mb-2" />
+              <p className="text-white text-xs font-bold uppercase leading-tight">Raw Reaction Speed</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <Brain className="w-5 h-5 text-[var(--color-ares-teal)] mb-2" />
+              <p className="text-white text-xs font-bold uppercase leading-tight">Choice Reaction</p>
+            </div>
+            <div className="bg-white/5 border border-white/10 rounded-xl p-3">
+              <Eye className="w-5 h-5 text-[var(--color-ares-purple)] mb-2" />
+              <p className="text-white text-xs font-bold uppercase leading-tight">Object Tracking</p>
+            </div>
+          </div>
+          <Button variant="primary" onClick={() => nextStep('intro_raw')} className="px-10 py-4">Continue <ArrowRight className="ml-2 w-4 h-4" /></Button>
         </div>
+      )}
+
+      {step === 'intro_raw' && (
+        <DrillIntro
+          index={1}
+          Icon={Timer}
+          title="Raw Reaction Speed"
+          trials="6 trials"
+          accent="var(--color-ares-purple)"
+          measures="Your simplest visual-motor reflex — how quickly your hand fires the instant a target appears. This is the pure, no-decision baseline of your reaction time."
+          why="Every play starts with the first flicker of motion. A faster raw reaction means you begin moving milliseconds sooner than your opponent — the edge that decides 50/50 balls, jumps, and starts."
+          steps={[
+            'Watch the empty circle in the box and stay focused.',
+            'The moment it flashes PURPLE and says “TAP NOW”, click or tap as fast as you can.',
+            'Don’t jump early — tapping before the flash counts as a false start.',
+          ]}
+          onStart={() => { nextStep('drill_raw'); startRawDrill(); }}
+        />
+      )}
+
+      {step === 'intro_choice' && (
+        <DrillIntro
+          index={2}
+          Icon={Brain}
+          title="Choice Reaction"
+          trials="6 trials"
+          accent="var(--color-ares-teal)"
+          measures="Decision speed under time pressure. Your brain has to identify WHICH target appeared and pick the matching response — so this captures both how fast and how accurately you choose."
+          why="Real competition is rarely one option. Reading a defender, a pitch, or a car ahead and choosing the right response a split-second faster — without guessing wrong — is what separates elite decision-makers."
+          steps={[
+            'A circle will flash either TEAL or PURPLE in the box.',
+            'Tap the matching button below (or press T / Left for teal, P / Right for purple).',
+            'Be fast, but accuracy counts — a wrong color is scored as an error.',
+          ]}
+          onStart={() => { nextStep('drill_choice'); startChoiceDrill(); }}
+        />
+      )}
+
+      {step === 'intro_mot' && (
+        <DrillIntro
+          index={3}
+          Icon={Eye}
+          title="Multiple Object Tracking"
+          trials="3 trials, increasing difficulty"
+          accent="var(--color-ares-purple)"
+          measures="Your ability to hold and track several moving objects at once — a core measure of dynamic visual attention and spatial memory."
+          why="Following the ball while tracking players, lanes, or opponents is constant in sport. Athletes who track more objects at once read the whole field, anticipate earlier, and lose the play far less often."
+          steps={[
+            'A few balls will briefly highlight TEAL — memorize which ones.',
+            'All balls turn purple and move around; keep your eyes on your targets.',
+            'When they stop, tap the balls you tracked. Trial 3 adds one more target.',
+          ]}
+          onStart={() => { nextStep('drill_recognition'); startMotDrill(); }}
+        />
       )}
 
       {/* Drill 1: Raw Reaction Speed (Purple Target) */}
@@ -928,11 +1172,58 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tight">
-            A.R.E.S. Diagnostics Dispatched
+            Your A.R.E.S. Quotient
           </h2>
-          <p className="text-white/60 text-lg mb-10 max-w-lg mx-auto font-light leading-relaxed">
-            Your visual-cognitive baseline scores, sensory percentile standing, and primary performance bottleneck analysis have been successfully logged.
+          <p className="text-white/60 text-base mb-8 max-w-lg mx-auto font-light leading-relaxed">
+            Here's a quick snapshot of where you stand. It's an abbreviated read — your full telemetry report is on its way to your inbox.
           </p>
+
+          {/* Abbreviated A.R.E.S. Quotient snapshot */}
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 mb-8 relative overflow-hidden backdrop-blur-md">
+            <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--color-ares-teal)]/5 rounded-full blur-[50px] pointer-events-none" />
+
+            <div className="flex flex-col items-center mb-6">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-1">A.R.E.S. Quotient</span>
+              <div className="text-6xl sm:text-7xl font-black leading-none" style={{ color: quotientBand(userPct).color }}>
+                {userPct}
+                <span className="text-2xl text-white/30 font-bold">/100</span>
+              </div>
+              <span className="mt-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: `${quotientBand(userPct).color}22`, color: quotientBand(userPct).color }}>
+                {quotientBand(userPct).label} · {userPct}th percentile
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mb-5">
+              {pillars.map(p => {
+                const b = band(p.score);
+                return (
+                  <div key={p.key} className="bg-black/30 border border-white/5 rounded-2xl p-3 text-center">
+                    <div className="text-[10px] font-mono uppercase tracking-widest text-white/40">{p.key}</div>
+                    <div className="text-[9px] text-white/30 uppercase mb-2">{p.sub}</div>
+                    <div className="text-2xl font-black" style={{ color: b.color }}>{p.score}</div>
+                    <div className="h-1.5 w-full bg-white/10 rounded-full mt-2 overflow-hidden">
+                      <div className="h-full rounded-full" style={{ width: `${p.score}%`, backgroundColor: b.color }} />
+                    </div>
+                    <div className="text-[10px] font-bold uppercase mt-1.5" style={{ color: b.color }}>{b.label}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="bg-black/30 border border-white/5 rounded-2xl p-4 text-left">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-white/40">Your biggest opportunity</span>
+              <p className="text-white text-sm font-bold mt-1">
+                {focusPillar.key} — {focusPillar.sub}
+              </p>
+              <p className="text-white/50 text-xs mt-1 leading-snug">
+                Your other pillars are ahead of this one. A focused evaluation pinpoints exactly why and how to close the gap.
+              </p>
+            </div>
+
+            <p className="text-white/30 text-[10px] font-mono mt-4 leading-snug text-center">
+              Abbreviated snapshot for orientation only — not a clinical diagnosis. The full A.R.E.S. Quotient breakdown is measured in your in-office evaluation.
+            </p>
+          </div>
 
           {/* Glassmorphic Report Details Card */}
           <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 mb-10 text-left relative overflow-hidden backdrop-blur-md">
