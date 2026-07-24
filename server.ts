@@ -298,7 +298,10 @@ try {
 } catch (e) {
   console.warn("Failed to initialize Resend:", e);
 }
-const SENDER_EMAIL = "Dr. Joe LaPlaca <onboarding@areselitesportsvision.com>"; // In a real app, this needs to be a verified domain in Resend
+// Sends from the Resend-verified screenfit.vision domain, but the display name and
+// reply-to keep it on-brand for Ares (replies land in the Microsoft 365 inbox).
+const SENDER_EMAIL = "Ares Elite Sports Vision <reports@screenfit.vision>";
+const REPLY_TO_EMAIL = "info@areselitesportsvision.com";
 
 const APP_URL = process.env.APP_URL || 'https://areselitesports.vision';
 
@@ -1005,7 +1008,7 @@ async function sendWeeklyReport() {
 
     if (resend) {
       await resend.emails.send({
-        from: "A.R.E.S. Funnel Automation <laplacajn@gmail.com>",
+        from: "A.R.E.S. Funnel Automation <reports@screenfit.vision>",
         to: ["dminor@areselitesportsvision.com", "jguler@areselitesportsvision.com", "drl@areselitesportsvision.com"],
         subject: "A.R.E.S. Weekly Funnel Performance Report",
         html: htmlContent
@@ -1230,7 +1233,7 @@ async function sendMonthlyReport() {
 
     if (resend) {
       await resend.emails.send({
-        from: "A.R.E.S. Funnel Automation <laplacajn@gmail.com>",
+        from: "A.R.E.S. Funnel Automation <reports@screenfit.vision>",
         to: ["dminor@areselitesportsvision.com", "jguler@areselitesportsvision.com", "drl@areselitesportsvision.com"],
         subject: `A.R.E.S. Monthly Funnel Performance Report - ${monthName}`,
         html: htmlContent
@@ -2511,25 +2514,21 @@ app.post("/api/submit-assessment", async (req, res) => {
           </div>
         `;
 
-        // Send Report to User
-        await resend.emails.send({
-          from: SENDER_EMAIL,
-          to: email,
-          subject: "A.R.E.S. Cognitive Assessment Telemetry Report",
-          html: htmlContent
-        });
+        // NOTE: The athlete now gets their full A.R.E.S. report on the end screen itself,
+        // so we no longer email the report to the lead. We only notify the team below.
 
-        // Send Alert to Team
+        // Send lead info + results to the team inbox (info@)
         const evalBookedLabel = booked ? "YES - evaluation scheduled and paid" : "NO - nurture campaign active";
-        const emailTo = ['info@areselitesportsvision.com', 'dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
+        const emailTo = ['info@areselitesportsvision.com'];
 
         const subjectLine = leadScore >= 75
           ? `HOT LEAD: ${firstName} ${lastName || ''} - ${sport || role || 'Elite'} - Score: ${leadScore}`
           : `[Lead Alert] Assessment Completed: ${firstName} ${lastName || ''} (Score: ${leadScore})`;
 
         await resend.emails.send({
-          from: 'A.R.E.S. Onboarding <onboarding@areselitesportsvision.com>',
+          from: 'A.R.E.S. Onboarding <alerts@screenfit.vision>',
           to: emailTo,
+          replyTo: email,
           subject: subjectLine,
           html: `
             <div style="font-family: Arial, sans-serif; background-color: #0e111a; color: #ffffff; padding: 20px; border-radius: 12px; border: 1px solid #29b6f6; max-width: 600px;">
