@@ -551,7 +551,7 @@ export function Hero({ isReady = true }: HeroProps) {
           muted 
           loop 
           playsInline 
-          className="absolute inset-0 w-full h-full object-cover object-center mix-blend-luminosity opacity-40"
+          className="absolute inset-0 w-full h-full object-cover object-center opacity-30 filter grayscale"
           poster="/DSC_1736.jpg"
         >
           <source src="/cam-fl-6.mov" type="video/mp4" />

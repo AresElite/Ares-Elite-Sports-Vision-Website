@@ -52,59 +52,49 @@ export const variants: Record<string, Variants> = {
   origamiReveal: {
     hidden: { 
       opacity: 0,
-      rotateX: 45,
-      y: 80,
-      scale: 0.95,
-      filter: "blur(12px)",
-      transformPerspective: 1200,
-      transformOrigin: "top center"
+      y: 30,
+      scale: 0.98
     },
     visible: { 
       opacity: 1,
-      rotateX: 0,
       y: 0,
       scale: 1,
-      filter: "blur(0px)",
       transition: {
-        duration: 1.2,
-        ease: [0.16, 1, 0.3, 1], // Custom snappy ease
-        staggerChildren: 0.15
+        duration: 0.6,
+        ease: [0.16, 1, 0.3, 1],
+        staggerChildren: 0.1
       }
     }
   },
   glitchReveal: {
-    hidden: { opacity: 0, x: -20, filter: "brightness(2) contrast(2) blur(5px)" },
+    hidden: { opacity: 0, x: -20 },
     visible: {
       opacity: 1,
       x: 0,
-      filter: "brightness(1) contrast(1) blur(0px)",
       transition: {
-        duration: 0.8,
+        duration: 0.6,
         ease: [0.85, 0, 0.15, 1],
       }
     }
   },
   cyberPulse: {
-    hidden: { opacity: 0, scale: 0.8, boxShadow: "0px 0px 0px rgba(0, 210, 182, 0)" },
+    hidden: { opacity: 0, scale: 0.95 },
     visible: {
       opacity: 1,
       scale: 1,
-      boxShadow: "0px 0px 30px rgba(0, 210, 182, 0.2)",
       transition: {
-        duration: 1,
+        duration: 0.8,
         ease: "easeOut"
       }
     }
   },
   cardReveal: {
-    hidden: { opacity: 0, y: 30, rotateX: 15, filter: "blur(8px)" },
+    hidden: { opacity: 0, y: 20 },
     visible: { 
       opacity: 1, 
       y: 0, 
-      rotateX: 0,
-      filter: "blur(0px)",
       transition: {
-        duration: 0.8,
+        duration: 0.6,
         ease: [0.22, 1, 0.36, 1]
       } 
     }
