@@ -349,11 +349,17 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     setRawState('waiting');
     rawWaitingStateStartRef.current = performance.now();
     rawHasClickedRef.current = false;
+    rawFlashTimeRef.current = 0;
     const delay = 1500 + Math.random() * 2500;
     if (rawTimerRef.current) clearTimeout(rawTimerRef.current);
     rawTimerRef.current = setTimeout(() => {
       setRawState('flash');
-      rawFlashTimeRef.current = performance.now();
+      // Stamp stimulus onset at ACTUAL paint (double rAF) so the flash's render/paint
+      // cost is never counted as reaction time. Same technique for the choice drill,
+      // so raw and choice are measured on an identical basis.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        rawFlashTimeRef.current = performance.now();
+      }));
     }, delay);
   };
 
@@ -366,9 +372,9 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
       setRawState('feedback');
       setTimeout(() => advanceRawTrial(), 1000);
     } else if (rawState === 'flash') {
-      if (rawHasClickedRef.current) return;
+      if (rawHasClickedRef.current || rawFlashTimeRef.current === 0) return; // ignore clicks before onset is stamped
       rawHasClickedRef.current = true;
-      const rt = Math.max(190, Math.round(performance.now() - rawFlashTimeRef.current - 75));
+      const rt = Math.max(130, Math.round(performance.now() - rawFlashTimeRef.current));
       setRawTimes(prev => [...prev, rt]);
       setRawState('feedback');
       setTimeout(() => advanceRawTrial(), 1000);
@@ -396,19 +402,23 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     setChoiceState('waiting');
     setChoiceTargetColor(null);
     choiceHasClickedRef.current = false;
+    choiceFlashTimeRef.current = 0;
     const delay = 1200 + Math.random() * 1800;
     if (choiceTimerRef.current) clearTimeout(choiceTimerRef.current);
     choiceTimerRef.current = setTimeout(() => {
       setChoiceTargetColor(Math.random() > 0.5 ? 'purple' : 'teal');
       setChoiceState('target');
-      choiceFlashTimeRef.current = performance.now();
+      // Stamp onset at actual paint — identical basis to the raw drill.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        choiceFlashTimeRef.current = performance.now();
+      }));
     }, delay);
   };
 
   const handleChoiceInput = (inputColor: 'purple' | 'teal') => {
-    if (choiceState !== 'target' || !choiceTargetColor || choiceHasClickedRef.current) return;
+    if (choiceState !== 'target' || !choiceTargetColor || choiceHasClickedRef.current || choiceFlashTimeRef.current === 0) return;
     choiceHasClickedRef.current = true;
-    const rt = Math.max(300, Math.round(performance.now() - choiceFlashTimeRef.current - 95));
+    const rt = Math.max(160, Math.round(performance.now() - choiceFlashTimeRef.current));
     const isCorrect = inputColor === choiceTargetColor;
     setChoiceTimes(prev => [...prev, { color: choiceTargetColor, time: rt, correct: isCorrect }]);
     setChoiceWasError(!isCorrect);
@@ -1398,7 +1408,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
                 ['Overall accuracy', `${report.choice.accuracy}%`],
                 ['L / R balance', `${report.choice.balanceDiff} ms · ${report.choice.balanceLabel}`],
                 ['Faster side', report.choice.fasterSide],
-                ['Decision cost vs. raw', `+${report.choice.decisionCost} ms`],
+                ['Decision cost vs. raw', `${report.choice.decisionCost >= 0 ? '+' : ''}${report.choice.decisionCost} ms`],
               ].map(([l, v]) => (
                 <div key={l} className="flex justify-between py-2 border-b border-white/5">
                   <span className="text-white/50 text-xs sm:text-sm">{l}</span>
