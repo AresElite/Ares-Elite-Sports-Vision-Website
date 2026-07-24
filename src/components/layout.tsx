@@ -65,7 +65,8 @@ export function Navbar() {
         { label: "A.R.E.S. Certification", path: "/certification" },
         { label: "Speaking & Keynotes", path: "/speaking" },
         { label: "Who We Are", path: "/identity" },
-        { label: "Training FAQ", path: "/faq" }
+        { label: "Training FAQ", path: "/faq" },
+        { label: "Contact Us", path: "/contact", badge: "Get In Touch" }
       ]
     }
   ];
@@ -507,7 +508,7 @@ export function Footer() {
             <ul className="space-y-3 sm:space-y-4">
               <li><Link to="/speaking" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Speaking & Keynotes</Link></li>
               <li><Link to="/identity" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Who We Are</Link></li>
-              <li><Link to="/contact" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">General Inquiry</Link></li>
+              <li><Link to="/contact" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">Contact Us</Link></li>
               <li><a href="tel:+17739811447" className="text-sm sm:text-base text-[var(--color-ares-muted)] hover:text-white transition-colors">(773) 981-1447</a></li>
               <li className="text-sm sm:text-base leading-relaxed mt-4">
                 <a href="https://maps.google.com/?q=510+West+Carmel+Drive,+Carmel,+IN+46032" target="_blank" rel="noopener noreferrer" className="text-[var(--color-ares-muted)] hover:text-white transition-colors">
