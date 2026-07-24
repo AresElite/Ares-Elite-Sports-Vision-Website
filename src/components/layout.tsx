@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown, Sun, Moon, ShoppingCart, ShoppingBag, Sparkles, ArrowRight, Zap, Award, Globe, Video } from 'lucide-react';
+import { X, ChevronDown, Sun, Moon, ShoppingCart, ShoppingBag, Sparkles, ArrowRight, Zap, Award, Globe, Video, Phone, Mail } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from './ui/Button';
 import { useCart } from '../lib/cart';
@@ -247,14 +247,22 @@ export function Navbar() {
               {isLightMode ? <Moon className="w-4 h-4 sm:w-5 h-5" /> : <Sun className="w-4 h-4 sm:w-5 h-5" />}
             </button>
 
-            <div className="hidden xl:flex flex-col items-end leading-tight mr-1">
-              <a href="tel:+17739811447" className="text-[var(--color-ares-teal)] hover:text-white text-xs font-bold font-mono tracking-wider transition-colors">
-                (773) 981-1447
-              </a>
-              <a href="mailto:info@areselitesportsvision.com" className="text-[var(--color-ares-muted)] hover:text-white text-[10px] font-mono tracking-wide transition-colors">
-                info@areselitesportsvision.com
-              </a>
-            </div>
+            <a
+              href="tel:+17739811447"
+              className="hidden xl:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[var(--color-ares-charcoal)]/80 hover:bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] text-white hover:text-[var(--color-ares-teal)] text-xs font-bold font-mono tracking-wider transition-colors"
+              aria-label="Call (773) 981-1447"
+            >
+              <Phone className="w-4 h-4 text-[var(--color-ares-teal)]" />
+              (773) 981-1447
+            </a>
+            <a
+              href="mailto:info@areselitesportsvision.com?subject=Website%20Inquiry"
+              className="hidden xl:inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[var(--color-ares-charcoal)]/80 hover:bg-[var(--color-ares-charcoal)] border border-[var(--color-ares-border)] text-white hover:text-[var(--color-ares-teal)] text-xs font-bold font-mono tracking-wider transition-colors"
+              aria-label="Email info@areselitesportsvision.com"
+            >
+              <Mail className="w-4 h-4 text-[var(--color-ares-teal)]" />
+              Email Us
+            </a>
 
             <Link 
               to="/book/evaluation" 
