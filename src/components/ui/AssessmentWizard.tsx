@@ -152,6 +152,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
   const [choiceWasError, setChoiceWasError] = useState(false);
   const choiceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const choiceFlashTimeRef = useRef<number>(0);
+  const choiceInputRef = useRef<(c: 'purple' | 'teal') => void>(() => {});
 
   const [motTrial, setMotTrial] = useState(0);
   const [motState, setMotState] = useState<'idle' | 'highlight' | 'motion' | 'select' | 'feedback'>('idle');
@@ -274,6 +275,26 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
       }
     }, 1000);
   };
+
+  // Keep a ref pointing at the freshest handler so the keyboard listener never fires stale state.
+  choiceInputRef.current = handleChoiceInput;
+
+  // Keyboard support for the Choice Reaction drill: T / Left = teal, P / Right = purple.
+  useEffect(() => {
+    if (step !== 'drill_choice') return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+      if (key === 't' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        choiceInputRef.current('teal');
+      } else if (key === 'p' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        choiceInputRef.current('purple');
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [step]);
 
   const startMotDrill = () => {
     setMotTrial(0);
