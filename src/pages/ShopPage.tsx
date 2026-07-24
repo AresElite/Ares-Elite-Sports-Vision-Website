@@ -29,34 +29,69 @@ function priceLabel(p: Product) {
   return `$${p.price.toFixed(p.price % 1 ? 2 : 0)}`;
 }
 
+// Per-category cover treatment: an on-brand gradient + a crisp category glyph.
+// This replaces the old auto-generated placeholder PNGs (which baked the product
+// name + badge into the image, causing duplicates and a low-quality look).
+const COVER: Record<ProductCategory, { grad: string; Icon: React.ComponentType<{ className?: string }> }> = {
+  bundles: { grad: 'from-[#0f3b46] via-[var(--color-ares-charcoal)] to-[var(--color-ares-bg)]', Icon: Package },
+  supplements: { grad: 'from-[#0e3a34] via-[var(--color-ares-charcoal)] to-[var(--color-ares-bg)]', Icon: Pill },
+  digital: { grad: 'from-[#241a4a] via-[var(--color-ares-charcoal)] to-[var(--color-ares-bg)]', Icon: BookOpen },
+  merch: { grad: 'from-[#1a2138] via-[var(--color-ares-charcoal)] to-[var(--color-ares-bg)]', Icon: Shirt },
+  eyewear: { grad: 'from-[#0f3b46] via-[var(--color-ares-charcoal)] to-[var(--color-ares-bg)]', Icon: Glasses },
+  tools: { grad: 'from-[#0f3b46] via-[var(--color-ares-charcoal)] to-[var(--color-ares-bg)]', Icon: Target },
+};
+
 function ProductCard({ p }: { p: Product }) {
+  const cover = COVER[p.category] ?? COVER.bundles;
+  const CoverIcon = cover.Icon;
+  const showPhoto = p.category === 'merch'; // only merch has real product imagery
+
   return (
     <Link
       to={`/shop/${p.slug}`}
-      className="group flex flex-col rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)] overflow-hidden hover:border-[var(--color-ares-teal)] transition-colors"
+      className="group flex flex-col rounded-2xl border border-[var(--color-ares-border)] bg-[var(--color-ares-charcoal)] overflow-hidden hover:border-[var(--color-ares-teal)]/60 hover:shadow-[0_0_34px_rgba(41,182,246,0.12)] hover:-translate-y-1 transition-all duration-300"
     >
-      <div className="relative h-44 overflow-hidden bg-[var(--color-ares-charcoal)]">
-        <img
-          src={`/images/shop/${p.id}.png`}
-          alt={p.name}
-          loading="lazy"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+      <div className={`relative h-52 overflow-hidden bg-gradient-to-br ${cover.grad}`}>
+        {/* subtle dot-grid texture */}
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)', backgroundSize: '18px 18px' }}
         />
+        {/* teal glow accent */}
+        <div className="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-[var(--color-ares-teal)]/10 blur-3xl pointer-events-none" />
+
+        {showPhoto ? (
+          <img
+            src={`/images/shop/${p.id}.png`}
+            alt={p.name}
+            loading="lazy"
+            className="relative w-full h-full object-contain p-5 group-hover:scale-105 transition-transform duration-500"
+          />
+        ) : (
+          <div className="relative h-full flex items-center justify-center">
+            <CoverIcon className="w-20 h-20 text-white/15 group-hover:text-[var(--color-ares-teal)]/30 group-hover:scale-110 transition-all duration-500" />
+          </div>
+        )}
+
+        <span className="absolute bottom-3 left-4 z-10 text-[10px] font-mono uppercase tracking-widest text-white/35">
+          {CATEGORY_LABELS[p.category]}
+        </span>
         {p.badges?.[0] && (
-          <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)]">
+          <span className="absolute top-3 left-3 z-10 text-[10px] font-bold uppercase tracking-wide px-2.5 py-1 rounded-full bg-[var(--color-ares-teal)] text-[var(--color-ares-bg)] shadow-lg">
             {p.badges[0]}
           </span>
         )}
       </div>
+
       <div className="flex flex-col flex-1 p-5">
-        <h3 className="font-bold text-white leading-snug">{p.name}</h3>
-        <p className="text-sm text-[var(--color-ares-muted)] mt-1 flex-1">{p.tagline}</p>
-        <div className="flex items-center justify-between mt-4">
+        <h3 className="font-bold text-white leading-snug group-hover:text-[var(--color-ares-teal)] transition-colors">{p.name}</h3>
+        <p className="text-sm text-[var(--color-ares-muted)] mt-1.5 flex-1 leading-relaxed">{p.tagline}</p>
+        <div className="flex items-center justify-between mt-5 pt-4 border-t border-white/5">
           <span className="text-lg font-extrabold text-white">
             {priceLabel(p)}
             {p.compareAt && <span className="ml-2 text-sm font-normal text-[var(--color-ares-muted)] line-through">${p.compareAt}</span>}
           </span>
-          <span className="inline-flex items-center gap-1 text-sm text-[var(--color-ares-teal)] group-hover:gap-2 transition-all">
+          <span className="inline-flex items-center gap-1.5 text-sm font-bold text-[var(--color-ares-teal)] group-hover:gap-2.5 transition-all">
             View <ArrowRight className="w-4 h-4" />
           </span>
         </div>
