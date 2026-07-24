@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'r
 import { HelmetProvider } from 'react-helmet-async';
 import { Navbar, Footer } from './components/layout';
 import { CartProvider } from './lib/cart';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { SystemOverlay } from './components/ui/SystemOverlay';
 import { SocialShare } from './components/ui/SocialShare';
 // import { AthenaChat } from './components/ui/AthenaChat';
@@ -114,6 +115,7 @@ export default function App() {
   }, []);
 
   return (
+    <ErrorBoundary>
     <HelmetProvider>
       <CartProvider>
       <Router>
@@ -197,5 +199,6 @@ export default function App() {
       </Router>
       </CartProvider>
     </HelmetProvider>
+    </ErrorBoundary>
   );
 }

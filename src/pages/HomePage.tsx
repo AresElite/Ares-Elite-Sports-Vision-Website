@@ -1,4 +1,3 @@
-import { useState, useCallback, Suspense, lazy } from 'react';
 import { Hero } from '../components/sections/Hero';
 import { ProblemSection } from '../components/sections/Problem';
 import { SystemSection } from '../components/sections/System';
@@ -11,15 +10,6 @@ import { TestimonialsSection } from '../components/sections/Testimonials';
 import { CTASection } from '../components/sections/CTA';
 import { SEO } from '../components/SEO';
 import { AssessmentModal } from '../components/ui/AssessmentModal';
-
-import { CinematicIntro } from '../components/intro/CinematicIntro';
-
-import { AnimatePresence } from 'framer-motion';
-
-// Lazy load the heavy 3D canvas
-const NeuralBackgroundCanvas = lazy(() => 
-  import('../components/canvas').then(module => ({ default: module.NeuralBackgroundCanvas }))
-);
 
 export function HomePage() {
   const homeSchema = {
