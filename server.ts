@@ -2272,7 +2272,8 @@ app.post("/api/submit-assessment", async (req, res) => {
       desiredNextStep,
       consent,
       bottleneckProfile,
-      primaryConcern
+      primaryConcern,
+      aresQuotient
     } = req.body;
 
     if (!firstName || !email) {
@@ -2424,8 +2425,8 @@ app.post("/api/submit-assessment", async (req, res) => {
     // 3. Send Report Email to User & Lead Alert to Team
     if (resend) {
       try {
-        const candidateRecommendation = questionnaireScore >= 120 
-          ? "High Priority Candidate (Severe visual-cognitive bottlenecks detected. High training potential)" 
+        const candidateRecommendation = questionnaireScore >= 72
+          ? "High Priority Candidate (Severe visual-cognitive bottlenecks detected. High training potential)"
           : "Candidate Approved (Strong baseline, but with room to optimize and shave off critical reaction latency)";
 
         const htmlContent = `
@@ -2440,7 +2441,7 @@ app.post("/api/submit-assessment", async (req, res) => {
             
             <div style="background-color: #1a1e2e; border: 1px solid #374151; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
               <h3 style="color: #8b5cf6; margin-top: 0; text-transform: uppercase; font-size: 16px; border-bottom: 1px solid #374151; padding-bottom: 8px;">1. Visual Symptoms Questionnaire</h3>
-              <p style="font-size: 28px; font-weight: bold; color: #ffffff; margin: 10px 0 5px 0;">${questionnaireScore} <span style="font-size: 16px; color: #9ca3af; font-weight: normal;">/ 200</span></p>
+              <p style="font-size: 28px; font-weight: bold; color: #ffffff; margin: 10px 0 5px 0;">${questionnaireScore} <span style="font-size: 16px; color: #9ca3af; font-weight: normal;">/ 120</span></p>
               <p style="font-size: 14px; color: #29b6f6; margin: 0;"><strong>Recommendation:</strong> ${candidateRecommendation}</p>
             </div>
             
@@ -2520,7 +2521,7 @@ app.post("/api/submit-assessment", async (req, res) => {
 
         // Send Alert to Team
         const evalBookedLabel = booked ? "YES - evaluation scheduled and paid" : "NO - nurture campaign active";
-        const emailTo = ['dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
+        const emailTo = ['info@areselitesportsvision.com', 'dminor@areselitesportsvision.com', 'jguler@areselitesportsvision.com', 'drl@areselitesportsvision.com'];
 
         const subjectLine = leadScore >= 75
           ? `HOT LEAD: ${firstName} ${lastName || ''} - ${sport || role || 'Elite'} - Score: ${leadScore}`
@@ -2619,12 +2620,16 @@ app.post("/api/submit-assessment", async (req, res) => {
               <h3 style="color: #8b5cf6; margin-top: 25px; border-bottom: 1px solid #1f2937; padding-bottom: 8px; font-size: 15px;">Assessment Results Summary</h3>
               <table style="width: 100%; border-collapse: collapse;">
                 <tr>
+                  <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">A.R.E.S. Quotient:</td>
+                  <td style="padding: 8px 0; color: #34d399; font-weight: bold; font-family: monospace;">${aresQuotient != null ? `${aresQuotient} / 100 (${aresQuotient}th pct)` : 'N/A'}</td>
+                </tr>
+                <tr>
                   <td style="padding: 8px 0; color: #9ca3af; font-weight: bold; width: 40%;">Primary Bottleneck:</td>
                   <td style="padding: 8px 0; color: #29b6f6; font-weight: bold; font-family: monospace;">${bottleneckProfile || 'N/A'}</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Visual Symptom Score:</td>
-                  <td style="padding: 8px 0; color: #8b5cf6; font-weight: bold; font-family: monospace;">${questionnaireScore} / 200</td>
+                  <td style="padding: 8px 0; color: #8b5cf6; font-weight: bold; font-family: monospace;">${questionnaireScore} / 120</td>
                 </tr>
                 <tr>
                   <td style="padding: 8px 0; color: #9ca3af; font-weight: bold;">Raw Reaction Avg:</td>
