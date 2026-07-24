@@ -76,6 +76,154 @@ function calculatePercentile(rawAvg: number, choiceAcc: number, motAcc: number, 
   return Math.max(5, Math.min(99, Math.round(physicalScore)));
 }
 
+// ---------------------------------------------------------------------------
+// A.R.E.S. scoring engine — turns raw drill data + the subjective survey into a
+// full, self-contained report (overall quotient, three pillar scores, detailed
+// per-drill metrics, and a subjective symptom profile).
+// ---------------------------------------------------------------------------
+function lerp(x: number, x0: number, x1: number, y0: number, y1: number) {
+  if (x <= x0) return y0;
+  if (x >= x1) return y1;
+  return y0 + ((y1 - y0) * (x - x0)) / (x1 - x0);
+}
+const clampScore = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+const meanOf = (a: number[]) => (a.length ? a.reduce((s, v) => s + v, 0) / a.length : 0);
+
+function scoreBand(score: number) {
+  if (score >= 90) return { label: 'Elite', color: '#34d399' };
+  if (score >= 75) return { label: 'Advanced', color: '#2dd4bf' };
+  if (score >= 60) return { label: 'Proficient', color: '#29b6f6' };
+  if (score >= 45) return { label: 'Developing', color: '#fbbf24' };
+  return { label: 'Building', color: '#f59e0b' };
+}
+
+// Map an average reaction time (ms) onto a 0-100 speed score.
+function rawSpeedScore(avg: number) {
+  if (avg <= 0) return 0;
+  if (avg <= 200) return 99;
+  if (avg <= 240) return Math.round(lerp(avg, 200, 240, 98, 88));
+  if (avg <= 280) return Math.round(lerp(avg, 240, 280, 88, 74));
+  if (avg <= 320) return Math.round(lerp(avg, 280, 320, 74, 60));
+  if (avg <= 380) return Math.round(lerp(avg, 320, 380, 60, 42));
+  if (avg <= 460) return Math.round(lerp(avg, 380, 460, 42, 25));
+  return 18;
+}
+function choiceSpeedScore(avg: number) {
+  if (avg <= 0) return 0;
+  if (avg <= 360) return 97;
+  if (avg <= 440) return Math.round(lerp(avg, 360, 440, 95, 82));
+  if (avg <= 520) return Math.round(lerp(avg, 440, 520, 82, 68));
+  if (avg <= 620) return Math.round(lerp(avg, 520, 620, 68, 52));
+  if (avg <= 760) return Math.round(lerp(avg, 620, 760, 52, 32));
+  return 22;
+}
+
+interface ReportInput {
+  surveyAnswers: (number | null)[];
+  rawTimes: number[];
+  rawFalsePositives: number;
+  choiceTimes: { color: 'purple' | 'teal'; time: number; correct: boolean }[];
+  motResults: { trial: number; correct: number; totalTargets: number; latency: number }[];
+}
+
+function buildAssessmentReport(input: ReportInput) {
+  const { surveyAnswers, rawTimes, rawFalsePositives, choiceTimes, motResults } = input;
+
+  // ---- Pillar 1: Raw reaction (Acquisition) ----
+  const rawAvg = Math.round(meanOf(rawTimes));
+  const rawFastest = rawTimes.length ? Math.min(...rawTimes) : 0;
+  const rawSlowest = rawTimes.length ? Math.max(...rawTimes) : 0;
+  const rawSpread = rawTimes.length ? rawSlowest - rawFastest : 0;
+  const consistencyLabel =
+    rawSpread <= 90 ? 'Very consistent' : rawSpread <= 160 ? 'Consistent' : rawSpread <= 250 ? 'Variable' : 'Inconsistent';
+  let acquire = rawSpeedScore(rawAvg);
+  acquire -= Math.min(9, rawFalsePositives * 3); // impulse control penalty
+  if (rawSpread > 260) acquire -= 8;
+  else if (rawSpread > 180) acquire -= 4;
+  acquire = clampScore(Math.round(acquire), 5, 99);
+
+  // ---- Pillar 2: Choice reaction (Routing). Teal = Left cue, Purple = Right cue ----
+  const left = choiceTimes.filter(c => c.color === 'teal');
+  const right = choiceTimes.filter(c => c.color === 'purple');
+  const choiceAvg = Math.round(meanOf(choiceTimes.map(c => c.time)));
+  const leftAvg = Math.round(meanOf(left.map(c => c.time)));
+  const rightAvg = Math.round(meanOf(right.map(c => c.time)));
+  const overallAcc = choiceTimes.length ? Math.round((choiceTimes.filter(c => c.correct).length / choiceTimes.length) * 100) : 0;
+  const leftAcc = left.length ? Math.round((left.filter(c => c.correct).length / left.length) * 100) : 0;
+  const rightAcc = right.length ? Math.round((right.filter(c => c.correct).length / right.length) * 100) : 0;
+  const balanceDiff = leftAvg && rightAvg ? Math.abs(leftAvg - rightAvg) : 0;
+  const balanceLabel = balanceDiff <= 35 ? 'Well balanced' : balanceDiff <= 70 ? 'Slight asymmetry' : 'Notable asymmetry';
+  const fasterSide = leftAvg && rightAvg ? (leftAvg < rightAvg ? 'Left' : 'Right') : '—';
+  const decisionCost = choiceAvg && rawAvg ? choiceAvg - rawAvg : 0;
+  let route = Math.round(0.55 * overallAcc + 0.45 * choiceSpeedScore(choiceAvg));
+  if (balanceDiff > 90) route -= 5;
+  else if (balanceDiff > 60) route -= 2;
+  route = clampScore(route, 5, 99);
+
+  // ---- Pillar 3: Multiple Object Tracking (Execution) ----
+  const motTotalTargets = motResults.reduce((s, r) => s + r.totalTargets, 0);
+  const motCorrect = motResults.reduce((s, r) => s + r.correct, 0);
+  const motAcc = motTotalTargets ? Math.round((motCorrect / motTotalTargets) * 100) : 0;
+  const motAvgLatency = motResults.length ? Math.round(meanOf(motResults.map(r => r.latency))) : 0;
+  let execute = motAcc;
+  if (motAvgLatency > 0) {
+    if (motAvgLatency <= 1200) execute += 4;
+    else if (motAvgLatency > 2600) execute -= 8;
+    else if (motAvgLatency > 2000) execute -= 4;
+  }
+  execute = clampScore(Math.round(execute), 5, 99);
+
+  // ---- Overall A.R.E.S. Quotient ----
+  const quotient = clampScore(Math.round(0.3 * acquire + 0.35 * route + 0.35 * execute), 5, 99);
+
+  // ---- Subjective symptom profile (0 = never, 10 = always; higher = more symptoms) ----
+  const catDefs = [
+    { key: 'fatigue', name: 'Visual Stamina & Focus', idx: [0, 1, 2] },
+    { key: 'tracking', name: 'Dynamic Tracking & Depth', idx: [3, 4, 5] },
+    { key: 'cognitive', name: 'Decision Processing', idx: [6, 7, 8] },
+    { key: 'coordination', name: 'Timing & Coordination', idx: [9, 10, 11] },
+  ];
+  const symptoms = catDefs.map(c => {
+    const sum = c.idx.reduce((s, i) => s + (surveyAnswers[i] ?? 0), 0);
+    const load = Math.round((sum / (c.idx.length * 10)) * 100);
+    const severity = load >= 60 ? 'High' : load >= 35 ? 'Moderate' : 'Low';
+    const color = load >= 60 ? '#f87171' : load >= 35 ? '#fbbf24' : '#34d399';
+    return { key: c.key, name: c.name, load, wellness: 100 - load, severity, color };
+  });
+  const topSymptom = symptoms.reduce((m, s) => (s.load > m.load ? s : m), symptoms[0]);
+  const symptomSum = surveyAnswers.reduce((s: number, v) => s + (v || 0), 0);
+
+  // ---- Pillars ----
+  const pillars = [
+    { key: 'ACQUIRE', name: 'Visual Acquisition', desc: 'Detecting and reacting to what appears', score: acquire, band: scoreBand(acquire) },
+    { key: 'ROUTE', name: 'Decision Routing', desc: 'Choosing the right response under pressure', score: route, band: scoreBand(route) },
+    { key: 'EXECUTE', name: 'Tracking & Execution', desc: 'Holding multiple moving targets and acting', score: execute, band: scoreBand(execute) },
+  ];
+  const focusPillar = pillars.reduce((min, p) => (p.score < min.score ? p : min), pillars[0]);
+  const topPillar = [...pillars].sort((a, b) => b.score - a.score)[0];
+  const focusMap: Record<string, string> = {
+    ACQUIRE: 'sharpening raw reaction speed and impulse control so you start moving sooner — without false starts',
+    ROUTE: 'speeding up decisions and cutting wrong choices when more than one option is on the field',
+    EXECUTE: 'expanding how many moving objects you can hold at once so you lose the play less often',
+  };
+  const summary = `Your strongest edge is ${topPillar.name.toLowerCase()}. Your biggest opportunity is ${focusPillar.name.toLowerCase()} — the priority is ${focusMap[focusPillar.key]}. On the subjective side, your most-reported area is "${topSymptom.name}" (${topSymptom.severity.toLowerCase()} symptom load).`;
+
+  return {
+    quotient,
+    quotientBand: scoreBand(quotient),
+    pillars,
+    focusPillar,
+    topPillar,
+    summary,
+    raw: { avg: rawAvg, fastest: rawFastest, slowest: rawSlowest, spread: rawSpread, falseStarts: rawFalsePositives, consistencyLabel, score: acquire, band: scoreBand(acquire) },
+    choice: { avg: choiceAvg, accuracy: overallAcc, leftAvg, leftAcc, rightAvg, rightAcc, balanceDiff, balanceLabel, fasterSide, decisionCost, score: route, band: scoreBand(route) },
+    mot: { accuracy: motAcc, avgLatency: motAvgLatency, trials: motResults, score: execute, band: scoreBand(execute) },
+    symptoms,
+    topSymptom,
+    symptomSum,
+  };
+}
+
 function DrillIntro({
   index, Icon, title, measures, why, steps, trials, accent, onStart,
 }: {
@@ -487,32 +635,7 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
     setIsSubmitting(false);
   };
 
-  const metrics = getCalculatedMetrics();
-  const userPct = calculatePercentile(metrics.rawAvg, (metrics.tealAcc + metrics.purpleAcc) / 2, metrics.recAcc, metrics.recAvg);
-
-  // Abbreviated A.R.E.S. Quotient banding for the on-screen results snapshot.
-  const quotientBand = (q: number) =>
-    q >= 90 ? { label: 'Elite', color: '#34d399' }
-    : q >= 75 ? { label: 'Advanced', color: 'var(--color-ares-teal)' }
-    : q >= 55 ? { label: 'Developing', color: '#fbbf24' }
-    : { label: 'Building', color: '#f59e0b' };
-  const band = (score: number) =>
-    score >= 85 ? { label: 'Elite', color: '#34d399' }
-    : score >= 70 ? { label: 'Strong', color: 'var(--color-ares-teal)' }
-    : score >= 55 ? { label: 'Developing', color: '#fbbf24' }
-    : { label: 'Building', color: '#f59e0b' };
-  // Per-pillar 0-100 sub-scores (Acquire / Route / Execute).
-  const acquireScore = metrics.rawAvg <= 0 ? 50 : Math.max(10, Math.min(99, Math.round(
-    metrics.rawAvg <= 210 ? 95 : metrics.rawAvg >= 400 ? 25 : 95 - ((metrics.rawAvg - 210) / (400 - 210)) * 70
-  )));
-  const routeScore = Math.max(10, Math.min(99, Math.round((metrics.purpleAcc + metrics.tealAcc) / 2)));
-  const executeScore = Math.max(10, Math.min(99, Math.round(metrics.recAcc)));
-  const pillars = [
-    { key: 'ACQUIRE', sub: 'See it first', score: acquireScore },
-    { key: 'ROUTE', sub: 'Decide right', score: routeScore },
-    { key: 'EXECUTE', sub: 'Track & act', score: executeScore },
-  ];
-  const focusPillar = pillars.reduce((min, p) => (p.score < min.score ? p : min), pillars[0]);
+  const report = buildAssessmentReport({ surveyAnswers, rawTimes, rawFalsePositives, choiceTimes, motResults });
 
   return (
     <div className={`relative w-full ${isEmbedded ? 'max-w-4xl p-6 md:p-10 bg-[var(--color-ares-charcoal)]/90 backdrop-blur-xl border border-[var(--color-ares-border)] rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,0.5)]' : 'h-full flex flex-col justify-center'}`}>
@@ -1187,102 +1310,165 @@ export function AssessmentWizard({ onClose, isEmbedded = false }: AssessmentWiza
 
       {/* Success Report results page */}
       {step === 'success' && (
-        <div className="w-full max-w-2xl mx-auto py-4 text-center">
+        <div className="w-full max-w-3xl mx-auto py-4 text-center">
           <div className="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center mx-auto mb-8 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
             <CheckCircle2 className="w-10 h-10 text-emerald-400 animate-pulse" />
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-black text-white uppercase tracking-tight">
-            Your A.R.E.S. Quotient
+            Your Complete A.R.E.S. Report
           </h2>
           <p className="text-white/60 text-base mb-8 max-w-lg mx-auto font-light leading-relaxed">
-            Here's a quick snapshot of where you stand. It's an abbreviated read — your full telemetry report is on its way to your inbox.
+            Your full visual-cognitive breakdown — every drill scored, plus your symptom profile — laid out below.
           </p>
 
-          {/* Abbreviated A.R.E.S. Quotient snapshot */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 mb-8 relative overflow-hidden backdrop-blur-md">
+          {/* Overall quotient */}
+          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 mb-6 relative overflow-hidden backdrop-blur-md">
             <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--color-ares-teal)]/5 rounded-full blur-[50px] pointer-events-none" />
-
-            <div className="flex flex-col items-center mb-6">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-1">A.R.E.S. Quotient</span>
-              <div className="text-6xl sm:text-7xl font-black leading-none" style={{ color: quotientBand(userPct).color }}>
-                {userPct}
-                <span className="text-2xl text-white/30 font-bold">/100</span>
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-1">Overall A.R.E.S. Quotient</span>
+              <div className="text-6xl sm:text-7xl font-black leading-none" style={{ color: report.quotientBand.color }}>
+                {report.quotient}<span className="text-2xl text-white/30 font-bold">/100</span>
               </div>
-              <span className="mt-2 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: `${quotientBand(userPct).color}22`, color: quotientBand(userPct).color }}>
-                {quotientBand(userPct).label} · {userPct}th percentile
+              <span className="mt-3 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider" style={{ backgroundColor: `${report.quotientBand.color}22`, color: report.quotientBand.color }}>
+                {report.quotientBand.label} · ~{report.quotient}th percentile
               </span>
+              <p className="text-white/50 text-sm mt-4 max-w-md leading-relaxed">{report.summary}</p>
             </div>
+          </div>
 
-            <div className="grid grid-cols-3 gap-3 mb-5">
-              {pillars.map(p => {
-                const b = band(p.score);
-                return (
-                  <div key={p.key} className="bg-black/30 border border-white/5 rounded-2xl p-3 text-center">
-                    <div className="text-[10px] font-mono uppercase tracking-widest text-white/40">{p.key}</div>
-                    <div className="text-[9px] text-white/30 uppercase mb-2">{p.sub}</div>
-                    <div className="text-2xl font-black" style={{ color: b.color }}>{p.score}</div>
-                    <div className="h-1.5 w-full bg-white/10 rounded-full mt-2 overflow-hidden">
-                      <div className="h-full rounded-full" style={{ width: `${p.score}%`, backgroundColor: b.color }} />
-                    </div>
-                    <div className="text-[10px] font-bold uppercase mt-1.5" style={{ color: b.color }}>{b.label}</div>
+          {/* Three pillars */}
+          <div className="grid grid-cols-3 gap-3 mb-6">
+            {report.pillars.map(p => (
+              <div key={p.key} className="bg-white/5 border border-white/10 rounded-2xl p-4 text-center">
+                <div className="text-[10px] font-mono uppercase tracking-widest text-white/40">{p.key}</div>
+                <div className="text-[9px] text-white/30 uppercase mb-2 leading-tight min-h-[1.75rem]">{p.name}</div>
+                <div className="text-3xl font-black" style={{ color: p.band.color }}>{p.score}</div>
+                <div className="h-1.5 w-full bg-white/10 rounded-full mt-2 overflow-hidden">
+                  <div className="h-full rounded-full" style={{ width: `${p.score}%`, backgroundColor: p.band.color }} />
+                </div>
+                <div className="text-[10px] font-bold uppercase mt-1.5" style={{ color: p.band.color }}>{p.band.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Raw Reaction detail */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 sm:p-6 mb-4 text-left">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2"><Timer className="w-4 h-4 text-[var(--color-ares-purple)]" /> Raw Reaction Speed</h4>
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase" style={{ backgroundColor: `${report.raw.band.color}22`, color: report.raw.band.color }}>{report.raw.band.label} · {report.raw.score}</span>
+            </div>
+            <div className="grid sm:grid-cols-2 sm:gap-x-6">
+              {[
+                ['Average reaction', `${report.raw.avg} ms`],
+                ['Fastest trial', `${report.raw.fastest} ms`],
+                ['Slowest trial', `${report.raw.slowest} ms`],
+                ['Consistency', `${report.raw.spread} ms · ${report.raw.consistencyLabel}`],
+                ['False starts', `${report.raw.falseStarts}`],
+              ].map(([l, v]) => (
+                <div key={l} className="flex justify-between py-2 border-b border-white/5">
+                  <span className="text-white/50 text-xs sm:text-sm">{l}</span>
+                  <span className="text-white font-mono font-bold text-xs sm:text-sm">{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Choice Reaction detail incl. Right vs Left */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 sm:p-6 mb-4 text-left">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2"><Brain className="w-4 h-4 text-[var(--color-ares-teal)]" /> Choice Reaction</h4>
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase" style={{ backgroundColor: `${report.choice.band.color}22`, color: report.choice.band.color }}>{report.choice.band.label} · {report.choice.score}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3 mb-3">
+              <div className="bg-black/30 border border-[var(--color-ares-teal)]/20 rounded-xl p-3 text-center">
+                <div className="text-[10px] font-mono uppercase text-[var(--color-ares-teal)]">Left (Teal)</div>
+                <div className="text-lg font-black text-white font-mono">{report.choice.leftAvg} ms</div>
+                <div className="text-[11px] text-white/50">{report.choice.leftAcc}% accurate</div>
+              </div>
+              <div className="bg-black/30 border border-[var(--color-ares-purple)]/20 rounded-xl p-3 text-center">
+                <div className="text-[10px] font-mono uppercase text-[var(--color-ares-purple)]">Right (Purple)</div>
+                <div className="text-lg font-black text-white font-mono">{report.choice.rightAvg} ms</div>
+                <div className="text-[11px] text-white/50">{report.choice.rightAcc}% accurate</div>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 sm:gap-x-6">
+              {[
+                ['Overall average', `${report.choice.avg} ms`],
+                ['Overall accuracy', `${report.choice.accuracy}%`],
+                ['L / R balance', `${report.choice.balanceDiff} ms · ${report.choice.balanceLabel}`],
+                ['Faster side', report.choice.fasterSide],
+                ['Decision cost vs. raw', `+${report.choice.decisionCost} ms`],
+              ].map(([l, v]) => (
+                <div key={l} className="flex justify-between py-2 border-b border-white/5">
+                  <span className="text-white/50 text-xs sm:text-sm">{l}</span>
+                  <span className="text-white font-mono font-bold text-xs sm:text-sm">{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* MOT detail */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 sm:p-6 mb-4 text-left">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2"><Eye className="w-4 h-4 text-[var(--color-ares-purple)]" /> Multiple Object Tracking</h4>
+              <span className="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase" style={{ backgroundColor: `${report.mot.band.color}22`, color: report.mot.band.color }}>{report.mot.band.label} · {report.mot.score}</span>
+            </div>
+            <div className="grid grid-cols-2 sm:gap-x-6 mb-3">
+              <div className="flex justify-between py-2 border-b border-white/5">
+                <span className="text-white/50 text-xs sm:text-sm">Overall accuracy</span>
+                <span className="text-white font-mono font-bold text-xs sm:text-sm">{report.mot.accuracy}%</span>
+              </div>
+              <div className="flex justify-between py-2 border-b border-white/5">
+                <span className="text-white/50 text-xs sm:text-sm">Avg select time</span>
+                <span className="text-white font-mono font-bold text-xs sm:text-sm">{report.mot.avgLatency} ms</span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {report.mot.trials.map(t => (
+                <div key={t.trial} className="bg-black/30 border border-white/5 rounded-xl p-2 text-center">
+                  <div className="text-[10px] font-mono uppercase text-white/40">Trial {t.trial}</div>
+                  <div className="text-sm font-black text-white">{t.correct}/{t.totalTargets}</div>
+                  <div className="text-[10px] text-white/40 font-mono">{t.latency} ms</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Subjective symptom profile */}
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 sm:p-6 mb-4 text-left">
+            <h4 className="text-white font-bold text-sm uppercase tracking-wider flex items-center gap-2 mb-3"><Activity className="w-4 h-4 text-[var(--color-ares-teal)]" /> Your Symptom Profile</h4>
+            <p className="text-white/50 text-xs mb-4 leading-snug">From your 12 answers. Longer bars = symptoms you reported more often in that area.</p>
+            <div className="space-y-3">
+              {report.symptoms.map(s => (
+                <div key={s.key}>
+                  <div className="flex justify-between text-xs mb-1">
+                    <span className="text-white/70">{s.name}</span>
+                    <span className="font-mono font-bold" style={{ color: s.color }}>{s.severity} · {s.load}%</span>
                   </div>
-                );
-              })}
+                  <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${s.load}%`, backgroundColor: s.color }} />
+                  </div>
+                </div>
+              ))}
             </div>
+          </div>
 
-            <div className="bg-black/30 border border-white/5 rounded-2xl p-4 text-left">
-              <span className="text-[10px] font-mono uppercase tracking-widest text-white/40">Your biggest opportunity</span>
-              <p className="text-white text-sm font-bold mt-1">
-                {focusPillar.key} — {focusPillar.sub}
-              </p>
-              <p className="text-white/50 text-xs mt-1 leading-snug">
-                Your other pillars are ahead of this one. A focused evaluation pinpoints exactly why and how to close the gap.
-              </p>
-            </div>
-
-            <p className="text-white/30 text-[10px] font-mono mt-4 leading-snug text-center">
-              Abbreviated snapshot for orientation only — not a clinical diagnosis. The full A.R.E.S. Quotient breakdown is measured in your in-office evaluation.
+          {/* Focus / recommendation */}
+          <div className="bg-[var(--color-ares-teal)]/5 border border-[var(--color-ares-teal)]/20 rounded-2xl p-5 sm:p-6 mb-6 text-left">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-ares-teal)]">Your #1 focus</span>
+            <p className="text-white text-lg font-bold mt-1">{report.focusPillar.name} <span className="text-white/40 text-sm font-mono">({report.focusPillar.score}/100)</span></p>
+            <p className="text-white/60 text-sm mt-2 leading-relaxed">
+              This pillar scored lowest, so it's where focused training pays off fastest. A full in-office evaluation measures it precisely and builds a plan to close the gap — most athletes see measurable gains within a few weeks.
+            </p>
+            <p className="text-white/30 text-[10px] font-mono mt-4 leading-snug">
+              Screening for orientation, not a clinical diagnosis. Your in-office evaluation adds eye-tracking depth and a calibrated baseline.
             </p>
           </div>
 
-          {/* Glassmorphic Report Details Card */}
-          <div className="bg-white/5 border border-white/10 rounded-3xl p-6 sm:p-8 mb-10 text-left relative overflow-hidden backdrop-blur-md">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-[var(--color-ares-teal)]/5 rounded-full blur-[50px] pointer-events-none" />
-            <h4 className="text-white font-bold text-sm tracking-wider uppercase mb-6 flex items-center gap-2 font-mono">
-              <Activity className="w-4 h-4 text-[var(--color-ares-teal)]" />
-              What is waiting in your inbox:
-            </h4>
-            
-            <ul className="space-y-4 mb-8">
-              <li className="flex items-start gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-2 shrink-0"></span>
-                <p className="text-white/80 text-sm sm:text-base leading-snug">
-                  <strong>Visual Symptoms Score:</strong> An analysis of your system's susceptibility to tracking fatigue.
-                </p>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-2 shrink-0"></span>
-                <p className="text-white/80 text-sm sm:text-base leading-snug">
-                  <strong>Raw & Choice Response Times:</strong> Your baseline millisecond speed compared to collegiate and professional metrics.
-                </p>
-              </li>
-              <li className="flex items-start gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-ares-teal)] mt-2 shrink-0"></span>
-                <p className="text-white/80 text-sm sm:text-base leading-snug">
-                  <strong>Primary Bottleneck Identification:</strong> Discovers if your lag is in visual *Acquisition*, brain *Routing*, or motor *Execution*.
-                </p>
-              </li>
-            </ul>
-
-            <div className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
-              <div className="text-xs font-mono text-white/40 uppercase">Sent report to:</div>
-              <div className="text-sm font-bold text-[var(--color-ares-teal)] font-mono break-all text-center sm:text-right">{leadForm.email}</div>
-            </div>
-            <p className="text-white/30 text-[10px] font-mono mt-3 leading-snug text-center">
-              * Please check your spam, updates, or promotions folder if the email does not arrive within 60 seconds.
-            </p>
-          </div>
+          <p className="text-white/40 text-xs font-mono mb-8 text-center leading-relaxed">
+            Results saved for {leadForm.email}. Screenshot this page to keep your baseline, then book an evaluation to lock it in.
+          </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
